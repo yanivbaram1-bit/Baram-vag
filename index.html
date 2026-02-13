@@ -8,8 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
+        body { font-family: 'Assistant', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="bg-slate-50 text-slate-900">
 
     <header class="bg-white shadow-sm p-4 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
@@ -20,7 +24,7 @@
 
     <main class="max-w-4xl mx-auto p-4 space-y-6 pb-20">
         
-        <section class="bg-white rounded-3xl shadow-lg p-6 border border-blue-50">
+        <section id="aiSection" class="bg-white rounded-3xl shadow-lg p-6 border border-blue-50">
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
                 <i class="fas fa-robot text-blue-600"></i> אבחון AI מהיר
             </h2>
@@ -29,25 +33,37 @@
             <div id="aiResponse" class="mt-4 p-4 bg-blue-50 rounded-2xl hidden text-sm"></div>
         </section>
 
-        <section class="bg-slate-900 text-white rounded-3xl shadow-xl p-6">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">
-                <i class="fas fa-calendar-plus"></i> תיאום תור למוסך
-            </h2>
+        <section id="bookingSection" class="bg-slate-900 text-white rounded-3xl shadow-xl p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2 text-blue-400">
+                    <i class="fas fa-calendar-plus"></i> תיאום תור למוסך
+                </h2>
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-700 transition">
+                    <i class="fas fa-home ml-1"></i> חזרה למעלה
+                </button>
+            </div>
+
             <div class="space-y-3">
-                <input type="text" id="appPlate" placeholder="מספר רכב" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700">
-                <input type="text" id="appName" placeholder="שם מלא" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700">
-                <input type="tel" id="appPhone" placeholder="מספר טלפון" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700">
+                <input type="text" id="appPlate" placeholder="מספר רכב" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 focus:border-blue-500">
+                <input type="text" id="appName" placeholder="שם מלא" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 focus:border-blue-500">
+                <input type="tel" id="appPhone" placeholder="מספר טלפון" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 focus:border-blue-500">
+                
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="date" id="appDate" class="p-4 bg-slate-800 rounded-2xl border border-slate-700 text-white">
-                    <select id="appTime" class="p-4 bg-slate-800 rounded-2xl border border-slate-700 text-white">
+                    <input type="date" id="appDate" class="p-4 bg-slate-800 rounded-2xl border border-slate-700 text-white outline-none focus:border-blue-500">
+                    <select id="appTime" class="p-4 bg-slate-800 rounded-2xl border border-slate-700 text-white outline-none focus:border-blue-500">
                         <option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option>
                         <option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option>
                     </select>
                 </div>
-                <textarea id="appReason" placeholder="סיבת ההגעה (טיפול, רעש, מנורה...)" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 h-20"></textarea>
-                <button onclick="bookAppointment()" id="bookBtn" class="w-full bg-blue-500 hover:bg-blue-400 text-white py-4 rounded-2xl font-black transition-all">קבע תור עכשיו</button>
+                
+                <textarea id="appReason" placeholder="סיבת ההגעה (טיפול, רעש, מנורה...)" class="w-full p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 h-20 focus:border-blue-500"></textarea>
+                
+                <button onclick="bookAppointment()" id="bookBtn" class="w-full bg-blue-500 hover:bg-blue-400 text-white py-4 rounded-2xl font-black transition-all shadow-lg">קבע תור עכשיו</button>
             </div>
-            <p id="appMsg" class="mt-4 text-center font-bold text-green-400 hidden">התור נקבע בהצלחה! מחכים לך.</p>
+            
+            <p id="appMsg" class="mt-4 text-center font-bold text-green-400 hidden animate-bounce">
+                <i class="fas fa-check-circle ml-1"></i> התור נקבע בהצלחה! מחכים לך.
+            </p>
         </section>
 
     </main>
@@ -65,7 +81,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // תיאום תור
+        // פונקציית תיאום תור
         async function bookAppointment() {
             const btn = document.getElementById('bookBtn');
             const data = {
@@ -78,30 +94,38 @@
                 createdAt: new Date()
             };
 
-            if(!data.carPlate || !data.customerName || !data.date) {
-                alert("נא למלא את כל הפרטים");
+            if(!data.carPlate || !data.customerName || !data.phone || !data.date) {
+                alert("נא למלא את כל פרטי החובה");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = "שולח...";
+            btn.innerHTML = "שולח בקשה...";
 
             try {
                 await db.collection("appointments").add(data);
                 document.getElementById('appMsg').classList.remove('hidden');
-                btn.innerHTML = "נקבע!";
+                btn.innerHTML = "התור נשמר!";
+                // ניקוי טופס אחרי הצלחה
+                setTimeout(() => {
+                    document.getElementById('appPlate').value = '';
+                    document.getElementById('appName').value = '';
+                    document.getElementById('appPhone').value = '';
+                    document.getElementById('appReason').value = '';
+                }, 3000);
             } catch (e) {
-                alert("שגיאה. נסה שוב.");
+                alert("שגיאה בחיבור. נסה שוב.");
                 btn.disabled = false;
+                btn.innerHTML = "קבע תור עכשיו";
             }
         }
 
-        // AI Function
+        // פונקציית AI
         async function askAI() {
             const input = document.getElementById('aiQuery').value;
             const resDiv = document.getElementById('aiResponse');
             if(!input) return;
-            resDiv.innerHTML = "מעבד נתונים...";
+            resDiv.innerHTML = "המומחה שלנו מנתח את התקלה...";
             resDiv.classList.remove('hidden');
 
             const prompt = `אתה המומחה של מוסך ברע"מ. ענה רק על שאלות רכב. שאלה: ${input}`;
@@ -113,8 +137,8 @@
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const d = await response.json();
-                resDiv.innerHTML = d.candidates[0].content.parts[0].text;
-            } catch (e) { resDiv.innerHTML = "שגיאה בחיבור."; }
+                resDiv.innerHTML = "<strong>תשובת המומחה:</strong><br>" + d.candidates[0].content.parts[0].text;
+            } catch (e) { resDiv.innerHTML = "שגיאה בחיבור ל-AI."; }
         }
     </script>
 </body>
