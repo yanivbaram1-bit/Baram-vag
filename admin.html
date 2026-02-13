@@ -3,57 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול CRM - מרכז שירות ברע״מ</title>
+    <title>ניהול מלא - מרכז שירות ברע״מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
-        .login-screen { background: #0f172a; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 1000; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
+        body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
+        .sidebar-item:hover { background: #1e293b; transition: 0.3s; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
-<body>
+<body class="flex min-h-screen">
 
-    <div id="loginScreen" class="login-screen">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-80 text-center">
-            <div class="text-blue-600 text-4xl mb-4"><i class="fas fa-lock"></i></div>
-            <h2 class="text-2xl font-black mb-6">כניסת מנהל</h2>
-            <input type="password" id="passInput" placeholder="הכנס סיסמה" class="w-full p-3 border rounded-xl mb-4 text-center outline-none focus:border-blue-500">
-            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">כניסה</button>
-            <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden">סיסמה שגויה!</p>
+    <aside class="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="showTab('customers')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-users ml-2"></i> לקוחות</button>
+            <button onclick="showTab('calendar')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-calendar-alt ml-2"></i> לו״ז שבועי</button>
+            <button onclick="showTab('messages')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-envelope ml-2"></i> הודעות</button>
+            <button onclick="showTab('settings')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-cog ml-2"></i> הגדרות באנר</button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-8">
+        
+        <section id="customers" class="tab-content active">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">ניהול לקוחות</h2>
+                <button onclick="openModal('add')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">+ הוספת לקוח</button>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-right">
+                    <thead class="bg-slate-50 border-b">
+                        <tr>
+                            <th class="p-4">רכב</th>
+                            <th class="p-4">שם</th>
+                            <th class="p-4">טלפון</th>
+                            <th class="p-4">פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="calendar" class="tab-content">
+            <h2 class="text-3xl font-bold mb-6">לו״ז שבועי</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="weeklyCalendar">
+                </div>
+        </section>
+
+        <section id="messages" class="tab-content">
+            <h2 class="text-3xl font-bold mb-6">הודעות מלקוחות</h2>
+            <div id="messagesList" class="space-y-4"></div>
+        </section>
+
+        <section id="settings" class="tab-content">
+            <h2 class="text-3xl font-bold mb-6">הגדרות באנר באתר</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border max-w-md">
+                <label class="block mb-2 font-bold">הודעת באנר ללקוחות:</label>
+                <input type="text" id="bannerText" class="w-full p-3 border rounded-xl mb-4" placeholder="למשל: מבצע טיפול קיץ!">
+                <button onclick="updateBanner()" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">עדכן באנר</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="customerModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-3xl w-96 shadow-2xl">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4">הוספת לקוח חדש</h3>
+            <input type="text" id="mPlate" placeholder="מספר רכב" class="w-full p-3 border rounded-xl mb-3">
+            <input type="text" id="mName" placeholder="שם מלא" class="w-full p-3 border rounded-xl mb-3">
+            <input type="text" id="mPhone" placeholder="טלפון" class="w-full p-3 border rounded-xl mb-3">
+            <input type="text" id="mModel" placeholder="דגם רכב" class="w-full p-3 border rounded-xl mb-4">
+            <div class="flex gap-2">
+                <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-2 rounded-xl font-bold">שמור</button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 py-2 rounded-xl">ביטול</button>
+            </div>
         </div>
     </div>
 
-    <div id="crmContent" class="hidden min-h-screen">
-        <nav class="bg-white shadow-md p-4 mb-6">
-            <div class="max-w-6xl mx-auto flex justify-between items-center">
-                <h1 class="text-xl font-black text-blue-900">ניהול לקוחות - ברע״מ</h1>
-                <button onclick="location.reload()" class="text-slate-500"><i class="fas fa-sync-alt"></i></button>
-            </div>
-        </nav>
-
-        <main class="max-w-6xl mx-auto p-4">
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border">
-                <table class="w-full text-right">
-                    <thead class="bg-slate-50 text-slate-500 text-sm border-b">
-                        <tr>
-                            <th class="p-4">מספר רכב</th>
-                            <th class="p-4">שם הלקוח</th>
-                            <th class="p-4">טלפון</th>
-                            <th class="p-4 text-center">פעולות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerTable">
-                        </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
-
     <script>
-        // חיבור ל-Firebase שלך
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -65,39 +100,56 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // בדיקת סיסמה
-        function checkPass() {
-            const pass = document.getElementById('passInput').value;
-            if (pass === "1234") { // תוכל לשנות לכל סיסמה שתרצה
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('crmContent').classList.remove('hidden');
-                loadCustomers();
-            } else {
-                document.getElementById('errorMsg').classList.remove('hidden');
-            }
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(tabId === 'customers') loadCustomers();
         }
 
-        // טעינת לקוחות מהמאגר
         async function loadCustomers() {
-            const tbody = document.getElementById('customerTable');
-            const snapshot = await db.collection("customers").get();
-            tbody.innerHTML = '';
-
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50 transition">
-                        <td class="p-4 font-bold text-blue-700">${data.plate}</td>
-                        <td class="p-4 font-bold">${data.firstName} ${data.lastName}</td>
-                        <td class="p-4">${data.phone}</td>
-                        <td class="p-4 text-center space-x-2 space-x-reverse">
-                            <a href="https://wa.me/972${data.phone.substring(1)}" target="_blank" class="text-green-500 text-xl mx-2"><i class="fab fa-whatsapp"></i></a>
-                            <button onclick="alert('פרטי רכב: ${data.carModel}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">פרטים</button>
+            const snap = await db.collection("customers").get();
+            const body = document.getElementById('customersTableBody');
+            body.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                body.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="p-4 font-bold">${d.plate}</td>
+                        <td class="p-4">${d.firstName} ${d.lastName || ''}</td>
+                        <td class="p-4">${d.phone}</td>
+                        <td class="p-4 flex gap-2">
+                            <button onclick="deleteCustomer('${doc.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                            <a href="https://wa.me/972${d.phone.substring(1)}" class="text-green-500 p-2"><i class="fab fa-whatsapp"></i></a>
                         </td>
                     </tr>
                 `;
             });
         }
+
+        function openModal() { document.getElementById('customerModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('customerModal').classList.add('hidden'); }
+
+        async function saveCustomer() {
+            const plate = document.getElementById('mPlate').value;
+            await db.collection("customers").doc(plate).set({
+                plate: plate,
+                firstName: document.getElementById('mName').value,
+                phone: document.getElementById('mPhone').value,
+                carModel: document.getElementById('mModel').value
+            });
+            closeModal();
+            loadCustomers();
+        }
+
+        async function deleteCustomer(id) {
+            if(confirm("בטוח שרוצה למחוק?")) {
+                await db.collection("customers").doc(id).delete();
+                loadCustomers();
+            }
+        }
+
+        // טעינה ראשונית
+        loadCustomers();
     </script>
 </body>
 </html>
