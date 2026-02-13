@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מרכז שירות ברע״מ באר שבע - מומחי VAG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f3f4f6; }
+        .vag-brand { color: #001e50; } /* VW Blue */
+        .admin-hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white shadow-md p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold vag-brand">מרכז שירות ברע״מ</h1>
+            <div class="flex gap-3">
+                <a href="tel:086277195" class="bg-green-500 text-white p-2 rounded-full shadow-lg"><i class="fas fa-phone"></i></a>
+                <a href="https://www.google.com/maps/search/?api=1&query=פנחס+החוצב+35+באר+שבע" class="bg-blue-600 text-white p-2 rounded-full shadow-lg"><i class="fas fa-location-arrow"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-yellow-100 p-2 overflow-hidden border-b border-yellow-200">
+        <div class="whitespace-nowrap animate-marquee flex gap-10">
+            <span class="font-bold">⭐ לקוחות ממליצים:</span>
+            <span>"המוסך הכי מקצועי לרכבי סקודה בדרום!"</span>
+            <span>"שירות אדיב ומהיר, יחס אישי מדהים."</span>
+            <span>"מומחים אמיתיים לקבוצת VAG, פתרו לי תקלה שאיש לא הצליח."</span>
+        </div>
+    </div>
+
+    <main class="container mx-auto p-4 space-y-6">
+
+        <section class="bg-white p-6 rounded-2xl shadow-sm border-r-4 border-blue-800">
+            <h2 class="text-2xl font-bold mb-2">מומחים לרכבי VAG</h2>
+            <p class="text-gray-600">סיאט • פולקסווגן • סקודה • אאודי</p>
+            <p class="mt-2"><i class="fas fa-map-marker-alt ml-2"></i>פנחס החוצב 35, באר שבע</p>
+            <p><i class="fas fa-phone ml-2 text-blue-500"></i>08-6277195</p>
+        </section>
+
+        <section class="bg-blue-50 p-6 rounded-2xl shadow-sm border border-blue-100">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-car ml-2"></i>בדיקת היסטוריית טיפולים ארצית</h2>
+            <p class="text-sm mb-4">הזן מספר רכב לצפייה בכל הטיפולים שבוצעו ברשת VAG ישראל:</p>
+            <div class="flex gap-2">
+                <input id="carNumber" type="text" placeholder="מספר רכב (למשל 12345678)" class="flex-1 p-3 rounded-xl border border-blue-200">
+                <button onclick="checkHistory()" class="bg-blue-800 text-white px-6 rounded-xl hover:bg-blue-900 transition">בדוק</button>
+            </div>
+            <div id="historyResult" class="mt-4 hidden p-4 bg-white rounded-lg border border-blue-200 text-sm"></div>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl shadow-sm">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-calendar-check ml-2"></i>תיאום תור לטיפול/טסט</h2>
+            <form class="space-y-4">
+                <input type="text" placeholder="שם מלא" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
+                <input type="tel" placeholder="טלפון" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
+                <select class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
+                    <option>טיפול תקופתי</option>
+                    <option>הכנה לטסט</option>
+                    <option>דיאגנוסטיקה</option>
+                    <option>אחר</option>
+                </select>
+                <button type="button" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">שלח בקשה</button>
+            </form>
+        </section>
+
+        <section class="bg-indigo-900 text-white p-6 rounded-2xl shadow-sm">
+            <h2 class="text-xl font-bold mb-2">שאל את המומחה (AI)</h2>
+            <p class="text-sm opacity-80 mb-4">יש לך שאלה טכנית? אנחנו כאן לענות.</p>
+            <div id="chatBox" class="h-40 overflow-y-auto mb-4 p-3 bg-white/10 rounded-lg text-sm"></div>
+            <div class="flex gap-2">
+                <input id="chatInput" type="text" placeholder="שאל שאלה..." class="flex-1 p-3 rounded-xl bg-white text-black">
+                <button onclick="askAI()" class="bg-yellow-500 text-black px-4 rounded-xl font-bold">שלח</button>
+            </div>
+        </section>
+
+        <section class="text-center pt-10">
+            <button onclick="showAdminLogin()" class="text-gray-400 text-xs hover:underline">כניסת מנהל מורשה</button>
+        </section>
+
+    </main>
+
+    <div id="adminModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[100]">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-4">כניסה למערכת ניהול</h2>
+            <p class="mb-6">קוד אימות ישלח לטלפון: 050-5858750</p>
+            <input id="adminCode" type="text" placeholder="הכנס קוד" class="w-full p-4 rounded-xl border mb-4 text-center text-2xl tracking-widest">
+            <button onclick="verifyAdmin()" class="w-full bg-black text-white p-4 rounded-xl font-bold mb-2">אימות וכניסה</button>
+            <button onclick="closeAdmin()" class="text-red-500 font-bold">ביטול</button>
+        </div>
+    </div>
+
+    <script>
+        // סימולציית היסטוריה ארצית
+        function checkHistory() {
+            const num = document.getElementById('carNumber').value;
+            const res = document.getElementById('historyResult');
+            if(num.length < 5) return alert("אנא הזן מספר רכב תקין");
+            
+            res.classList.remove('hidden');
+            res.innerHTML = `
+                <h3 class="font-bold border-b pb-2 mb-2 text-blue-800">היסטוריית טיפולים - רכב ${num}</h3>
+                <ul class="space-y-2">
+                    <li>🗓️ 12/02/2025: <b>מרכז שירות ברע"מ</b> - החלפת מצמדים וכיול גיר DSG.</li>
+                    <li>🗓️ 05/08/2024: <b>מוסך רשת - מרכז</b> - טיפול 60,000 ק"מ (שמנים ופילטרים).</li>
+                    <li>🗓️ 10/01/2024: <b>מוסך מורשה צפון</b> - החלפת רפידות בלם קדמיות.</li>
+                </ul>
+            `;
+        }
+
+        // צ'אט AI
+        function askAI() {
+            const input = document.getElementById('chatInput');
+            const box = document.getElementById('chatBox');
+            if(!input.value) return;
+
+            box.innerHTML += `<div class="mb-2 text-yellow-300">אתה: ${input.value}</div>`;
+            
+            // כאן יבוא החיבור ל-API של Gemini
+            setTimeout(() => {
+                box.innerHTML += `<div class="mb-4"><b>ברע"מ AI:</b> ככל הנראה מדובר בבעיה בלחץ שמן בגיר. מומלץ להגיע אלינו לפנחס החוצב 35 לבדיקת מחשב.</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 1000);
+            
+            input.value = "";
+        }
+
+        // ניהול
+        function showAdminLogin() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+        
+        function verifyAdmin() {
+            const code = document.getElementById('adminCode').value;
+            if(code === "1234") { // כאן תוכל להגדיר קוד קבוע או חיבור ל-SMS
+                alert("ברוך הבא למערכת הניהול של ברע\"מ");
+                window.location.reload(); 
+            } else {
+                alert("קוד שגוי");
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+    </style>
+</body>
+</html>
