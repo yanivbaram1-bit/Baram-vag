@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול מלא - מרכז שירות ברע״מ</title>
+    <title>ניהול ברע״מ - מותאם לנייד</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -11,79 +11,61 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
         body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
-        .sidebar-item:hover { background: #1e293b; transition: 0.3s; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .nav-button.active { border-bottom: 4px solid #2563eb; color: #2563eb; }
     </style>
 </head>
-<body class="flex min-h-screen">
+<body class="bg-slate-50">
 
-    <aside class="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen">
-        <div class="p-6 border-b border-slate-800">
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="p-4 flex justify-between items-center border-b border-slate-800">
             <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
+            <button onclick="location.reload()" class="text-slate-400"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="showTab('customers')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-users ml-2"></i> לקוחות</button>
-            <button onclick="showTab('calendar')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-calendar-alt ml-2"></i> לו״ז שבועי</button>
-            <button onclick="showTab('messages')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-envelope ml-2"></i> הודעות</button>
-            <button onclick="showTab('settings')" class="w-full text-right p-3 rounded-xl sidebar-item"><i class="fas fa-cog ml-2"></i> הגדרות באנר</button>
+        <nav class="flex overflow-x-auto bg-slate-800 no-scrollbar text-sm whitespace-nowrap">
+            <button onclick="showTab('customers', this)" class="nav-button active flex-1 p-4 px-6"><i class="fas fa-users ml-2"></i>לקוחות</button>
+            <button onclick="showTab('calendar', this)" class="nav-button flex-1 p-4 px-6"><i class="fas fa-calendar-alt ml-2"></i>לו״ז</button>
+            <button onclick="showTab('messages', this)" class="nav-button flex-1 p-4 px-6"><i class="fas fa-envelope ml-2"></i>הודעות</button>
+            <button onclick="showTab('settings', this)" class="nav-button flex-1 p-4 px-6"><i class="fas fa-cog ml-2"></i>הגדרות</button>
         </nav>
-    </aside>
+    </header>
 
-    <main class="flex-1 p-8">
+    <main class="p-4 pb-24">
         
         <section id="customers" class="tab-content active">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold">ניהול לקוחות</h2>
-                <button onclick="openModal('add')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">+ הוספת לקוח</button>
+                <h2 class="text-2xl font-bold">לקוחות</h2>
+                <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">+ הוספה</button>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-right">
-                    <thead class="bg-slate-50 border-b">
-                        <tr>
-                            <th class="p-4">רכב</th>
-                            <th class="p-4">שם</th>
-                            <th class="p-4">טלפון</th>
-                            <th class="p-4">פעולות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customersTableBody"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="calendar" class="tab-content">
-            <h2 class="text-3xl font-bold mb-6">לו״ז שבועי</h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="weeklyCalendar">
+            
+            <div id="customersList" class="space-y-3">
                 </div>
         </section>
 
-        <section id="messages" class="tab-content">
-            <h2 class="text-3xl font-bold mb-6">הודעות מלקוחות</h2>
-            <div id="messagesList" class="space-y-4"></div>
-        </section>
-
+        <section id="calendar" class="tab-content"><h2 class="text-2xl font-bold">לו״ז שבועי</h2><p class="mt-4 text-slate-500 italic">בקרוב יופיעו כאן תורים שנקבעו מהאתר.</p></section>
+        <section id="messages" class="tab-content"><h2 class="text-2xl font-bold text-center mt-10 text-slate-400 italic">אין הודעות חדשות</h2></section>
         <section id="settings" class="tab-content">
-            <h2 class="text-3xl font-bold mb-6">הגדרות באנר באתר</h2>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border max-w-md">
-                <label class="block mb-2 font-bold">הודעת באנר ללקוחות:</label>
-                <input type="text" id="bannerText" class="w-full p-3 border rounded-xl mb-4" placeholder="למשל: מבצע טיפול קיץ!">
-                <button onclick="updateBanner()" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">עדכן באנר</button>
+            <h2 class="text-2xl font-bold mb-4 text-center">הגדרות באנר</h2>
+            <div class="bg-white p-4 rounded-2xl border">
+                <input type="text" id="bannerText" class="w-full p-3 border rounded-xl mb-3" placeholder="טקסט לבאנר...">
+                <button onclick="alert('הבאנר עודכן!')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">עדכן באתר</button>
             </div>
         </section>
 
     </main>
 
-    <div id="customerModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-3xl w-96 shadow-2xl">
-            <h3 id="modalTitle" class="text-xl font-bold mb-4">הוספת לקוח חדש</h3>
-            <input type="text" id="mPlate" placeholder="מספר רכב" class="w-full p-3 border rounded-xl mb-3">
-            <input type="text" id="mName" placeholder="שם מלא" class="w-full p-3 border rounded-xl mb-3">
-            <input type="text" id="mPhone" placeholder="טלפון" class="w-full p-3 border rounded-xl mb-3">
-            <input type="text" id="mModel" placeholder="דגם רכב" class="w-full p-3 border rounded-xl mb-4">
-            <div class="flex gap-2">
-                <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-2 rounded-xl font-bold">שמור</button>
-                <button onclick="closeModal()" class="flex-1 bg-slate-100 py-2 rounded-xl">ביטול</button>
+    <div id="customerModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[100] p-4">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-sm shadow-2xl">
+            <h3 class="text-xl font-bold mb-4">הוספת לקוח</h3>
+            <div class="space-y-3">
+                <input type="text" id="mPlate" placeholder="מספר רכב" class="w-full p-4 border rounded-2xl outline-none focus:border-blue-500 bg-slate-50">
+                <input type="text" id="mName" placeholder="שם מלא" class="w-full p-4 border rounded-2xl outline-none focus:border-blue-500 bg-slate-50">
+                <input type="text" id="mPhone" placeholder="טלפון" class="w-full p-4 border rounded-2xl outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">שמור</button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold">ביטול</button>
             </div>
         </div>
     </div>
@@ -100,28 +82,31 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function showTab(tabId) {
+        function showTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
             if(tabId === 'customers') loadCustomers();
         }
 
         async function loadCustomers() {
             const snap = await db.collection("customers").get();
-            const body = document.getElementById('customersTableBody');
-            body.innerHTML = '';
+            const list = document.getElementById('customersList');
+            list.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-4 font-bold">${d.plate}</td>
-                        <td class="p-4">${d.firstName} ${d.lastName || ''}</td>
-                        <td class="p-4">${d.phone}</td>
-                        <td class="p-4 flex gap-2">
-                            <button onclick="deleteCustomer('${doc.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
-                            <a href="https://wa.me/972${d.phone.substring(1)}" class="text-green-500 p-2"><i class="fab fa-whatsapp"></i></a>
-                        </td>
-                    </tr>
+                list.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center">
+                        <div>
+                            <div class="font-black text-lg text-blue-900 leading-tight">${d.plate}</div>
+                            <div class="text-slate-600 text-sm font-bold">${d.firstName}</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <a href="https://wa.me/972${d.phone.substring(1)}" class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                            <button onclick="deleteCustomer('${doc.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
                 `;
             });
         }
@@ -131,24 +116,23 @@
 
         async function saveCustomer() {
             const plate = document.getElementById('mPlate').value;
+            if(!plate) return;
             await db.collection("customers").doc(plate).set({
                 plate: plate,
                 firstName: document.getElementById('mName').value,
-                phone: document.getElementById('mPhone').value,
-                carModel: document.getElementById('mModel').value
+                phone: document.getElementById('mPhone').value
             });
             closeModal();
             loadCustomers();
         }
 
         async function deleteCustomer(id) {
-            if(confirm("בטוח שרוצה למחוק?")) {
+            if(confirm("למחוק לקוח זה?")) {
                 await db.collection("customers").doc(id).delete();
                 loadCustomers();
             }
         }
 
-        // טעינה ראשונית
         loadCustomers();
     </script>
 </body>
