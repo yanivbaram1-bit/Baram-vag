@@ -14,32 +14,46 @@
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
         body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
-        /* Header מוגדל ובולט */
-        .main-header {
-            background: white; padding: 20px 15px; border-bottom: 2px solid #f1f5f9;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;
-            position: sticky; top: 0; z-index: 100;
-        }
-        .brand-name { font-size: 26px; font-weight: 800; color: #1e3a8a; line-height: 1.1; margin-bottom: 6px; }
-        .live-time-box { font-size: 14px; font-weight: 700; color: #2563eb; background: #eff6ff; display: inline-block; padding: 5px 15px; border-radius: 10px; margin-bottom: 10px; }
-        .hours-badge { background: #1e293b; color: #f8fafc; font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 25px; display: inline-flex; align-items: center; gap: 8px; }
+        /* Header מוגדל */
+        .main-header { background: white; padding: 20px 15px; border-bottom: 2px solid #f1f5f9; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .brand-name { font-size: 28px; font-weight: 800; color: #1e3a8a; line-height: 1.1; cursor: pointer; user-select: none; }
+        .live-time-box { font-size: 14px; font-weight: 700; color: #2563eb; background: #eff6ff; display: inline-block; padding: 5px 15px; border-radius: 10px; margin: 8px 0; }
+        .hours-badge { background: #1e293b; color: white; font-size: 12px; padding: 6px 15px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; }
 
-        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 40px 20px 100px 20px; text-align: center; clip-path: ellipse(150% 100% at 50% 0%); position: relative; z-index: 1; }
+        /* תפריט צד */
+        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1001; transition: 0.4s; padding: 40px 20px; color: white; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+        .side-menu.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+
+        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 40px 20px 100px 20px; text-align: center; clip-path: ellipse(150% 100% at 50% 0%); position: relative; }
         .services-container { position: relative; z-index: 10; margin-top: -60px; padding: 0 15px; }
-        .service-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; text-align: center; }
+        .service-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); text-align: center; border: 1px solid #f1f5f9; }
+        .action-box { background: white; border-radius: 25px; padding: 18px; margin: 12px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; text-align: right; }
         
-        .action-box { background: #ffffff; border-radius: 25px; padding: 18px; margin: 12px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; text-align: right; transition: 0.2s; }
-        .action-box:active { transform: scale(0.97); }
-
-        .tip-box { background: linear-gradient(to left, #fffcf0, #fff); border-right: 4px solid #fbbf24; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1); }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+    
+    <div id="sideMenu" class="side-menu text-right">
+        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט ברע"מ</h3>
+        <ul class="space-y-6">
+            <li><a href="#" onclick="showPage('home')" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
+            <li><a href="#" onclick="showPage('crm')" class="block text-lg text-blue-400 font-bold"><i class="fas fa-user-circle ml-3"></i>אזור אישי</a></li>
+            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone ml-3 text-green-400"></i>חיוג למוסך</a></li>
+            <li><a href="https://wa.me/972505858750" class="block text-lg"><i class="fab fa-whatsapp ml-3 text-green-500"></i>הודעת וואטסאפ</a></li>
+        </ul>
+    </div>
+
     <header class="main-header">
-        <div class="brand-name">מרכז שירות ברע״מ</div>
-        <div id="liveDateTime" class="live-time-box">טוען זמן...</div>
+        <div class="flex justify-between items-center mb-1">
+            <button onclick="toggleMenu()" class="text-2xl text-slate-700 p-2"><i class="fas fa-bars"></i></button>
+            <div class="brand-name" id="adminTrigger">מרכז שירות ברע״מ</div>
+            <div class="w-10"></div>
+        </div>
+        <div id="liveDateTime" class="live-time-box">טוען...</div>
         <br>
         <div class="hours-badge">
             <i class="fas fa-clock text-blue-400"></i>
@@ -49,8 +63,8 @@
 
     <div id="homePage">
         <section class="hero-bg">
-            <h2 class="text-2xl font-bold mb-2 uppercase tracking-tight">VAG Specialist</h2>
-            <p class="text-blue-100 text-xs opacity-90 italic">מקצוענות ברמת יצרן Audi • VW • Skoda • Seat</p>
+            <h2 class="text-2xl font-bold mb-2">מומחי VAG בבאר שבע</h2>
+            <p class="text-blue-100 text-xs opacity-90 italic">Professional Care for Audi, VW, Skoda, Seat</p>
         </section>
 
         <div class="services-container">
@@ -63,55 +77,38 @@
                 <div class="service-card"><i class="fas fa-gas-pump text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">מערכות אוריאה</h4></div>
             </div>
 
-            <div class="tip-box flex items-start gap-3">
-                <i class="fas fa-lightbulb text-yellow-500 text-lg mt-1"></i>
-                <div>
-                    <h5 class="font-bold text-xs text-yellow-700">טיפול מונע: טיפ יומי</h5>
-                    <p id="dailyTipText" class="text-[11px] text-gray-600 mt-1 leading-snug">טוען טיפ...</p>
-                </div>
-            </div>
-
-            <button onclick="showPage('crm')" class="action-box">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl shadow-inner"><i class="fas fa-user-check"></i></div>
-                    <div><h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3><p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p></div>
-                </div>
+            <button onclick="showPage('crm')" class="action-box flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl"><i class="fas fa-user-check"></i></div>
+                <div><h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3><p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p></div>
             </button>
 
             <div class="action-box">
                 <div class="flex items-center gap-4 mb-3">
-                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fas fa-comment-dots"></i></div>
+                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fas fa-headset"></i></div>
                     <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה</h3>
                 </div>
-                <div class="relative">
-                    <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none">
-                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs"></i></button>
-                </div>
-                <p id="chatStatus" class="text-[10px] text-blue-600 mt-2 hidden"></p>
+                <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border rounded-xl mb-2 text-sm outline-none">
+                <button onclick="askExpert()" class="w-full bg-blue-900 text-white p-3 rounded-xl font-bold shadow-lg">שלח שאלה למומחה</button>
             </div>
-        </div>
-
-        <div class="px-4 mt-6 pb-10">
-            <a href="https://wa.me/972505858750" class="w-full bg-green-500 text-white rounded-2xl p-4 flex items-center justify-center gap-3 shadow-xl font-bold">
-                <i class="fab fa-whatsapp text-2xl"></i>
-                סיוע מהיר/מיקום בוואטסאפ
-            </a>
         </div>
     </div>
 
     <div id="crmPage" class="hidden p-8 pt-10 h-screen bg-white">
-        <h3 class="text-3xl font-bold text-blue-900 mb-2">כניסת לקוחות</h3>
-        <p class="text-sm text-gray-400 mb-8">הקש פרטים לסנכרון הרכב</p>
-        <div class="space-y-4">
-            <input type="text" id="custName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-            <input type="tel" id="custPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold tracking-widest">
-            <button onclick="saveCustomer()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות</button>
-            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center">חזרה</button>
-        </div>
+        <h3 class="text-3xl font-bold text-blue-900 mb-6 text-center">התחברות לקוח</h3>
+        <input type="text" id="custName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 outline-none">
+        <input type="tel" id="custPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 text-center font-bold tracking-widest">
+        <button onclick="saveCustomer()" id="loginBtn" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות למערכת</button>
+        <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center underline">חזרה לדף הבית</button>
+    </div>
+
+    <div id="adminPage" class="hidden p-4 min-h-screen bg-slate-900 text-white">
+        <h3 class="text-2xl font-bold mb-6 border-b border-white/20 pb-2">לוח בקרה מנהל</h3>
+        <div id="adminData" class="space-y-4">טוען נתונים מה-Firebase...</div>
+        <button onclick="showPage('home')" class="mt-10 w-full p-4 bg-white/10 rounded-xl">יציאה מהניהול</button>
     </div>
 
     <script>
-        // חיבור ה-Config ששלחת
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -125,56 +122,81 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function updateDateTime() {
-            const now = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
-            document.getElementById('liveDateTime').innerText = now.toLocaleDateString('he-IL', options).replace(',', ' |');
+        // פונקציות תפריט
+        function toggleMenu() {
+            document.getElementById('sideMenu').classList.toggle('active');
+            const overlay = document.getElementById('overlay');
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
         }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
-
-        const tips = [
-            "החלפת שמן גיר DSG בכל 60,000 ק\"מ שומרת על אורך חיי הגיר.",
-            "בקיץ הישראלי, בדקו נוזל קירור פעם בחודש (כשהמנוע קר בלבד!).",
-            "נורת אוריאה דולקת? אל תמתינו, הרכב עלול להינעל ולא להניע.",
-            "רעידות בבלימה מעידות לרוב על צלחות שחוקות. בטיחות לפני הכל!"
-        ];
-        document.getElementById('dailyTipText').innerText = tips[Math.floor(Math.random() * tips.length)];
 
         function showPage(p) {
             document.getElementById('homePage').classList.toggle('hidden', p !== 'home');
             document.getElementById('crmPage').classList.toggle('hidden', p !== 'crm');
+            document.getElementById('adminPage').classList.toggle('hidden', p !== 'admin');
+            if(p === 'admin') loadAdminData();
+            if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
             window.scrollTo(0,0);
         }
 
-        function askExpert() {
-            const input = document.getElementById('expertInput');
-            const status = document.getElementById('chatStatus');
-            if(!input.value) return;
-            status.innerText = "שולח שאלה...";
-            status.classList.remove('hidden');
-            db.collection("expert_questions").add({
-                question: input.value,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                status.innerText = "נשלח בהצלחה! המומחה יחזור אליך.";
-                input.value = "";
-            });
-        }
-
+        // Firebase - שמירת לקוח
         function saveCustomer() {
             const name = document.getElementById('custName').value;
             const plate = document.getElementById('custPlate').value;
-            if(!name || !plate) return alert("מלא פרטים");
+            if(!name || !plate) return alert("אנא מלא שם ומספר רכב");
+            
             db.collection("customers").add({
                 name: name,
                 plate: plate,
-                time: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("פרטיך נקלטו במערכת!");
+                alert("הפרטים נשמרו! ברוך הבא " + name);
                 showPage('home');
+            }).catch(() => alert("שגיאה. וודא שפתחת את ה-Rules ב-Firebase"));
+        }
+
+        // Firebase - שאלה למומחה
+        function askExpert() {
+            const q = document.getElementById('expertInput').value;
+            if(!q) return;
+            db.collection("expert_questions").add({
+                question: q,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("השאלה נשלחה בהצלחה!");
+                document.getElementById('expertInput').value = "";
             });
         }
+
+        // טעינת נתוני מנהל
+        function loadAdminData() {
+            const container = document.getElementById('adminData');
+            db.collection("customers").orderBy("timestamp", "desc").limit(10).get().then(snap => {
+                let html = "<h4 class='text-blue-400 font-bold'>לקוחות אחרונים שנרשמו:</h4>";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div class='bg-white/5 p-3 rounded-lg border border-white/10'>
+                        <b>${d.name}</b> | רכב: ${d.plate}
+                    </div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        // לחיצה ארוכה לניהול
+        let adminTimer;
+        const trigger = document.getElementById('adminTrigger');
+        trigger.addEventListener('touchstart', () => adminTimer = setTimeout(() => showPage('admin'), 3000));
+        trigger.addEventListener('touchend', () => clearTimeout(adminTimer));
+        trigger.addEventListener('mousedown', () => adminTimer = setTimeout(() => showPage('admin'), 3000));
+        trigger.addEventListener('mouseup', () => clearTimeout(adminTimer));
+
+        // עדכון שעה
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('liveDateTime').innerText = now.toLocaleString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
     </script>
 </body>
 </html>
