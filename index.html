@@ -3,200 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרכז שירות ברע״מ | VAG Specialist</title>
+    <title>מרכז שירות ברע״מ | CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
-        /* Header מוגדל */
-        .main-header { background: white; padding: 20px 15px; border-bottom: 2px solid #f1f5f9; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .brand-name { font-size: 28px; font-weight: 800; color: #1e3a8a; line-height: 1.1; cursor: pointer; user-select: none; }
-        .live-time-box { font-size: 14px; font-weight: 700; color: #2563eb; background: #eff6ff; display: inline-block; padding: 5px 15px; border-radius: 10px; margin: 8px 0; }
-        .hours-badge { background: #1e293b; color: white; font-size: 12px; padding: 6px 15px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; }
-
-        /* תפריט צד */
-        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1001; transition: 0.4s; padding: 40px 20px; color: white; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
-        .side-menu.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-
-        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 40px 20px 100px 20px; text-align: center; clip-path: ellipse(150% 100% at 50% 0%); position: relative; }
-        .services-container { position: relative; z-index: 10; margin-top: -60px; padding: 0 15px; }
-        .service-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); text-align: center; border: 1px solid #f1f5f9; }
-        .action-box { background: white; border-radius: 25px; padding: 18px; margin: 12px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; text-align: right; }
-        
-        .hidden { display: none !important; }
+        body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+        input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; outline: none; }
+        .btn-primary { background: #1e3a8a; color: white; width: 100%; padding: 15px; border-radius: 15px; font-weight: 700; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-    
-    <div id="sideMenu" class="side-menu text-right">
-        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט ברע"מ</h3>
-        <ul class="space-y-6">
-            <li><a href="#" onclick="showPage('home')" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
-            <li><a href="#" onclick="showPage('crm')" class="block text-lg text-blue-400 font-bold"><i class="fas fa-user-circle ml-3"></i>אזור אישי</a></li>
-            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone ml-3 text-green-400"></i>חיוג למוסך</a></li>
-            <li><a href="https://wa.me/972505858750" class="block text-lg"><i class="fab fa-whatsapp ml-3 text-green-500"></i>הודעת וואטסאפ</a></li>
-        </ul>
-    </div>
-
-    <header class="main-header">
-        <div class="flex justify-between items-center mb-1">
-            <button onclick="toggleMenu()" class="text-2xl text-slate-700 p-2"><i class="fas fa-bars"></i></button>
-            <div class="brand-name" id="adminTrigger">מרכז שירות ברע״מ</div>
-            <div class="w-10"></div>
-        </div>
-        <div id="liveDateTime" class="live-time-box">טוען...</div>
-        <br>
-        <div class="hours-badge">
-            <i class="fas fa-clock text-blue-400"></i>
-            <span>א׳-ה׳ 07:30 - 15:30 | ו׳-ש׳: סגור</span>
-        </div>
+    <header class="bg-white p-4 text-center border-b-2 border-slate-200 sticky top-0 z-50">
+        <h1 class="text-2xl font-bold text-blue-900">מרכז שירות ברע״מ</h1>
+        <p class="text-xs text-slate-500 font-bold">מערכת ניהול לקוחות חכמה</p>
     </header>
 
-    <div id="homePage">
-        <section class="hero-bg">
-            <h2 class="text-2xl font-bold mb-2">מומחי VAG בבאר שבע</h2>
-            <p class="text-blue-100 text-xs opacity-90 italic">Professional Care for Audi, VW, Skoda, Seat</p>
-        </section>
-
-        <div class="services-container">
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="service-card"><i class="fas fa-laptop-code text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">דיאגנוסטיקה</h4></div>
-                <div class="service-card"><i class="fas fa-oil-can text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">טיפול תקופתי</h4></div>
-                <div class="service-card"><i class="fas fa-cogs text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">שיפוץ גירים</h4></div>
-                <div class="service-card"><i class="fas fa-bolt text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">חשמל ומיזוג</h4></div>
-                <div class="service-card"><i class="fas fa-truck-monster text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">מערכות 4x4</h4></div>
-                <div class="service-card"><i class="fas fa-gas-pump text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">מערכות אוריאה</h4></div>
-            </div>
-
-            <button onclick="showPage('crm')" class="action-box flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl"><i class="fas fa-user-check"></i></div>
-                <div><h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3><p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p></div>
-            </button>
-
-            <div class="action-box">
-                <div class="flex items-center gap-4 mb-3">
-                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fas fa-headset"></i></div>
-                    <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה</h3>
-                </div>
-                <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border rounded-xl mb-2 text-sm outline-none">
-                <button onclick="askExpert()" class="w-full bg-blue-900 text-white p-3 rounded-xl font-bold shadow-lg">שלח שאלה למומחה</button>
+    <div class="p-4 max-w-md mx-auto">
+        
+        <div id="mainMenu">
+            <div class="card text-center">
+                <i class="fas fa-users-cog text-5xl text-blue-900 mb-4"></i>
+                <h2 class="text-xl font-bold mb-6">שלום, כיצד נוכל לעזור?</h2>
+                <button onclick="showPage('registerPage')" class="btn-primary mb-3">רישום לקוח חדש במערכת</button>
+                <button onclick="showPage('loginPage')" class="w-full border-2 border-blue-900 text-blue-900 p-4 rounded-xl font-bold">כניסה ללקוח רשום</button>
             </div>
         </div>
-    </div>
 
-    <div id="crmPage" class="hidden p-8 pt-10 h-screen bg-white">
-        <h3 class="text-3xl font-bold text-blue-900 mb-6 text-center">התחברות לקוח</h3>
-        <input type="text" id="custName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 outline-none">
-        <input type="tel" id="custPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl mb-4 text-center font-bold tracking-widest">
-        <button onclick="saveCustomer()" id="loginBtn" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות למערכת</button>
-        <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center underline">חזרה לדף הבית</button>
-    </div>
+        <div id="registerPage" class="hidden">
+            <h2 class="text-xl font-bold mb-4">טופס רישום לקוח</h2>
+            <div class="card">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="input-group"><label>שם פרטי</label><input type="text" id="regFirst"></div>
+                    <div class="input-group"><label>שם משפחה</label><input type="text" id="regLast"></div>
+                </div>
+                <div class="input-group"><label>טלפון</label><input type="tel" id="regPhone"></div>
+                <div class="input-group"><label>כתובת</label><input type="text" id="regAddress"></div>
+                <div class="input-group"><label>תעודת זהות</label><input type="number" id="regId"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="input-group"><label>סוג רכב</label><input type="text" id="regCarModel"></div>
+                    <div class="input-group"><label>צבע</label><input type="text" id="regColor"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="input-group"><label>מספר רכב</label><input type="text" id="regPlate"></div>
+                    <div class="input-group"><label>שנת רכב</label><input type="number" id="regYear"></div>
+                </div>
+                <div class="input-group"><label>קילומטראז'</label><input type="number" id="regKm"></div>
+                <button onclick="handleRegister()" class="btn-primary mt-4 shadow-lg">שמור והצטרף למועדון</button>
+                <button onclick="showPage('mainMenu')" class="w-full text-slate-400 mt-4 text-sm">חזרה</button>
+            </div>
+        </div>
 
-    <div id="adminPage" class="hidden p-4 min-h-screen bg-slate-900 text-white">
-        <h3 class="text-2xl font-bold mb-6 border-b border-white/20 pb-2">לוח בקרה מנהל</h3>
-        <div id="adminData" class="space-y-4">טוען נתונים מה-Firebase...</div>
-        <button onclick="showPage('home')" class="mt-10 w-full p-4 bg-white/10 rounded-xl">יציאה מהניהול</button>
+        <div id="loginPage" class="hidden">
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4">התחברות לאזור האישי</h2>
+                <div class="input-group"><label>שם משפחה</label><input type="text" id="loginLast"></div>
+                <div class="input-group"><label>מספר רכב</label><input type="text" id="loginPlate"></div>
+                <button onclick="handleLogin()" class="btn-primary mt-2">התחבר</button>
+                <button onclick="showPage('mainMenu')" class="w-full text-slate-400 mt-4 text-sm">חזרה</button>
+            </div>
+        </div>
+
+        <div id="clientDashboard" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold italic">שלום, <span id="clientNameDisplay" class="text-blue-700"></span></h2>
+                <button onclick="location.reload()" class="text-xs text-red-500">יציאה</button>
+            </div>
+
+            <div class="card bg-slate-900 text-white border-b-4 border-blue-500">
+                <h3 class="text-xs opacity-60">פרטי רכב במערכת:</h3>
+                <p class="text-lg font-bold" id="carInfoDisplay"></p>
+                <div class="mt-1 text-xs text-blue-300" id="plateDisplay"></div>
+            </div>
+
+            <button onclick="bookWhatsApp()" class="w-full bg-green-500 text-white p-4 rounded-2xl font-bold mb-4 flex items-center justify-center gap-3 shadow-lg">
+                <i class="fab fa-whatsapp text-2xl"></i>
+                הזמן תור לטיפול עכשיו
+            </button>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="card"><label class="text-blue-600">טיפול אחרון</label><div class="font-bold text-sm" id="lastService"></div></div>
+                <div class="card"><label class="text-red-600">טיפול הבא</label><div class="font-bold text-sm" id="nextService"></div></div>
+            </div>
+
+            <div class="card"><label class="mb-1 text-xs">פירוט טיפול אחרון:</label><p class="text-sm text-slate-600" id="lastDetails"></p></div>
+            <div class="card"><label class="mb-1 text-xs text-red-500 font-bold">נדרש לטיפול הבא:</label><p class="text-sm text-slate-600" id="nextDetails"></p></div>
+
+            <div class="card bg-green-50 border border-green-200">
+                <h4 class="font-bold text-xs text-green-800">מבחן רישוי שנתי (טסט)</h4>
+                <div class="flex justify-between mt-2 text-xs">
+                    <span>אחרון: <b id="lastTest"></b></span>
+                    <span class="text-red-600">פג תוקף: <b id="nextTest"></b></span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
             projectId: "baram-vag-45e12",
             storageBucket: "baram-vag-45e12.firebasestorage.app",
             messagingSenderId: "761383355945",
-            appId: "1:761383355945:web:552554b5a6b9fe5e78be38",
-            measurementId: "G-3WMX88H0NM"
+            appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // פונקציות תפריט
-        function toggleMenu() {
-            document.getElementById('sideMenu').classList.toggle('active');
-            const overlay = document.getElementById('overlay');
-            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        let currentUser = null;
+
+        function showPage(pageId) {
+            ['mainMenu', 'registerPage', 'loginPage', 'clientDashboard'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
         }
 
-        function showPage(p) {
-            document.getElementById('homePage').classList.toggle('hidden', p !== 'home');
-            document.getElementById('crmPage').classList.toggle('hidden', p !== 'crm');
-            document.getElementById('adminPage').classList.toggle('hidden', p !== 'admin');
-            if(p === 'admin') loadAdminData();
-            if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
-            window.scrollTo(0,0);
-        }
-
-        // Firebase - שמירת לקוח
-        function saveCustomer() {
-            const name = document.getElementById('custName').value;
-            const plate = document.getElementById('custPlate').value;
-            if(!name || !plate) return alert("אנא מלא שם ומספר רכב");
-            
-            db.collection("customers").add({
-                name: name,
+        function handleRegister() {
+            const plate = document.getElementById('regPlate').value;
+            const data = {
+                firstName: document.getElementById('regFirst').value,
+                lastName: document.getElementById('regLast').value,
+                phone: document.getElementById('regPhone').value,
+                address: document.getElementById('regAddress').value,
+                tz: document.getElementById('regId').value,
+                carModel: document.getElementById('regCarModel').value,
+                color: document.getElementById('regColor').value,
                 plate: plate,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("הפרטים נשמרו! ברוך הבא " + name);
-                showPage('home');
-            }).catch(() => alert("שגיאה. וודא שפתחת את ה-Rules ב-Firebase"));
-        }
+                year: document.getElementById('regYear').value,
+                km: document.getElementById('regKm').value,
+                lastServiceDate: "טרם עודכן",
+                nextServiceDate: "יקבע בביקור",
+                lastServiceWork: "נרשם למערכת",
+                nextServiceWork: "בדיקה כללית",
+                lastTestDate: "--",
+                nextTestDate: "--"
+            };
 
-        // Firebase - שאלה למומחה
-        function askExpert() {
-            const q = document.getElementById('expertInput').value;
-            if(!q) return;
-            db.collection("expert_questions").add({
-                question: q,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("השאלה נשלחה בהצלחה!");
-                document.getElementById('expertInput').value = "";
+            db.collection("customers").doc(plate).set(data).then(() => {
+                alert("ברוך הבא למשפחת ברע״מ!");
+                showPage('mainMenu');
             });
         }
 
-        // טעינת נתוני מנהל
-        function loadAdminData() {
-            const container = document.getElementById('adminData');
-            db.collection("customers").orderBy("timestamp", "desc").limit(10).get().then(snap => {
-                let html = "<h4 class='text-blue-400 font-bold'>לקוחות אחרונים שנרשמו:</h4>";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    html += `<div class='bg-white/5 p-3 rounded-lg border border-white/10'>
-                        <b>${d.name}</b> | רכב: ${d.plate}
-                    </div>`;
-                });
-                container.innerHTML = html;
+        function handleLogin() {
+            const plate = document.getElementById('loginPlate').value;
+            const lastName = document.getElementById('loginLast').value;
+
+            db.collection("customers").doc(plate).get().then((doc) => {
+                if (doc.exists && doc.data().lastName === lastName) {
+                    currentUser = doc.data();
+                    document.getElementById('clientNameDisplay').innerText = currentUser.firstName;
+                    document.getElementById('carInfoDisplay').innerText = currentUser.carModel + " | " + currentUser.year;
+                    document.getElementById('plateDisplay').innerText = "מספר רכב: " + currentUser.plate;
+                    document.getElementById('lastService').innerText = currentUser.lastServiceDate;
+                    document.getElementById('nextService').innerText = currentUser.nextServiceDate;
+                    document.getElementById('lastDetails').innerText = currentUser.lastServiceWork;
+                    document.getElementById('nextDetails').innerText = currentUser.nextServiceWork;
+                    document.getElementById('lastTest').innerText = currentUser.lastTestDate;
+                    document.getElementById('nextTest').innerText = currentUser.nextTestDate;
+                    showPage('clientDashboard');
+                } else {
+                    alert("פרטי כניסה שגויים");
+                }
             });
         }
 
-        // לחיצה ארוכה לניהול
-        let adminTimer;
-        const trigger = document.getElementById('adminTrigger');
-        trigger.addEventListener('touchstart', () => adminTimer = setTimeout(() => showPage('admin'), 3000));
-        trigger.addEventListener('touchend', () => clearTimeout(adminTimer));
-        trigger.addEventListener('mousedown', () => adminTimer = setTimeout(() => showPage('admin'), 3000));
-        trigger.addEventListener('mouseup', () => clearTimeout(adminTimer));
-
-        // עדכון שעה
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('liveDateTime').innerText = now.toLocaleString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+        function bookWhatsApp() {
+            if(!currentUser) return;
+            const msg = `שלום למרכז שירות ברע"מ, אני מעוניין להזמין תור לטיפול.%0A%0A*פרטי לקוח:*%0Aשם: ${currentUser.firstName} ${currentUser.lastName}%0Aרכב: ${currentUser.carModel} (${currentUser.year})%0Aמספר רכב: ${currentUser.plate}%0Aקילומטראז': ${currentUser.km}`;
+            window.open(`https://wa.me/972505858750?text=${msg}`, '_blank');
         }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
     </script>
 </body>
 </html>
