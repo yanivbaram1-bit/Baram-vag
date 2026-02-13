@@ -3,115 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול ברע״מ Enterprise | יניב ברעם</title>
+    <title>ניהול | מרכז שירות ברע״מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f8fafc; color: #001e50; }
-        .input-pro { @apply w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold; }
-        .item-row { @apply flex gap-2 items-center bg-slate-50 p-3 rounded-xl mb-2 border border-slate-100 animate-in; }
+        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
+        .input-pro { @apply w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,29,80,0.8); backdrop-filter: blur(10px); z-index: 2000; padding: 20px; overflow-y: auto; }
         .modal-overlay.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="pb-10">
+<body>
 
     <div id="loginGate" class="fixed inset-0 bg-[#001e50] z-[5000] flex items-center justify-center p-6 hidden">
-        <div class="bg-white p-10 rounded-[3rem] w-full max-w-sm shadow-2xl text-center">
-            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-3xl">
-                <i class="fas fa-user-check"></i>
-            </div>
-            <h1 class="text-3xl font-black italic mb-2">ברע״מ</h1>
-            <p class="text-[10px] font-bold opacity-30 mb-8 uppercase tracking-[0.3em]">Specialist Secure Access</p>
-            <input id="emailField" type="email" placeholder="אימייל מנהל" class="input-pro mb-3 text-center">
+        <div class="bg-white p-10 rounded-[3rem] w-full max-w-sm text-center shadow-2xl">
+            <h1 class="text-3xl font-black italic mb-2 text-[#001e50]">ברע״מ</h1>
+            <p class="text-[10px] font-bold opacity-30 mb-8 uppercase tracking-widest">Admin Control Center</p>
+            <input id="emailField" type="email" placeholder="אימייל" class="input-pro mb-3 text-center">
             <input id="passField" type="password" placeholder="סיסמה" class="input-pro mb-6 text-center">
-            <button onclick="signIn()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition">התחברות למערכת</button>
+            <button onclick="signIn()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black">התחברות</button>
         </div>
     </div>
 
     <div id="mainDashboard" class="hidden">
-        <header class="bg-[#001e50] text-white p-10 rounded-b-[3.5rem] shadow-2xl mb-8 relative overflow-hidden">
-            <div class="relative z-10 flex justify-between items-start mb-8">
-                <div>
-                    <h1 class="text-2xl font-black italic">ניהול מוסך</h1>
-                    <p class="text-xs opacity-50 font-bold uppercase tracking-widest">שלום, יניב ברעם</p>
-                </div>
-                <button onclick="firebase.auth().signOut()" class="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+        <header class="bg-[#001e50] text-white p-10 rounded-b-[3.5rem] shadow-xl mb-8">
+            <div class="flex justify-between items-start mb-8">
+                <div><h1 class="text-2xl font-black italic">מרכז שירות ברע״מ</h1><p class="text-xs opacity-50 font-bold">מערכת ניהול ובקרה</p></div>
+                <button onclick="firebase.auth().signOut()" class="bg-white/10 p-4 rounded-2xl"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            <div class="relative z-10">
-                <input type="text" onkeyup="search(this.value)" placeholder="חפש לקוח, לוחית רישוי או ת״ז..." class="w-full p-5 rounded-[2rem] bg-white/10 border-none text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-            </div>
+            <input type="text" onkeyup="search(this.value)" placeholder="חפש לפי שם או לוחית..." class="w-full p-5 rounded-[2rem] bg-white/10 border-none text-white placeholder:text-white/40 outline-none">
         </header>
 
-        <div id="clientsGrid" class="px-6 space-y-4 max-w-4xl mx-auto"></div>
-
-        <button onclick="openClientModal()" class="fixed bottom-8 left-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl active:scale-90 transition z-[1000]">
-            <i class="fas fa-plus"></i>
-        </button>
+        <div id="clientsGrid" class="px-6 space-y-4 pb-24 max-w-4xl mx-auto"></div>
+        <button onclick="openClientModal()" class="fixed bottom-8 left-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="clientModal" class="modal-overlay">
-        <div class="bg-white rounded-[3rem] p-8 max-w-3xl mx-auto shadow-2xl relative animate-in">
-            <div class="flex justify-between items-center mb-8 border-b pb-6">
-                <h2 class="text-2xl font-black" id="modalHeader">תיק לקוח והצעה</h2>
-                <button onclick="closeModal()" class="text-4xl opacity-10 hover:opacity-100">&times;</button>
+        <div class="bg-white rounded-[3rem] p-8 max-w-3xl mx-auto">
+            <div class="flex justify-between border-b pb-4 mb-6">
+                <h2 class="text-2xl font-black text-[#001e50]">כרטיס לקוח</h2>
+                <button onclick="closeModal()" class="text-3xl opacity-20">&times;</button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="space-y-4">
-                    <h3 class="text-[10px] font-black opacity-30 uppercase tracking-widest mr-2">פרטי לקוח מלאים</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input id="fName" placeholder="שם פרטי" class="input-pro">
-                        <input id="lName" placeholder="שם משפחה" class="input-pro">
-                    </div>
-                    <input id="idNum" placeholder="תעודת זהות" class="input-pro">
+                    <div class="grid grid-cols-2 gap-2"><input id="fName" placeholder="שם פרטי" class="input-pro"><input id="lName" placeholder="שם משפחה" class="input-pro"></div>
+                    <input id="idNum" placeholder="תעודת זהות מלאה (9 ספרות)" class="input-pro">
                     <input id="phone" placeholder="טלפון" class="input-pro">
-                    <input id="address" placeholder="כתובת מגורים" class="input-pro">
                 </div>
                 <div class="space-y-4">
-                    <h3 class="text-[10px] font-black opacity-30 uppercase tracking-widest mr-2">פרטי רכב</h3>
-                    <input id="plate" placeholder="לוחית רישוי" class="input-pro font-black text-center ltr tracking-widest">
-                    <input id="model" placeholder="דגם ושנה" class="input-pro">
-                    <select id="status" class="input-pro font-bold text-blue-600">
+                    <input id="plate" placeholder="מספר רכב" class="input-pro ltr">
+                    <input id="model" placeholder="דגם רכב" class="input-pro">
+                    <select id="status" class="input-pro text-blue-600">
                         <option value="ממתין לאבחון">ממתין לאבחון</option>
-                        <option value="בטיפול פעיל">בטיפול פעיל</option>
-                        <option value="ממתין לחלקים">ממתין לחלקים</option>
+                        <option value="בטיפול">בטיפול</option>
+                        <option value="הצעה אושרה - ממתין לביצוע">הצעה אושרה - ממתין לביצוע</option>
                         <option value="מוכן למסירה">מוכן למסירה</option>
                     </select>
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-200 mb-8">
-                <div class="flex justify-between items-center mb-6">
+            <div id="sigSection" class="hidden mb-8 p-6 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
+                <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-3">חתימת לקוח מאושרת</h3>
+                <img id="sigImg" class="mx-auto max-h-32 bg-white rounded-lg mb-2 shadow-sm">
+                <p id="sigDate" class="text-[10px] font-bold text-emerald-600"></p>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-3xl mb-6">
+                <div class="flex justify-between items-center mb-4">
                     <h3 class="font-black text-sm uppercase">פירוט הצעת מחיר</h3>
                     <div class="flex gap-2">
-                        <button onclick="addItemRow('עבודה')" class="bg-[#001e50] text-white text-[10px] px-4 py-2 rounded-full font-bold">+ הוסף עבודה</button>
-                        <button onclick="addItemRow('חלק')" class="bg-blue-600 text-white text-[10px] px-4 py-2 rounded-full font-bold">+ הוסף חלק</button>
+                        <button onclick="addItemRow('עבודה')" class="bg-slate-800 text-white text-[10px] px-3 py-2 rounded-lg">+ עבודה</button>
+                        <button onclick="addItemRow('חלק')" class="bg-blue-600 text-white text-[10px] px-3 py-2 rounded-lg">+ חלק</button>
                     </div>
                 </div>
-                
-                <div id="itemsContainer" class="space-y-2 mb-6"></div>
-
-                <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-3">
-                    <div class="flex justify-between text-xs font-bold opacity-60"><span>סה"כ נטו:</span> <span id="sumNet">₪0.00</span></div>
-                    <div class="flex justify-between text-xs text-blue-600 font-bold"><span>מע"מ (18%):</span> <span id="sumVat">₪0.00</span></div>
-                    <div class="flex justify-between text-xl font-black border-t pt-3 text-[#001e50]"><span>סה"כ לתשלום:</span> <span id="sumTotal">₪0.00</span></div>
+                <div id="itemsContainer" class="space-y-2 mb-4"></div>
+                <div class="flex justify-between font-black text-lg p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                    <span>סה"כ לתשלום:</span><span id="sumTotal" class="text-blue-600">₪0.00</span>
                 </div>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="saveClient()" class="flex-1 bg-emerald-600 text-white p-5 rounded-2xl font-black shadow-lg hover:bg-emerald-700 transition">עדכן ושמור תיק לקוח</button>
-                <button onclick="deleteClient()" id="delBtn" class="bg-red-50 text-red-500 px-6 rounded-2xl font-bold hidden hover:bg-red-100 transition"><i class="fas fa-trash-alt"></i></button>
+                <button onclick="saveClient()" class="flex-1 bg-emerald-600 text-white p-5 rounded-2xl font-black shadow-lg">שמור נתונים</button>
+                <button onclick="deleteClient()" id="delBtn" class="bg-red-50 text-red-500 px-6 rounded-2xl font-bold hidden"><i class="fas fa-trash-alt"></i></button>
             </div>
         </div>
     </div>
@@ -130,129 +109,87 @@
         const db = firebase.firestore();
         let currentPlate = null;
 
-        // --- בקרת גישה ---
         auth.onAuthStateChanged(user => {
-            const gate = document.getElementById('loginGate');
-            const dash = document.getElementById('mainDashboard');
             if (user && user.email === 'yanivbaram1@gmail.com') {
-                gate.classList.add('hidden');
-                dash.classList.remove('hidden');
+                document.getElementById('loginGate').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
                 listenToClients();
-            } else {
-                gate.classList.remove('hidden');
-                dash.classList.add('hidden');
-            }
+            } else { document.getElementById('loginGate').classList.remove('hidden'); }
         });
 
         async function signIn() {
             const e = document.getElementById('emailField').value;
             const p = document.getElementById('passField').value;
-            try { await auth.signInWithEmailAndPassword(e, p); }
-            catch(err) { alert("גישה נדחתה: פרטי המנהל שגויים."); }
+            try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאה בכניסה"); }
         }
 
-        // --- בונה הצעות מחיר ---
         function addItemRow(type, desc = "", price = "") {
-            const cont = document.getElementById('itemsContainer');
             const div = document.createElement('div');
-            div.className = 'item-row';
-            div.innerHTML = `
-                <span class="text-[9px] font-black uppercase w-12 text-center ${type==='עבודה'?'text-blue-500':'text-emerald-500'}">${type}</span>
-                <input type="text" placeholder="תיאור..." value="${desc}" class="flex-1 bg-transparent text-sm font-semibold outline-none">
-                <input type="number" placeholder="0" value="${price}" oninput="recalc()" class="w-24 bg-white border rounded-lg p-2 text-center font-bold text-sm">
-                <button onclick="this.parentElement.remove(); recalc();" class="text-red-300 px-2 hover:text-red-500 transition">&times;</button>
-            `;
-            cont.appendChild(div);
+            div.className = 'flex gap-2 items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm';
+            div.innerHTML = `<span class="text-[9px] font-black w-10 ${type==='עבודה'?'text-blue-500':'text-emerald-500'}">${type}</span>
+                <input type="text" placeholder="תיאור" value="${desc}" class="flex-1 outline-none text-sm font-bold">
+                <input type="number" placeholder="0" value="${price}" oninput="recalc()" class="w-20 text-center font-bold text-sm">
+                <button onclick="this.parentElement.remove(); recalc();" class="text-red-300 px-2">&times;</button>`;
+            document.getElementById('itemsContainer').appendChild(div);
         }
 
         function recalc() {
-            let net = 0;
-            document.querySelectorAll('#itemsContainer input[type="number"]').forEach(i => net += parseFloat(i.value || 0));
-            const vat = net * 0.18;
-            document.getElementById('sumNet').innerText = `₪${net.toFixed(2)}`;
-            document.getElementById('sumVat').innerText = `₪${vat.toFixed(2)}`;
-            document.getElementById('sumTotal').innerText = `₪${(net + vat).toFixed(2)}`;
+            let total = 0;
+            document.querySelectorAll('#itemsContainer input[type="number"]').forEach(i => total += parseFloat(i.value || 0));
+            document.getElementById('sumTotal').innerText = `₪${(total * 1.18).toFixed(2)}`;
         }
 
-        // --- פעולות מול Firebase ---
         function listenToClients() {
             db.collection("customers").onSnapshot(snap => {
-                const grid = document.getElementById('clientsGrid');
-                grid.innerHTML = "";
+                const grid = document.getElementById('clientsGrid'); grid.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    grid.innerHTML += `
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm flex justify-between items-center border-2 border-transparent hover:border-blue-500 transition cursor-pointer" onclick="editClient('${d.plate}')">
-                            <div>
-                                <h4 class="font-black text-slate-800 text-lg">${d.fName} ${d.lName}</h4>
-                                <p class="text-[10px] font-bold opacity-40 ltr tracking-widest">${d.plate} | ${d.model || 'VAG'}</p>
-                            </div>
-                            <span class="text-[10px] font-black px-4 py-2 rounded-full bg-slate-100 text-slate-500 uppercase">${d.status}</span>
-                        </div>`;
+                    const tag = d.signed ? '<span class="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full ml-2">חתום ✓</span>' : '';
+                    grid.innerHTML += `<div class="bg-white p-6 rounded-[2rem] shadow-sm flex justify-between items-center cursor-pointer border-2 border-transparent hover:border-blue-500" onclick="editClient('${d.plate}')">
+                        <div><h4 class="font-black">${d.fName} ${d.lName} ${tag}</h4><p class="text-[10px] opacity-40 ltr">${d.plate} | ${d.model}</p></div>
+                        <span class="text-[10px] font-black text-blue-600">${d.status}</span></div>`;
                 });
             });
         }
 
         async function saveClient() {
             const p = document.getElementById('plate').value;
-            if(!p) return alert("חובה להזין לוחית רישוי");
-            
             const rows = [];
             document.getElementById('itemsContainer').childNodes.forEach(r => {
                 rows.push({ type: r.children[0].innerText, desc: r.children[1].value, price: r.children[2].value });
             });
-
             await db.collection("customers").doc(p).set({
-                fName: document.getElementById('fName').value,
-                lName: document.getElementById('lName').value,
-                idNum: document.getElementById('idNum').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                plate: p,
-                model: document.getElementById('model').value,
-                status: document.getElementById('status').value,
-                quoteItems: rows,
-                total: document.getElementById('sumTotal').innerText,
-                lastUpdated: new Date().toLocaleDateString('he-IL')
+                fName: document.getElementById('fName').value, lName: document.getElementById('lName').value,
+                idNum: document.getElementById('idNum').value, phone: document.getElementById('phone').value,
+                plate: p, model: document.getElementById('model').value, status: document.getElementById('status').value,
+                quoteItems: rows, total: document.getElementById('sumTotal').innerText
             }, {merge: true});
             closeModal();
         }
 
         function editClient(plate) {
             db.collection("customers").doc(plate).get().then(doc => {
-                const d = doc.data();
-                currentPlate = plate;
-                openClientModal();
-                document.getElementById('fName').value = d.fName || "";
-                document.getElementById('lName').value = d.lName || "";
-                document.getElementById('idNum').value = d.idNum || "";
-                document.getElementById('plate').value = d.plate;
-                document.getElementById('plate').disabled = true;
-                document.getElementById('phone').value = d.phone || "";
-                document.getElementById('address').value = d.address || "";
-                document.getElementById('model').value = d.model || "";
-                document.getElementById('status').value = d.status;
+                const d = doc.data(); currentPlate = plate; openClientModal();
+                document.getElementById('fName').value = d.fName; document.getElementById('lName').value = d.lName;
+                document.getElementById('idNum').value = d.idNum; document.getElementById('plate').value = d.plate;
+                document.getElementById('model').value = d.model; document.getElementById('status').value = d.status;
                 document.getElementById('itemsContainer').innerHTML = "";
                 if(d.quoteItems) d.quoteItems.forEach(i => addItemRow(i.type, i.desc, i.price));
-                document.getElementById('delBtn').classList.remove('hidden');
-                recalc();
+                const sigSection = document.getElementById('sigSection');
+                if(d.signed) {
+                    sigSection.classList.remove('hidden'); document.getElementById('sigImg').src = d.signatureImg;
+                    document.getElementById('sigDate').innerText = "נחתם ב: " + d.approvalDate;
+                } else { sigSection.classList.add('hidden'); }
+                document.getElementById('delBtn').classList.remove('hidden'); recalc();
             });
         }
 
-        function openClientModal() { 
-            document.getElementById('clientModal').classList.add('active'); 
-            document.getElementById('plate').disabled = false;
-            document.getElementById('itemsContainer').innerHTML = "";
-            document.getElementById('delBtn').classList.add('hidden');
-            document.getElementById('plate').value = "";
-        }
+        function openClientModal() { document.getElementById('clientModal').classList.add('active'); }
         function closeModal() { document.getElementById('clientModal').classList.remove('active'); }
-        async function deleteClient() { if(confirm("למחוק את הלקוח לצמיתות?")) { await db.collection("customers").doc(currentPlate).delete(); closeModal(); } }
+        async function deleteClient() { if(confirm("למחוק את כרטיס הלקוח?")) { await db.collection("customers").doc(currentPlate).delete(); closeModal(); } }
         function search(val) {
             const v = val.toLowerCase();
-            document.querySelectorAll('#clientsGrid > div').forEach(c => {
-                c.style.display = c.innerText.toLowerCase().includes(v) ? 'flex' : 'none';
-            });
+            document.querySelectorAll('#clientsGrid > div').forEach(c => c.style.display = c.innerText.toLowerCase().includes(v) ? 'flex' : 'none');
         }
     </script>
 </body>
