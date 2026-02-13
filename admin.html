@@ -3,93 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ניהול ברע״מ PRO | VAG Specialist</title>
+    <title>מערכת ניהול ברע״מ PRO+</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
-        .glass-header { background: rgba(0, 30, 80, 0.95); backdrop-filter: blur(10px); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: flex-end; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; border-radius: 2rem 2rem 0 0; padding: 2rem; max-height: 90vh; overflow-y: auto; }
-        input, select { border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; width: 100%; outline: none; font-size: 16px !important; }
-        .btn-primary { background: #001e50; color: white; padding: 15px; border-radius: 15px; font-weight: 800; text-align: center; width: 100%; }
+        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; padding-bottom: 50px; }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; }
+        .status-work { background: #dbeafe; color: #1e40af; } /* בעבודה */
+        .status-parts { background: #fef3c7; color: #92400e; } /* ממתין לחלקים */
+        .status-ready { background: #dcfce7; color: #166534; } /* מוכן */
+        .admin-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; overflow-y: auto; padding: 20px; }
+        .admin-modal.active { display: block; }
+        .floating-add { position: fixed; bottom: 30px; left: 30px; z-index: 1000; }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <header class="glass-header text-white p-6 pt-10 sticky top-0 z-[1000] rounded-b-[2rem] shadow-2xl">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-black italic">ניהול ברע״מ PRO</h1>
-            <button onclick="openAddClient()" class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg active:scale-90">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
-        <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="חיפוש לקוח או רכב..." class="bg-white/10 border-none text-white placeholder:text-white/40">
-    </header>
-
-    <main class="p-4 space-y-3" id="clientsContainer">
-        <div class="text-center py-20 opacity-30 italic">טוען נתונים...</div>
-    </main>
-
-    <div id="clientModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle" class="text-xl font-black mb-4">הוספת לקוח חדש</h2>
-            <div class="space-y-3">
-                <input id="cFName" placeholder="שם פרטי">
-                <input id="cLName" placeholder="שם משפחה">
-                <input id="cPlate" placeholder="מספר רכב" class="font-bold ltr text-center">
-                <input id="cPhone" placeholder="טלפון" type="tel" class="ltr">
-                <input id="cModel" placeholder="דגם רכב (למשל: Audi A4)">
-                <button onclick="saveClient()" class="btn-primary mt-4">שמור לקוח במערכת</button>
-                <button onclick="deleteClient()" id="deleteBtn" class="hidden w-full p-3 text-red-500 font-bold text-xs uppercase">מחק לקוח מהמערכת</button>
-                <button onclick="closeModal('clientModal')" class="w-full p-2 text-slate-300 font-bold text-xs uppercase">ביטול</button>
+    <nav class="bg-[#001e50] p-6 pt-10 text-white rounded-b-[2.5rem] shadow-xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-black italic">ניהול מוסך ברע״מ</h1>
+            <div class="flex gap-2">
+                <button onclick="exportData()" class="p-2 bg-white/10 rounded-lg text-xs"><i class="fas fa-file-export"></i></button>
+                <button onclick="location.reload()" class="p-2 bg-white/10 rounded-lg text-xs"><i class="fas fa-sync"></i></button>
             </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="bg-white/10 p-3 rounded-2xl">
+                <p class="text-[10px] opacity-60">רכבים במוסך</p>
+                <p id="statInShop" class="text-lg font-black">0</p>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl">
+                <p class="text-[10px] opacity-60">ממתינים לחלקים</p>
+                <p id="statWaitParts" class="text-lg font-black">0</p>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl">
+                <p class="text-[10px] opacity-60">הצעות חתומות</p>
+                <p id="statSigned" class="text-lg font-black">0</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="p-4">
+        <div class="relative mb-4">
+            <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="חפש לפי שם, לוחית או דגם..." 
+                   class="w-full p-4 bg-white rounded-2xl shadow-sm outline-none border-none focus:ring-2 focus:ring-blue-500">
+            <i class="fas fa-search absolute left-4 top-4 opacity-20"></i>
         </div>
     </div>
 
-    <div id="quoteModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-black mb-4">יצירת הצעת מחיר</h2>
+    <div id="clientsContainer" class="px-4 space-y-3">
+        </div>
+
+    <button onclick="openClientModal()" class="floating-add w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl active:scale-90 transition">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="clientModal" class="admin-modal">
+        <div class="bg-white rounded-[2.5rem] p-8 min-h-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modalTitle" class="text-xl font-black">תיק לקוח חדש</h2>
+                <button onclick="closeModal()" class="text-3xl">&times;</button>
+            </div>
+
             <div class="space-y-4">
-                <textarea id="qDetails" placeholder="פירוט העבודה..." class="w-full p-3 border rounded-xl h-24 text-sm font-bold"></textarea>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black mr-1 uppercase">סה"כ חלקים (₪)</label>
-                        <input id="qParts" type="number" oninput="calcTotal()" placeholder="0.00" class="font-bold">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black mr-1 uppercase">סה"כ עבודה (₪)</label>
-                        <input id="qLabor" type="number" oninput="calcTotal()" placeholder="0.00" class="font-bold">
-                    </div>
+                    <input id="cFName" placeholder="שם פרטי">
+                    <input id="cLName" placeholder="שם משפחה">
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl space-y-1">
-                    <div class="flex justify-between text-xs font-bold"><span>לפני מע"מ:</span> <span id="subtotal">₪0.00</span></div>
-                    <div class="flex justify-between text-xs font-bold text-blue-600"><span>מע"מ (18%):</span> <span id="vatAmount">₪0.00</span></div>
-                    <div class="flex justify-between text-lg font-black text-[#001e50] border-t pt-2 mt-2"><span>סה"כ לתשלום:</span> <span id="grandTotal">₪0.00</span></div>
-                </div>
-                <button onclick="sendSmartQuote()" class="btn-primary">שלח הצעה לחתימת לקוח</button>
-                <button onclick="closeModal('quoteModal')" class="w-full p-2 text-slate-300 font-bold text-xs uppercase">ביטול</button>
-            </div>
-        </div>
-    </div>
+                <input id="cPlate" placeholder="מספר רכב" class="text-center font-black ltr tracking-widest">
+                <input id="cPhone" placeholder="טלפון לקוח" type="tel">
+                <input id="cModel" placeholder="דגם (למשל: VW Golf Mk7)">
+                
+                <label class="block text-xs font-black opacity-50 uppercase">סטטוס רכב במוסך:</label>
+                <select id="cStatus" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold">
+                    <option value="waiting">ממתין לאבחון</option>
+                    <option value="work">בעבודה</option>
+                    <option value="parts">ממתין לחלקים</option>
+                    <option value="ready">מוכן למסירה</option>
+                </select>
 
-    <div id="sigModal" class="modal">
-        <div class="modal-content text-center">
-            <h2 class="text-xl font-black mb-4 italic">אישור עבודה חתום</h2>
-            <div id="sigDownloadArea" class="bg-white border p-6 rounded-2xl mb-6">
-                <p id="sigDetails" class="text-xs font-bold text-right mb-4 whitespace-pre-line"></p>
-                <img id="sigImg" class="w-full border-t pt-4">
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
+                    <input type="file" id="photoUpload" class="hidden" accept="image/*" onchange="uploadPhoto()">
+                    <button onclick="document.getElementById('photoUpload').click()" class="text-blue-600 font-bold text-sm">
+                        <i class="fas fa-camera mb-2 text-2xl"></i><br>הוסף צילום נזק / רשיון
+                    </button>
+                    <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-4"></div>
+                </div>
+
+                <hr>
+                <h3 class="font-black text-sm"><i class="fas fa-calculator ml-2"></i>הצעת מחיר נוכחית</h3>
+                <textarea id="qDetails" placeholder="פירוט עבודה..." class="w-full p-3 bg-slate-50 rounded-xl h-20 text-xs"></textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="qParts" type="number" oninput="recalc()" placeholder="חלקים ₪">
+                    <input id="qLabor" type="number" oninput="recalc()" placeholder="עבודה ₪">
+                </div>
+                <div id="priceCalc" class="bg-blue-50 p-4 rounded-xl text-xs font-bold space-y-1">
+                    <div class="flex justify-between"><span>לפני מע"מ:</span> <span id="resSub">₪0</span></div>
+                    <div class="flex justify-between text-blue-600"><span>מע"מ (18%):</span> <span id="resVat">₪0</span></div>
+                    <div class="flex justify-between text-base font-black border-t pt-2"><span>סה"כ לתשלום:</span> <span id="resTotal">₪0</span></div>
+                </div>
+
+                <button onclick="saveClient()" class="w-full bg-[#001e50] text-white p-5 rounded-2xl font-black shadow-lg">שמור ועדכן תיק</button>
+                <button onclick="deleteClient()" id="delBtn" class="w-full text-red-500 font-bold text-xs py-2 hidden uppercase">מחק לקוח מהמערכת</button>
             </div>
-            <button onclick="window.print()" class="btn-primary mb-2"><i class="fas fa-download ml-2"></i> הורד / הדפס מסמך</button>
-            <button onclick="closeModal('sigModal')" class="w-full p-2 text-slate-300 font-bold text-xs uppercase">סגור</button>
         </div>
     </div>
 
     <script>
+        // חיבור Firebase (אותו קונפיג שקיבלת)
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -100,130 +125,125 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        let clients = [];
+        let currentId = "";
 
-        let activePlate = "";
-        let clientsData = [];
-
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        // טעינת לקוחות
+        // טעינה וסטטיסטיקה
         db.collection("customers").onSnapshot(snap => {
             const cont = document.getElementById('clientsContainer');
             cont.innerHTML = "";
-            clientsData = [];
+            clients = [];
+            let inShop = 0, waitParts = 0, signed = 0;
+
             snap.forEach(doc => {
                 const data = doc.data();
-                clientsData.push(data);
-                const hasSigned = data.pendingQuote && data.pendingQuote.signed;
-                
+                clients.push(data);
+                if(data.status !== 'ready') inShop++;
+                if(data.status === 'parts') waitParts++;
+                if(data.pendingQuote?.signed) signed++;
+
+                let statusClass = "status-work";
+                let statusText = "בעבודה";
+                if(data.status === 'parts') { statusClass="status-parts"; statusText="חלקים"; }
+                if(data.status === 'ready') { statusClass="status-ready"; statusText="מוכן"; }
+                if(data.status === 'waiting') { statusClass="bg-slate-200"; statusText="ממתין"; }
+
                 cont.innerHTML += `
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center active:scale-95 transition" onclick="openClientActions('${data.plate}')">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center active:scale-95 transition" onclick="openClientModal('${data.plate}')">
                         <div>
-                            <h3 class="font-black text-slate-800">${data.fName} ${data.lName}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 ltr">${data.plate} | ${data.model}</p>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="status-pill ${statusClass}">${statusText}</span>
+                                <h3 class="font-bold text-slate-800">${data.fName} ${data.lName}</h3>
+                            </div>
+                            <p class="text-[10px] font-bold text-slate-400 ltr">${data.plate} | ${data.model || 'VAG'}</p>
                         </div>
-                        <div class="flex gap-2">
-                            ${hasSigned ? '<button onclick="viewSig(\''+data.plate+'\'); event.stopPropagation();" class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center"><i class="fas fa-file-signature"></i></button>' : ''}
-                            <button onclick="openQuote('${data.plate}'); event.stopPropagation();" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-calculator"></i></button>
-                        </div>
+                        <i class="fas fa-chevron-left opacity-20"></i>
                     </div>
                 `;
             });
+            document.getElementById('statInShop').innerText = inShop;
+            document.getElementById('statWaitParts').innerText = waitParts;
+            document.getElementById('statSigned').innerText = signed;
         });
 
-        // ניהול לקוח
-        function openAddClient() {
-            activePlate = "";
-            document.getElementById('modalTitle').innerText = "הוספת לקוח חדש";
-            document.getElementById('deleteBtn').classList.add('hidden');
-            document.getElementById('cPlate').disabled = false;
-            ['cFName','cLName','cPlate','cPhone','cModel'].forEach(id => document.getElementById(id).value = "");
+        function openClientModal(plate = "") {
+            currentId = plate;
             document.getElementById('clientModal').classList.add('active');
+            const delBtn = document.getElementById('delBtn');
+            const inputs = ['cFName','cLName','cPlate','cPhone','cModel','cStatus','qDetails','qParts','qLabor'];
+            
+            if(plate) {
+                const u = clients.find(x => x.plate === plate);
+                document.getElementById('modalTitle').innerText = "עריכת תיק רכב";
+                delBtn.classList.remove('hidden');
+                document.getElementById('cFName').value = u.fName;
+                document.getElementById('cLName').value = u.lName;
+                document.getElementById('cPlate').value = u.plate;
+                document.getElementById('cPlate').disabled = true;
+                document.getElementById('cPhone').value = u.phone;
+                document.getElementById('cModel').value = u.model || "";
+                document.getElementById('cStatus').value = u.status || "waiting";
+                document.getElementById('qDetails').value = u.pendingQuote?.details || "";
+                document.getElementById('qParts').value = u.pendingQuote?.partsPrice || 0;
+                document.getElementById('qLabor').value = u.pendingQuote?.laborPrice || 0;
+                recalc();
+            } else {
+                document.getElementById('modalTitle').innerText = "תיק לקוח חדש";
+                delBtn.classList.add('hidden');
+                inputs.forEach(id => document.getElementById(id).value = "");
+                document.getElementById('cPlate').disabled = false;
+                recalc();
+            }
         }
 
-        function openClientActions(plate) {
-            activePlate = plate;
-            const user = clientsData.find(u => u.plate === plate);
-            document.getElementById('modalTitle').innerText = "עריכת לקוח";
-            document.getElementById('deleteBtn').classList.remove('hidden');
-            document.getElementById('cFName').value = user.fName;
-            document.getElementById('cLName').value = user.lName;
-            document.getElementById('cPlate').value = user.plate;
-            document.getElementById('cPlate').disabled = true;
-            document.getElementById('cPhone').value = user.phone;
-            document.getElementById('cModel').value = user.model;
-            document.getElementById('clientModal').classList.add('active');
+        function recalc() {
+            const p = parseFloat(document.getElementById('qParts').value) || 0;
+            const l = parseFloat(document.getElementById('qLabor').value) || 0;
+            const sub = p + l;
+            const vat = sub * 0.18;
+            document.getElementById('resSub').innerText = "₪" + sub.toFixed(2);
+            document.getElementById('resVat').innerText = "₪" + vat.toFixed(2);
+            document.getElementById('resTotal').innerText = "₪" + (sub + vat).toFixed(2);
         }
 
         async function saveClient() {
             const plate = document.getElementById('cPlate').value;
+            if(!plate) return alert("חובה להזין לוחית רישוי");
+            
             const data = {
                 fName: document.getElementById('cFName').value,
                 lName: document.getElementById('cLName').value,
                 plate: plate,
                 phone: document.getElementById('cPhone').value,
-                model: document.getElementById('cModel').value
-            };
-            await db.collection("customers").doc(plate).set(data, {merge: true});
-            closeModal('clientModal');
-        }
-
-        async function deleteClient() {
-            if(confirm("למחוק את הלקוח לצמיתות? לא ניתן לבטל פעולה זו.")) {
-                await db.collection("customers").doc(activePlate).delete();
-                closeModal('clientModal');
-            }
-        }
-
-        // מחשבון הצעת מחיר
-        function openQuote(plate) {
-            activePlate = plate;
-            document.getElementById('quoteModal').classList.add('active');
-        }
-
-        function calcTotal() {
-            const parts = parseFloat(document.getElementById('qParts').value) || 0;
-            const labor = parseFloat(document.getElementById('qLabor').value) || 0;
-            const subtotal = parts + labor;
-            const vat = subtotal * 0.18;
-            const total = subtotal + vat;
-
-            document.getElementById('subtotal').innerText = `₪${subtotal.toFixed(2)}`;
-            document.getElementById('vatAmount').innerText = `₪${vat.toFixed(2)}`;
-            document.getElementById('grandTotal').innerText = `₪${total.toFixed(2)}`;
-        }
-
-        async function sendSmartQuote() {
-            const details = document.getElementById('qDetails').value;
-            const parts = document.getElementById('qParts').value;
-            const labor = document.getElementById('qLabor').value;
-            const total = document.getElementById('grandTotal').innerText;
-
-            const fullText = `${details}\n\nחלקים: ₪${parts}\nעבודה: ₪${labor}\nמע"מ: 18%\nסה"כ סופי: ${total}`;
-
-            await db.collection("customers").doc(activePlate).update({
+                model: document.getElementById('cModel').value,
+                status: document.getElementById('cStatus').value,
                 pendingQuote: {
-                    details: fullText,
-                    signed: false,
-                    date: new Date().toLocaleDateString('he-IL')
+                    details: document.getElementById('qDetails').value,
+                    partsPrice: document.getElementById('qParts').value,
+                    laborPrice: document.getElementById('qLabor').value,
+                    total: document.getElementById('resTotal').innerText,
+                    signed: currentId ? (clients.find(x=>x.plate===currentId).pendingQuote?.signed || false) : false
                 }
-            });
-            alert("הצעה מפורטת נשלחה!");
-            closeModal('quoteModal');
+            };
+
+            await db.collection("customers").doc(plate).set(data, {merge: true});
+            closeModal();
         }
 
-        // צפייה בחתימה
-        function viewSig(plate) {
-            const user = clientsData.find(u => u.plate === plate);
-            document.getElementById('sigDetails').innerText = `לקוח: ${user.fName} ${user.lName}\nרכב: ${user.plate}\nתאריך: ${user.pendingQuote.date}\n---\n${user.pendingQuote.details}`;
-            document.getElementById('sigImg').src = user.pendingQuote.sigData;
-            document.getElementById('sigModal').classList.add('active');
-        }
+        function closeModal() { document.getElementById('clientModal').classList.remove('active'); }
 
         function filterClients() {
             const term = document.getElementById('adminSearch').value.toLowerCase();
-            const cards = document.querySelectorAll('#clientsContainer > div');
-            cards.forEach(card => card.style.display = card.innerText.toLowerCase().includes(term) ? 'flex' : 'none');
+            document.querySelectorAll('#clientsContainer > div').forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(term) ? 'flex' : 'none';
+            });
+        }
+
+        async function deleteClient() {
+            if(confirm("למחוק את התיק?")) {
+                await db.collection("customers").doc(currentId).delete();
+                closeModal();
+            }
         }
     </script>
 </body>
