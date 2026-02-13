@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרכז שירות ברע״מ | VAG</title>
+    <title>מרכז שירות ברע״מ | VAG Specialist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
         body { font-family: 'Assistant', sans-serif; background-color: #ffffff; overflow-x: hidden; }
         
-        /* Header & Menu */
+        /* Menu System */
         .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1000; transition: 0.4s; padding: 40px 20px; color: white; }
         .side-menu.active { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
         
-        /* Design Elements */
-        .hero-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); color: white; padding: 60px 20px; text-align: center; }
-        .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; border-radius: 20px; }
+        /* Branding */
+        .hero-bg { background-color: #0f172a; color: white; padding: 60px 20px 80px 20px; text-align: center; }
         .pill { border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 6px 18px; font-size: 13px; background: rgba(255,255,255,0.05); }
         
-        /* Review Section */
-        .review-box { background: #1e40af; border-radius: 24px; padding: 30px 20px; color: white; }
-        .tip-box { background: #f0f7ff; border-right: 4px solid #1e40af; padding: 15px; border-radius: 12px; }
+        /* Reviews Styling */
+        .reviews-container { background: #1e40af; padding: 60px 20px; border-radius: 40px 40px 0 0; margin-top: 40px; }
+        .review-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .star-color { color: #fbbf24; }
         
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .hidden { display: none; }
     </style>
 </head>
@@ -31,96 +32,115 @@
 
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
     <div id="sideMenu" class="side-menu text-right">
-        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט שירות</h3>
+        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">ניווט מהיר</h3>
         <ul class="space-y-6">
-            <li><a href="#" onclick="toggleMenu()" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
-            <li><a href="#" onclick="showCRM(); toggleMenu()" class="block text-lg text-blue-400 font-bold"><i class="fas fa-user-circle ml-3"></i>כניסה לאזור אישי (CRM)</a></li>
-            <li><a href="https://wa.me/972505858750" class="block text-lg"><i class="fab fa-whatsapp ml-3 text-green-400"></i>ייעוץ VAG בוואטסאפ</a></li>
+            <li><a href="#" onclick="showHome(); toggleMenu()" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
+            <li><a href="#" onclick="showCRM(); toggleMenu()" class="block text-lg font-bold text-blue-400"><i class="fas fa-user-shield ml-3"></i>אזור אישי וניהול רכב</a></li>
+            <li><a href="https://wa.me/972505858750" class="block text-lg"><i class="fab fa-whatsapp ml-3 text-green-400"></i>ייעוץ VAG מהיר</a></li>
             <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone-alt ml-3"></i>חיוג למוסך</a></li>
-            <li><a href="#" onclick="toggleMenu()" class="block text-lg"><i class="fas fa-calendar-check ml-3"></i>קביעת תור</a></li>
         </ul>
-        <div class="absolute bottom-10 left-0 right-0 text-center opacity-40 text-xs">
-            מרכז שירות ברע"מ - פנחס החוצב 35
-        </div>
     </div>
 
-    <header class="p-4 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur-md z-[100] border-b">
-        <button onclick="toggleMenu()" class="text-gray-600 text-2xl">
-            <i class="fas fa-bars"></i>
-        </button>
+    <header class="p-4 flex justify-between items-center sticky top-0 bg-white/95 backdrop-blur-md z-[100] border-b">
+        <button onclick="toggleMenu()" class="text-gray-600 text-2xl"><i class="fas fa-bars"></i></button>
         <div class="text-center">
             <h1 class="font-bold text-blue-900 text-lg">מרכז שירות ברע״מ</h1>
-            <p class="text-[8px] tracking-widest text-gray-400 font-bold">VAG SPECIALIST BEER SHEVA</p>
+            <p class="text-[8px] tracking-widest text-gray-400 font-bold uppercase">VAG Specialist</p>
         </div>
         <div class="w-8"></div>
     </header>
 
     <div id="homePage">
-        <section class="hero-gradient">
+        <section class="hero-bg">
             <h2 class="text-3xl font-bold mb-4">מומחי VAG בבאר שבע</h2>
-            <p class="text-blue-200 text-sm mb-6">הבית המקצועי לאאודי, פולקסווגן, סקודה וסיאט</p>
+            <p class="text-blue-200 text-sm mb-6">דיאגנוסטיקה, מכונאות ושירות אישי</p>
             <div class="flex justify-center gap-2 flex-wrap">
                 <span class="pill">Audi</span><span class="pill">Skoda</span><span class="pill">Seat</span><span class="pill">VW</span>
             </div>
         </section>
 
-        <div class="px-5 -mt-8">
-            <div class="bg-white card-shadow p-6 relative z-10">
+        <div class="px-5 -mt-10">
+            <div class="bg-white rounded-3xl shadow-xl p-6 relative z-10 border border-gray-100">
                 <div class="flex items-center gap-2 mb-2 text-blue-600 font-bold">
                     <i class="fas fa-lightbulb"></i>
-                    <span>טיפ מקצועי יומי</span>
+                    <span>טיפ מומחה יומי</span>
                 </div>
-                <p id="dailyTip" class="text-sm text-gray-600 italic">טוען טיפ מומחה...</p>
+                <p id="dailyTip" class="text-sm text-gray-600 italic">טוען המלצה...</p>
             </div>
         </div>
 
-        <main class="p-5 space-y-4">
-            <div class="flex items-center gap-4 p-4 card-shadow">
-                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-microchip"></i></div>
+        <main class="p-6 space-y-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl"><i class="fas fa-tools"></i></div>
                 <div>
-                    <h4 class="font-bold text-gray-800">דיאגנוסטיקה מתקדמת</h4>
-                    <p class="text-xs text-gray-400">איתור תקלות בעזרת מחשוב מקורי</p>
+                    <h4 class="font-bold text-gray-800">טיפולים תקופתיים</h4>
+                    <p class="text-xs text-gray-400 italic">שימוש בחלפים איכותיים ושמנים בתקן VAG</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl"><i class="fas fa-laptop-medical"></i></div>
+                <div>
+                    <h4 class="font-bold text-gray-800">דיאגנוסטיקה ממוחשבת</h4>
+                    <p class="text-xs text-gray-400 italic">איתור תקלות קצה בעזרת הציוד המתקדם ביותר</p>
+                </div>
+            </div>
+        </main>
+
+        <section class="reviews-container">
+            <div class="text-center mb-10">
+                <h3 class="text-white text-3xl font-extrabold mb-2">מה הלקוחות אומרים?</h3>
+                <div class="flex justify-center items-center gap-1 mb-2">
+                    <span class="text-white font-bold ml-2">דירוג גוגל:</span>
+                    <i class="fas fa-star star-color"></i><i class="fas fa-star star-color"></i><i class="fas fa-star star-color"></i><i class="fas fa-star star-color"></i><i class="fas fa-star star-color"></i>
+                    <span class="text-white font-bold mr-2 text-xl">5.0</span>
                 </div>
             </div>
 
-            <section class="review-box text-center mt-6">
-                <h3 class="text-2xl font-bold mb-2">לקוחות ממליצים</h3>
-                <div class="flex justify-center text-yellow-400 mb-6">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    <span class="mr-2 text-white">5.0</span>
-                </div>
-                
-                <div class="bg-white/10 p-5 rounded-2xl border border-white/10 text-right">
-                    <p class="text-sm font-light italic mb-3">"המוסך הכי מקצועי בבאר שבע. שירות אדיב, שקיפות מלאה ומחיר הוגן ביותר. מומלץ בחום!"</p>
-                    <div class="flex justify-between items-center text-[10px] opacity-70">
-                        <span>אביב לוי</span>
-                        <span>לפני שבוע</span>
+            <div class="space-y-4">
+                <div class="review-card">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h5 class="font-bold text-gray-800">אביב לוי</h5>
+                            <div class="flex text-[10px] star-color"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        </div>
+                        <span class="text-[10px] text-gray-400">לפני שבוע</span>
                     </div>
+                    <p class="text-sm text-gray-600 leading-relaxed">"המוסך הכי מקצועי בבאר שבע. שירות אדיב, שקיפות מלאה ומחיר הוגן ביותר. מומלץ בחום לכל מי שיש לו פולקסווגן!"</p>
                 </div>
-            </section>
-        </main>
+
+                <div class="review-card">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h5 class="font-bold text-gray-800">יניב כהן</h5>
+                            <div class="flex text-[10px] star-color"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        </div>
+                        <span class="text-[10px] text-gray-400">לפני חודש</span>
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed">"אין דברים כאלה. פתרו לי בעיה בגיר ששום מוסך לא הצליח לעלות עליה. מקצוענים ברמה הגבוהה ביותר."</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-6">
+                <a href="https://www.google.com/search?q=מרכז+שירות+ברע״מ+ביקורות" class="text-white/70 text-xs underline">צפה בכל הביקורות בגוגל</a>
+            </div>
+        </section>
     </div>
 
-    <div id="crmPage" class="hidden animate-in fade-in duration-500">
-        <div class="p-6 bg-gray-50 min-h-screen">
-            <button onclick="showHome()" class="text-blue-900 font-bold mb-6 flex items-center gap-2">
-                <i class="fas fa-arrow-right"></i> חזרה לדף הבית
-            </button>
-            
-            <div class="bg-white rounded-3xl p-6 shadow-xl border">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">מערכת ניהול לקוחות</h3>
-                <div class="space-y-4">
-                    <input type="text" placeholder="שם מלא" class="w-full p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900">
-                    <input type="tel" placeholder="מספר רכב" class="w-full p-4 bg-gray-100 rounded-2xl outline-none text-center font-bold tracking-widest ltr">
-                    <button class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold">כניסה לאזור אישי</button>
-                </div>
-                <p class="text-center text-[10px] text-gray-400 mt-6">המידע מאובטח ומוגן במערכות ברע"מ</p>
+    <div id="crmPage" class="hidden p-6 bg-gray-50 min-h-screen">
+        <button onclick="showHome()" class="text-blue-900 font-bold mb-6 flex items-center gap-2">
+            <i class="fas fa-arrow-right"></i> חזרה
+        </button>
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border border-blue-100">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">כניסה למערכת CRM</h3>
+            <div class="space-y-4">
+                <input type="text" placeholder="שם מלא" class="w-full p-4 bg-gray-100 rounded-2xl outline-none">
+                <input type="tel" placeholder="מספר רכב" class="w-full p-4 bg-gray-100 rounded-2xl outline-none text-center font-bold tracking-widest ltr">
+                <button class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold shadow-lg">כניסה לאזור האישי</button>
             </div>
         </div>
     </div>
 
     <script>
-        // תפריט המבורגר
         function toggleMenu() {
             const menu = document.getElementById('sideMenu');
             const overlay = document.getElementById('overlay');
@@ -128,7 +148,6 @@
             overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
         }
 
-        // מעבר בין דפים
         function showCRM() {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('crmPage').classList.remove('hidden');
@@ -140,23 +159,17 @@
             document.getElementById('homePage').classList.remove('hidden');
         }
 
-        // מערכת טיפים יומית
         const tips = [
-            "מומלץ לבדוק שמן ומים בכל רכב VAG פעם בשבועיים, במיוחד בקיץ הישראלי.",
-            "תקתוקים בהגה? כדאי לבדוק את הציריות לפני שהן נשברות.",
-            "שמירה על לחץ אוויר תקין בצמיגים חוסכת עד 10% בצריכת הדלק.",
-            "במידה ונדלקה נורה אדומה - עצור מיד את הרכב והתקשר לייעוץ.",
-            "החלפת מסנן מזגן פעם בשנה תשפר משמעותית את איכות האוויר ברכב."
+            "בדיקת מפלס נוזל קירור בבוקר (כשהמנוע קר) יכולה למנוע נזק של אלפי שקלים.",
+            "רכבי DSG? מומלץ לבצע החלפת שמן גיר בכל 60,000 ק״מ לשמירה על המצמדים.",
+            "נורת מנוע דולקת? אל תחכו. סריקת תקלות מוקדמת חוסכת תקלות שרשרת.",
+            "רעש של תקתוקים בנסיעה? ייתכן ומדובר בבלאי של הציריות - כדאי לבדוק בהקדם."
         ];
 
-        function setDailyTip() {
-            // בחירה רנדומלית של טיפ (אפשר לשנות לבחירה לפי תאריך)
+        window.onload = () => {
             const randomTip = tips[Math.floor(Math.random() * tips.length)];
             document.getElementById('dailyTip').innerText = randomTip;
-        }
-
-        // הפעלה בטעינה
-        window.onload = setDailyTip;
+        };
     </script>
 </body>
 </html>
