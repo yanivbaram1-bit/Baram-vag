@@ -21,11 +21,10 @@
 
     <div id="loginScreen" class="login-screen">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center mx-4">
-            <div class="text-blue-600 text-4xl mb-4"><i class="fas fa-user-shield"></i></div>
-            <h2 class="text-2xl font-black mb-6 italic text-slate-800">BARAM VAG ADMIN</h2>
-            <input type="password" id="passInput" placeholder="הכנס סיסמה" class="w-full p-4 border-2 rounded-2xl mb-4 text-center outline-none focus:border-blue-500 bg-slate-50">
-            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg">כניסה למערכת</button>
-            <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden font-bold">סיסמה שגויה, נסה שוב</p>
+            <h2 class="text-2xl font-black mb-6 text-slate-800">כניסת מנהל</h2>
+            <input type="password" id="passInput" placeholder="סיסמה" class="w-full p-4 border-2 rounded-2xl mb-4 text-center outline-none focus:border-blue-500 bg-slate-50">
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">כניסה</button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden">סיסמה שגויה</p>
         </div>
     </div>
 
@@ -35,8 +34,8 @@
                 <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
                 <button onclick="location.reload()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            <nav class="flex overflow-x-auto bg-slate-800 text-sm whitespace-nowrap">
-                <button onclick="showTab('calendar', this)" class="nav-button active flex-1 p-4"><i class="fas fa-calendar-check ml-2"></i>לו״ז תורים</button>
+            <nav class="flex bg-slate-800 text-sm">
+                <button onclick="showTab('calendar', this)" class="nav-button active flex-1 p-4"><i class="fas fa-calendar-check ml-2"></i>תורים</button>
                 <button onclick="showTab('customers', this)" class="nav-button flex-1 p-4"><i class="fas fa-users ml-2"></i>לקוחות</button>
             </nav>
         </header>
@@ -44,12 +43,13 @@
         <main class="p-4">
             <section id="calendar" class="tab-content active">
                 <h2 class="text-2xl font-bold mb-6">תורים שנקבעו</h2>
-                <div id="appointmentsList" class="space-y-4"></div>
+                <div id="appointmentsList" class="space-y-4">
+                    </div>
             </section>
 
             <section id="customers" class="tab-content">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">ספר לקוחות</h2>
+                    <h2 class="text-2xl font-bold">לקוחות</h2>
                     <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">+ הוספה</button>
                 </div>
                 <div id="customersList" class="space-y-3"></div>
@@ -58,7 +58,7 @@
     </div>
 
     <script>
-        // בדיקת סיסמה מעודכנת
+        // בדיקת סיסמה
         function checkPass() {
             const pass = document.getElementById('passInput').value;
             if (pass === "baram!14567") { 
@@ -90,22 +90,44 @@
             if(tabId === 'customers') loadCustomers();
         }
 
+        // טעינת תורים עם כל הפרטים
         async function loadAppointments() {
             const list = document.getElementById('appointmentsList');
             const snap = await db.collection("appointments").orderBy("date", "asc").get();
             list.innerHTML = snap.empty ? '<div class="text-center text-slate-400 mt-10 italic">אין תורים רשומים</div>' : '';
+            
             snap.forEach(doc => {
                 const app = doc.data();
                 list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-blue-600 flex justify-between items-center">
-                        <div>
-                            <div class="text-blue-600 font-bold text-xs">${app.date} | ${app.time}</div>
-                            <div class="font-black text-lg">${app.customerName}</div>
-                            <div class="text-slate-500 text-sm italic">${app.carPlate}</div>
+                    <div class="bg-white p-5 rounded-3xl shadow-md border-r-8 border-blue-600 relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="text-blue-700 font-extrabold text-lg flex items-center gap-2">
+                                    <i class="fas fa-calendar-day"></i> ${app.date} 
+                                    <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-lg text-sm"><i class="fas fa-clock"></i> ${app.time}</span>
+                                </div>
+                                <div class="font-black text-xl mt-1 text-slate-900">${app.customerName}</div>
+                                <div class="text-slate-600 font-bold">רכב: ${app.carPlate}</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="https://wa.me/972${app.phone.substring(1)}" class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl shadow-sm"><i class="fab fa-whatsapp"></i></a>
+                                <button onclick="deleteApp('${doc.id}')" class="w-10 h-10 bg-red-50 text-red-400 rounded-full flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                            </div>
                         </div>
-                        <a href="https://wa.me/972${app.phone.substring(1)}" class="text-green-500 text-2xl"><i class="fab fa-whatsapp"></i></a>
+                        
+                        <div class="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div class="text-xs text-slate-400 font-bold mb-1">סיבת הגעה:</div>
+                            <div class="text-slate-800 font-medium">${app.reason || 'לא צוינה סיבה'}</div>
+                        </div>
                     </div>`;
             });
+        }
+
+        async function deleteApp(id) {
+            if(confirm("למחוק את התור?")) {
+                await db.collection("appointments").doc(id).delete();
+                loadAppointments();
+            }
         }
 
         async function loadCustomers() {
@@ -120,8 +142,6 @@
                 </div>`;
             });
         }
-
-        // פונקציות נוספות (מחיקה וכו') נשמרות מהקוד הקודם...
     </script>
 </body>
 </html>
