@@ -8,132 +8,120 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f3f4f7; margin-bottom: 100px; }
+        body { font-family: 'Assistant', sans-serif; background-color: #f8f9fa; margin-bottom: 90px; }
         .vag-blue { color: #001e50; }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .brand-btn-active { background-color: #001e50 !important; color: white !important; }
-        /* תיקון כיוון הקלדת מספר רכב משמאל לימין */
-        #carPlate { direction: ltr; text-align: center; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .header-bg { background-color: #ffffff; border-bottom: 1px solid #e5e7eb; }
+        .hero-dark { background-color: #001e50; padding: 40px 20px 80px 20px; }
+        .main-card { background: white; border-radius: 24px; margin-top: -50px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 24px; position: relative; z-index: 10; }
+        .btn-brand { border: 2px solid #001e50; border-radius: 50px; padding: 12px; font-weight: bold; color: #001e50; transition: all 0.2s; font-size: 14px; }
+        .btn-brand.active { background-color: #001e50; color: white; }
+        #carPlate { direction: ltr; text-align: center; border: 1px solid #d1d5db; border-radius: 12px; padding: 16px; width: 100%; font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+        .bottom-nav { background: #ffffff; border-top: 1px solid #e5e7eb; position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; padding: 12px 0 24px 0; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #9ca3af; font-size: 10px; font-weight: 600; }
+        .nav-item.active { color: #001e50; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white p-6 text-center border-b sticky top-0 z-50 shadow-sm">
-        <h1 class="text-2xl font-extrabold vag-blue tracking-tight">מרכז שירות ברע״מ</h1>
-        <p class="text-[10px] tracking-[0.2em] font-bold text-gray-400 uppercase mt-1">VAG Specialist Beer Sheva</p>
+    <header class="header-bg p-4 flex justify-between items-center sticky top-0 z-[100]">
+        <div class="w-8"></div> <div class="text-center">
+            <h1 class="text-xl font-bold vag-blue leading-none">מרכז שירות ברע״מ</h1>
+            <p class="text-[8px] tracking-[0.2em] font-bold text-gray-400 uppercase mt-1">VAG SPECIALIST BEER SHEVA</p>
+        </div>
+        <button class="text-gray-600 text-xl"><i class="fas fa-bars"></i></button>
     </header>
 
-    <main class="p-4 space-y-5 max-w-md mx-auto">
-        
-        <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" class="bg-white p-5 rounded-3xl card-shadow flex items-center justify-between active:scale-95 transition-all">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-50 p-4 rounded-2xl text-blue-600"><i class="fas fa-location-arrow text-xl"></i></div>
-                <div>
-                    <h3 class="font-bold text-gray-800 text-lg">ניווט למוסך</h3>
-                    <p class="text-sm text-gray-400 font-bold">פנחס החוצב 35, באר שבע</p>
-                </div>
-            </div>
-            <i class="fas fa-chevron-left text-gray-300"></i>
-        </a>
+    <div class="hero-dark text-center">
+        <h2 class="text-white text-2xl font-bold mb-2">מומחי VAG בבאר שבע</h2>
+        <p class="text-blue-200 text-sm font-light">מרכז שירות מקצועי לאאודי, פולקסווגן, סקודה וסיאט</p>
+    </div>
 
-        <div class="bg-white p-6 rounded-3xl card-shadow border-t-4 border-blue-900">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-database text-blue-900"></i> מנוע חיפוש היסטוריית VAG
-            </h3>
+    <main class="px-4">
+        <div class="main-card max-w-md mx-auto">
+            <h3 class="text-xl font-bold text-center mb-6 text-gray-800">בדיקת היסטוריית VAG</h3>
             
-            <div class="grid grid-cols-4 gap-2 mb-4">
-                <button onclick="selectBrand(this, 'סיאט')" class="brand-opt border border-gray-100 bg-gray-50 p-2 rounded-xl text-[10px] font-bold">סיאט</button>
-                <button onclick="selectBrand(this, 'סקודה')" class="brand-opt border border-gray-100 bg-gray-50 p-2 rounded-xl text-[10px] font-bold">סקודה</button>
-                <button onclick="selectBrand(this, 'פולקסווגן')" class="brand-opt border border-gray-100 bg-gray-50 p-2 rounded-xl text-[10px] font-bold">VW</button>
-                <button onclick="selectBrand(this, 'אאודי')" class="brand-opt border border-gray-100 bg-gray-50 p-2 rounded-xl text-[10px] font-bold">אאודי</button>
+            <div class="flex items-center gap-2 mb-4 text-gray-600 font-bold text-sm">
+                <i class="fas fa-database"></i>
+                <span>מאגר נתונים ארצי</span>
+                <i class="fas fa-user ml-auto"></i>
+                <span>אזור לקוחות</span>
             </div>
 
-            <input id="carPlate" type="tel" placeholder="00-000-00" class="w-full p-4 bg-gray-50 rounded-2xl text-2xl font-bold tracking-[0.1em] mb-3 outline-none focus:ring-2 focus:ring-blue-900">
-            <button onclick="searchVehicle()" class="w-full bg-[#001e50] text-white p-4 rounded-2xl font-bold transition-all active:scale-95">חפש במאגר נתונים</button>
+            <div class="mb-6">
+                <input id="carPlate" type="tel" placeholder="VAG" class="bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900">
+            </div>
 
-            <div id="resultsArea" class="hidden mt-6 space-y-4 border-t pt-4">
-                <div class="bg-gray-800 text-white p-3 rounded-xl text-center text-xs font-bold tracking-widest uppercase">
-                    דו"ח רכב מפורט - <span id="resPlate"></span>
-                </div>
-                
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-500">טיפול אחרון:</span>
-                        <span class="font-bold text-gray-800">15/09/2025</span>
-                    </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-500">בוצע במוסך:</span>
-                        <span class="font-bold text-gray-800">מרכז שירות ברע"מ</span>
-                    </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-500">סוג טיפול:</span>
-                        <span class="font-bold text-gray-800 italic">טיפול 60,000 + החלפת שמן גיר</span>
-                    </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-500 text-red-600 font-bold">מועד טסט קרוב:</span>
-                        <span class="font-bold text-red-600 underline">22/05/2026</span>
-                    </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-500">טיפול הבא מומלץ:</span>
-                        <span class="font-bold text-blue-700">15/09/2026 או ב-75,000 ק"מ</span>
-                    </div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="selectBrand(this, 'אאודי')" class="btn-brand">אאודי</button>
+                <button onclick="selectBrand(this, 'פולקסווגן')" class="btn-brand">פולקסווגן</button>
+                <button onclick="selectBrand(this, 'סקודה')" class="btn-brand">סקודה</button>
+                <button onclick="selectBrand(this, 'סיאט')" class="btn-brand">סיאט</button>
+            </div>
 
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-2">
-                        <p class="text-[11px] font-bold text-blue-900 underline mb-1">הנחיות מומחה VAG:</p>
-                        <p id="expertTip" class="text-[11px] text-blue-800 leading-relaxed"></p>
-                    </div>
+            <button onclick="searchVehicle()" class="w-full bg-[#001e50] text-white p-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-transform">
+                בצע חיפוש במערכת
+            </button>
+
+            <div id="resultsArea" class="hidden mt-8 border-t pt-6 animate-in fade-in duration-500">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <h4 class="font-bold text-blue-900 mb-4 border-b border-blue-200 pb-2">דו"ח רכב מפורט</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex justify-between"><span class="text-gray-500">טיפול אחרון:</span> <span class="font-bold">15/09/2025</span></li>
+                        <li class="flex justify-between"><span class="text-gray-500">מיקום:</span> <span class="font-bold">מרכז שירות ברע"מ</span></li>
+                        <li class="flex justify-between"><span class="text-gray-500 text-red-600">טסט קרוב:</span> <span class="font-bold text-red-600 underline">22/05/2026</span></li>
+                        <li class="mt-4 p-2 bg-white rounded-lg text-[11px] text-gray-600 italic border">
+                            <b>המלצת מומחה:</b> מומלץ לבצע בדיקת שמנים ונוזלים לפני הקיץ.
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl card-shadow border-r-4 border-indigo-500">
-            <h3 class="text-lg font-bold text-gray-800 mb-1 italic">התייעצו איתנו</h3>
-            <p class="text-xs text-gray-400 mb-4 font-semibold">מענה טכני מיידי לכל שאלה</p>
-            <div id="aiBox" class="hidden mb-4 p-4 bg-indigo-50 rounded-2xl text-sm text-indigo-900 border border-indigo-100"></div>
+        <div class="mt-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 max-w-md mx-auto">
+            <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fas fa-comment-dots text-blue-900"></i> התייעצו איתנו (AI)
+            </h4>
+            <div id="aiBox" class="hidden mb-4 p-4 bg-gray-50 rounded-xl text-sm border italic text-gray-600"></div>
             <div class="flex gap-2">
-                <input id="aiIn" type="text" placeholder="מה הבעיה ברכב?" class="flex-1 p-4 bg-gray-50 rounded-2xl text-sm outline-none">
-                <button onclick="askAI()" class="bg-indigo-600 text-white px-6 rounded-2xl font-bold"><i class="fas fa-paper-plane"></i></button>
+                <input id="aiIn" type="text" placeholder="שאלה טכנית..." class="flex-1 p-3 bg-gray-50 rounded-xl outline-none border text-sm">
+                <button onclick="askAI()" class="bg-gray-800 text-white px-4 rounded-xl"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
-
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t flex justify-around p-4 pb-8 z-[100]">
-        <button onclick="location.reload()" class="flex flex-col items-center text-blue-900">
-            <i class="fas fa-home text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">ראשי</span>
+    <nav class="bottom-nav">
+        <button onclick="location.reload()" class="nav-item active">
+            <i class="fas fa-th-large text-xl mb-1"></i>
+            <span>ראשי</span>
         </button>
-        <button onclick="sendWA('שלום רעמ, אשמח לתאם תור')" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-calendar-check text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">תור</span>
+        <button onclick="sendWA('שלום רעמ, אשמח לתאם תור לטיפול')" class="nav-item">
+            <i class="fas fa-calendar-alt text-xl mb-1"></i>
+            <span>קביעת תור</span>
         </button>
-        <a href="tel:086277195" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-phone text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">חיוג</span>
-        </a>
+        <button onclick="sendWA('שלום רעמ, אשמח לקבל ייעוץ')" class="nav-item">
+            <i class="fas fa-shield-alt text-xl mb-1"></i>
+            <span>מעקב רכב</span>
+        </button>
+        <button onclick="sendWA('שלום, יש לי שאלה טכנית')" class="nav-item">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span>ייעוץ VAG</span>
+        </button>
     </nav>
 
     <script>
         let selectedBrandName = "";
 
         function selectBrand(btn, name) {
-            document.querySelectorAll('.brand-opt').forEach(b => b.classList.remove('brand-btn-active'));
-            btn.classList.add('brand-btn-active');
+            document.querySelectorAll('.btn-brand').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             selectedBrandName = name;
         }
 
         function searchVehicle() {
             const plate = document.getElementById('carPlate').value;
-            if(!selectedBrandName || !plate) return alert("בחר מותג והזן מספר רכב");
-            
-            const area = document.getElementById('resultsArea');
-            document.getElementById('resPlate').innerText = plate;
-            area.classList.remove('hidden');
-            
-            document.getElementById('expertTip').innerText = `ברכבי ${selectedBrandName} בקילומטראז' זה, יש לבצע בדיקת שרשרת תזמון/רצועה ולבדוק את תקינות המשאבה. מומלץ להגיע לבדיקה חזותית במוסך.`;
-            
-            area.scrollIntoView({ behavior: 'smooth' });
+            if(!selectedBrandName || !plate) return alert("אנא בחר מותג והזן מספר רכב");
+            document.getElementById('resultsArea').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
         function askAI() {
@@ -141,9 +129,9 @@
             const box = document.getElementById('aiBox');
             if(!q) return;
             box.classList.remove('hidden');
-            box.innerText = "מעבד נתונים טכניים...";
+            box.innerText = "מעבד נתונים טכניים עבור רכבי VAG...";
             setTimeout(() => {
-                box.innerHTML = `<b>מומחה ברע"מ:</b> לפי התיאור, מדובר בתופעה מוכרת ברכבי ${selectedBrandName || 'VAG'}. מומלץ לבצע סריקת תקלות ממוחשבת אצלנו בבאר שבע כדי לדייק את הדיאגנוזה.`;
+                box.innerHTML = `<b>מומחה ברע"מ:</b> לפי התיאור שלך, כדאי לבדוק את לחץ השמן בגיר. מומלץ להגיע לסריקת תקלות במעבדה שלנו בפנחס החוצב 35.`;
             }, 1000);
         }
 
@@ -151,6 +139,5 @@
             window.open(`https://wa.me/972505858750?text=${encodeURIComponent(message)}`, '_blank');
         }
     </script>
-
 </body>
 </html>
