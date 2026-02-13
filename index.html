@@ -3,176 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מערכת ברע״מ VAG</title>
+    <title>מרכז שירות ברע״מ | VAG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f4f7fa; margin-bottom: 90px; }
-        .vag-blue { color: #001e50; }
-        .bg-vag-blue { background-color: #001e50; }
-        .hero-gradient { background: linear-gradient(180deg, #001e50 0%, #003380 100%); padding: 50px 20px 100px 20px; }
-        .main-card { background: white; border-radius: 32px; margin-top: -60px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); padding: 28px; position: relative; z-index: 10; max-width: 480px; margin-left: auto; margin-right: auto; }
-        .input-pill { width: 100%; padding: 14px 20px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 50px; outline: none; transition: all 0.3s; font-weight: 500; }
-        .input-pill:focus { border-color: #001e50; background: #ffffff; box-shadow: 0 0 0 3px rgba(0,30,80,0.1); }
-        .plate-style { direction: ltr; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 3px; color: #001e50; }
-        .btn-action { background: #001e50; color: white; width: 100%; padding: 16px; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(0,30,80,0.2); transition: all 0.2s; }
-        .btn-action:active { transform: scale(0.96); }
-        .nav-active { color: #001e50 !important; }
-        .section-animate { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Assistant', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        
+        /* Header & Menu */
+        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1000; transition: 0.4s; padding: 40px 20px; color: white; }
+        .side-menu.active { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        
+        /* Design Elements */
+        .hero-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); color: white; padding: 60px 20px; text-align: center; }
+        .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; border-radius: 20px; }
+        .pill { border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 6px 18px; font-size: 13px; background: rgba(255,255,255,0.05); }
+        
+        /* Review Section */
+        .review-box { background: #1e40af; border-radius: 24px; padding: 30px 20px; color: white; }
+        .tip-box { background: #f0f7ff; border-right: 4px solid #1e40af; padding: 15px; border-radius: 12px; }
+        
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white/80 backdrop-blur-md p-4 flex justify-between items-center sticky top-0 z-[100] border-b">
-        <div class="w-10"></div>
-        <div class="text-center">
-            <h1 class="text-lg font-bold vag-blue leading-none">מרכז שירות ברע״מ</h1>
-            <p id="subHeader" class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">VAG Specialist System</p>
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+    <div id="sideMenu" class="side-menu text-right">
+        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט שירות</h3>
+        <ul class="space-y-6">
+            <li><a href="#" onclick="toggleMenu()" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
+            <li><a href="#" onclick="showCRM(); toggleMenu()" class="block text-lg text-blue-400 font-bold"><i class="fas fa-user-circle ml-3"></i>כניסה לאזור אישי (CRM)</a></li>
+            <li><a href="https://wa.me/972505858750" class="block text-lg"><i class="fab fa-whatsapp ml-3 text-green-400"></i>ייעוץ VAG בוואטסאפ</a></li>
+            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone-alt ml-3"></i>חיוג למוסך</a></li>
+            <li><a href="#" onclick="toggleMenu()" class="block text-lg"><i class="fas fa-calendar-check ml-3"></i>קביעת תור</a></li>
+        </ul>
+        <div class="absolute bottom-10 left-0 right-0 text-center opacity-40 text-xs">
+            מרכז שירות ברע"מ - פנחס החוצב 35
         </div>
-        <button class="text-gray-400"><i class="fas fa-bars text-xl"></i></button>
-    </header>
-
-    <div class="hero-gradient text-center">
-        <h2 id="mainTitle" class="text-white text-2xl font-bold mb-2">ניהול רכב חכם</h2>
-        <p class="text-blue-200 text-sm font-light opacity-80">שלום, אורח</p>
     </div>
 
-    <main class="px-4">
-        
-        <div id="mainBox" class="main-card section-animate">
-            
-            <div id="regForm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="bg-blue-50 p-3 rounded-full"><i class="fas fa-user-circle text-blue-900 text-xl"></i></div>
-                    <h3 class="text-lg font-bold text-gray-800">פתיחת כרטיס לקוח</h3>
-                </div>
-                
-                <div class="space-y-4">
-                    <input type="text" id="cName" placeholder="שם מלא" class="input-pill">
-                    <input type="tel" id="cPhone" placeholder="טלפון נייד" class="input-pill">
-                    <input type="text" id="cAddress" placeholder="כתובת מגורים" class="input-pill">
-                    
-                    <div class="bg-gray-50 p-4 rounded-3xl border border-gray-100">
-                        <p class="text-xs font-bold text-gray-400 mb-3 mr-2">פרטי רכב VAG:</p>
-                        <select id="cBrand" class="input-pill mb-3">
-                            <option value="">בחר מותג</option>
-                            <option>אאודי</option>
-                            <option>פולקסווגן</option>
-                            <option>סקודה</option>
-                            <option>סיאט</option>
-                        </select>
-                        <input type="tel" id="cPlate" placeholder="00-000-00" class="input-pill plate-style">
-                    </div>
-                    
-                    <button onclick="saveAndGo()" class="btn-action">צור חשבון ונהל רכב</button>
-                </div>
-            </div>
-
-            <div id="dashArea" class="hidden">
-                <div class="text-center pb-6">
-                    <h3 id="uName" class="text-xl font-bold text-gray-800 italic"></h3>
-                    <div id="uCar" class="text-xs bg-blue-50 text-blue-900 inline-block px-4 py-1 rounded-full mt-2 font-bold tracking-widest"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <button onclick="openBooking()" class="bg-white border border-gray-100 p-5 rounded-3xl text-center shadow-sm active:bg-gray-50">
-                        <i class="fas fa-calendar-plus text-blue-900 text-2xl mb-2"></i>
-                        <span class="block text-[11px] font-bold text-gray-600">קביעת תור</span>
-                    </button>
-                    <button onclick="alert('בחיבור ל-Firebase יוצגו כאן טיפולים קודמים')" class="bg-white border border-gray-100 p-5 rounded-3xl text-center shadow-sm active:bg-gray-50">
-                        <i class="fas fa-history text-blue-900 text-2xl mb-2"></i>
-                        <span class="block text-[11px] font-bold text-gray-600">היסטוריה</span>
-                    </button>
-                </div>
-                
-                <div class="mt-6 p-4 bg-yellow-50 rounded-2xl border border-yellow-100 flex items-center gap-3">
-                    <i class="fas fa-info-circle text-yellow-600"></i>
-                    <p class="text-[10px] text-yellow-800 leading-tight"><b>שימו לב:</b> המערכת תתריע לכם אוטומטית כשיגיע מועד הטסט או הטיפול השנתי.</p>
-                </div>
-            </div>
-
-            <div id="bookArea" class="hidden">
-                <h3 class="text-lg font-bold text-gray-800 mb-6 text-center">תיאום תור למוסך</h3>
-                <div class="space-y-4">
-                    <div class="relative">
-                        <i class="fas fa-calendar-day absolute left-4 top-4 text-gray-300"></i>
-                        <input type="date" id="bookDate" class="input-pill pr-10">
-                    </div>
-                    <select id="bookTime" class="input-pill">
-                        <option>בחר שעת הגעה</option>
-                        <option>08:00 (בוקר)</option>
-                        <option>10:00 (בוקר)</option>
-                        <option>12:00 (צהריים)</option>
-                        <option>14:00 (אחר הצהריים)</option>
-                    </select>
-                    <button onclick="confirmBook()" class="btn-action bg-green-600 shadow-green-900/20">אשר ושמור ביומן</button>
-                    <button onclick="backToDash()" class="w-full text-xs text-gray-400 font-bold py-2">ביטול וחזרה</button>
-                </div>
-            </div>
-
+    <header class="p-4 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur-md z-[100] border-b">
+        <button onclick="toggleMenu()" class="text-gray-600 text-2xl">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="text-center">
+            <h1 class="font-bold text-blue-900 text-lg">מרכז שירות ברע״מ</h1>
+            <p class="text-[8px] tracking-widest text-gray-400 font-bold">VAG SPECIALIST BEER SHEVA</p>
         </div>
-    </main>
+        <div class="w-8"></div>
+    </header>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t flex justify-around p-4 pb-8 z-[100] shadow-2xl">
-        <button onclick="location.reload()" class="flex flex-col items-center nav-active">
-            <i class="fas fa-home text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">ראשי</span>
-        </button>
-        <button onclick="openBooking()" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-calendar-alt text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">תורים</span>
-        </button>
-        <button onclick="window.open('https://wa.me/972505858750')" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-comment-dots text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">צ'אט VAG</span>
-        </button>
-        <a href="tel:086277195" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-phone-alt text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">חיוג</span>
-        </a>
-    </nav>
+    <div id="homePage">
+        <section class="hero-gradient">
+            <h2 class="text-3xl font-bold mb-4">מומחי VAG בבאר שבע</h2>
+            <p class="text-blue-200 text-sm mb-6">הבית המקצועי לאאודי, פולקסווגן, סקודה וסיאט</p>
+            <div class="flex justify-center gap-2 flex-wrap">
+                <span class="pill">Audi</span><span class="pill">Skoda</span><span class="pill">Seat</span><span class="pill">VW</span>
+            </div>
+        </section>
+
+        <div class="px-5 -mt-8">
+            <div class="bg-white card-shadow p-6 relative z-10">
+                <div class="flex items-center gap-2 mb-2 text-blue-600 font-bold">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>טיפ מקצועי יומי</span>
+                </div>
+                <p id="dailyTip" class="text-sm text-gray-600 italic">טוען טיפ מומחה...</p>
+            </div>
+        </div>
+
+        <main class="p-5 space-y-4">
+            <div class="flex items-center gap-4 p-4 card-shadow">
+                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-microchip"></i></div>
+                <div>
+                    <h4 class="font-bold text-gray-800">דיאגנוסטיקה מתקדמת</h4>
+                    <p class="text-xs text-gray-400">איתור תקלות בעזרת מחשוב מקורי</p>
+                </div>
+            </div>
+
+            <section class="review-box text-center mt-6">
+                <h3 class="text-2xl font-bold mb-2">לקוחות ממליצים</h3>
+                <div class="flex justify-center text-yellow-400 mb-6">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <span class="mr-2 text-white">5.0</span>
+                </div>
+                
+                <div class="bg-white/10 p-5 rounded-2xl border border-white/10 text-right">
+                    <p class="text-sm font-light italic mb-3">"המוסך הכי מקצועי בבאר שבע. שירות אדיב, שקיפות מלאה ומחיר הוגן ביותר. מומלץ בחום!"</p>
+                    <div class="flex justify-between items-center text-[10px] opacity-70">
+                        <span>אביב לוי</span>
+                        <span>לפני שבוע</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="crmPage" class="hidden animate-in fade-in duration-500">
+        <div class="p-6 bg-gray-50 min-h-screen">
+            <button onclick="showHome()" class="text-blue-900 font-bold mb-6 flex items-center gap-2">
+                <i class="fas fa-arrow-right"></i> חזרה לדף הבית
+            </button>
+            
+            <div class="bg-white rounded-3xl p-6 shadow-xl border">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">מערכת ניהול לקוחות</h3>
+                <div class="space-y-4">
+                    <input type="text" placeholder="שם מלא" class="w-full p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900">
+                    <input type="tel" placeholder="מספר רכב" class="w-full p-4 bg-gray-100 rounded-2xl outline-none text-center font-bold tracking-widest ltr">
+                    <button class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold">כניסה לאזור אישי</button>
+                </div>
+                <p class="text-center text-[10px] text-gray-400 mt-6">המידע מאובטח ומוגן במערכות ברע"מ</p>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let userData = null;
-
-        function saveAndGo() {
-            const name = document.getElementById('cName').value;
-            const plate = document.getElementById('cPlate').value;
-            const brand = document.getElementById('cBrand').value;
-
-            if(!name || !plate || !brand) return alert("בבקשה מלא שם, מותג ומספר רכב");
-
-            userData = { name, plate, brand };
-            
-            document.getElementById('regForm').classList.add('hidden');
-            document.getElementById('dashArea').classList.remove('hidden');
-            
-            document.getElementById('uName').innerText = "שלום, " + name;
-            document.getElementById('uCar').innerText = brand + " | " + plate;
-            document.getElementById('mainTitle').innerText = "אזור אישי ברע\"מ";
+        // תפריט המבורגר
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('overlay');
+            menu.classList.toggle('active');
+            overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
         }
 
-        function openBooking() {
-            if(!userData) return alert("יש להירשם במערכת תחילה");
-            document.getElementById('dashArea').classList.add('hidden');
-            document.getElementById('bookArea').classList.remove('hidden');
+        // מעבר בין דפים
+        function showCRM() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('crmPage').classList.remove('hidden');
+            window.scrollTo(0,0);
         }
 
-        function backToDash() {
-            document.getElementById('bookArea').classList.add('hidden');
-            document.getElementById('dashArea').classList.remove('hidden');
+        function showHome() {
+            document.getElementById('crmPage').classList.add('hidden');
+            document.getElementById('homePage').classList.remove('hidden');
         }
 
-        function confirmBook() {
-            const date = document.getElementById('bookDate').value;
-            const time = document.getElementById('bookTime').value;
-            if(!date || time.includes("בחר")) return alert("בחר תאריך ושעה");
-            
-            alert(`התור שוריין במערכת ליום ${date} בשעה ${time}.\nניפגש במוסך ברע"מ!`);
-            backToDash();
+        // מערכת טיפים יומית
+        const tips = [
+            "מומלץ לבדוק שמן ומים בכל רכב VAG פעם בשבועיים, במיוחד בקיץ הישראלי.",
+            "תקתוקים בהגה? כדאי לבדוק את הציריות לפני שהן נשברות.",
+            "שמירה על לחץ אוויר תקין בצמיגים חוסכת עד 10% בצריכת הדלק.",
+            "במידה ונדלקה נורה אדומה - עצור מיד את הרכב והתקשר לייעוץ.",
+            "החלפת מסנן מזגן פעם בשנה תשפר משמעותית את איכות האוויר ברכב."
+        ];
+
+        function setDailyTip() {
+            // בחירה רנדומלית של טיפ (אפשר לשנות לבחירה לפי תאריך)
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('dailyTip').innerText = randomTip;
         }
+
+        // הפעלה בטעינה
+        window.onload = setDailyTip;
     </script>
 </body>
 </html>
