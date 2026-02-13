@@ -2,173 +2,111 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול מרכז שירות ברע״מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
-        .ltr { direction: ltr; display: inline-block; }
-        .admin-card { background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-    </style>
 </head>
-<body class="p-4 md:p-8">
-
-    <header class="max-w-6xl mx-auto mb-8 flex justify-between items-center bg-blue-900 p-6 rounded-2xl text-white shadow-xl">
-        <div>
-            <h1 class="text-2xl font-black">לוח ניהול ברע״מ</h1>
-            <p class="opacity-80 text-sm">ניהול לקוחות, תורים והודעות</p>
-        </div>
-        <i class="fas fa-tools text-3xl opacity-50"></i>
+<body class="bg-gray-100 p-8">
+    <header class="max-w-6xl mx-auto flex justify-between items-center mb-8 bg-blue-900 p-6 rounded-2xl text-white shadow-xl">
+        <h1 class="text-2xl font-black">ניהול ברע״מ - פנל שליטה</h1>
     </header>
 
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="lg:col-span-1 space-y-6">
-            <h2 class="text-xl font-bold text-blue-900"><i class="fas fa-calendar-check ml-2"></i>תורים שהוזמנו</h2>
-            <div id="adminAppts" class="space-y-3">
-                <p class="text-gray-400 italic">טוען תורים...</p>
-            </div>
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm">
+            <h2 class="font-bold mb-4 border-b pb-2">תורים מתוזמנים</h2>
+            <div id="adminAppts" class="space-y-3"></div>
         </div>
 
-        <div class="lg:col-span-2 space-y-6">
-            <h2 class="text-xl font-bold text-blue-900"><i class="fas fa-users ml-2"></i>ניהול לקוחות</h2>
-            <div id="adminCustomers" class="space-y-4">
-                <p class="text-gray-400 italic">טוען לקוחות...</p>
-            </div>
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
+            <h2 class="font-bold mb-4 border-b pb-2">לקוחות וניהול הצעות מחיר</h2>
+            <div id="adminUsers" class="space-y-4"></div>
         </div>
+    </div>
 
-    </main>
-
-    <div id="editModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[1000]">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold mb-4 text-blue-900">עדכון פרטי רכב והודעה</h3>
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-lg">
+            <h3 id="modalTitle" class="font-bold mb-4">ניהול לקוח</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold mb-1">טסט הבא:</label>
-                    <input type="date" id="updateNextTest" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">טיפול הבא:</label>
-                    <input type="date" id="updateNextService" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="mNextS" placeholder="טיפול הבא" class="p-2 border rounded-lg text-sm">
+                    <input type="date" id="mNextT" placeholder="טסט הבא" class="p-2 border rounded-lg text-sm">
                 </div>
                 <hr>
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-blue-600">שליחת הודעה אישית ללקוח:</label>
-                    <textarea id="adminMsgText" placeholder="לדוגמה: הרכב מוכן לאיסוף!" class="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl h-24 outline-none"></textarea>
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                    <p class="text-xs font-bold mb-2">שלח הצעת מחיר לאישור וחתימה:</p>
+                    <input type="text" id="qTitle" placeholder="שם הטיפול (לדוג: החלפת בלמים)" class="w-full p-2 mb-2 border rounded-lg text-sm">
+                    <input type="number" id="qPrice" placeholder="מחיר כולל מע״מ" class="w-full p-2 border rounded-lg text-sm ltr">
                 </div>
+                <hr>
+                <textarea id="mMsg" placeholder="שלח הודעה לתיבת ההודעות..." class="w-full p-2 border rounded-lg h-20 text-sm"></textarea>
                 <div class="flex gap-2">
-                    <button onclick="saveCustomerChanges()" class="flex-1 bg-blue-900 text-white p-4 rounded-xl font-bold">שמור ושלח</button>
-                    <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-500 p-4 rounded-xl">ביטול</button>
+                    <button onclick="saveAdminChanges()" class="flex-1 bg-blue-900 text-white p-3 rounded-xl font-bold">עדכן ושלח</button>
+                    <button onclick="closeAdminModal()" class="flex-1 bg-gray-100 p-3 rounded-xl">סגור</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
-            authDomain: "baram-vag-45e12.firebaseapp.com",
-            projectId: "baram-vag-45e12",
-            storageBucket: "baram-vag-45e12.firebasestorage.app",
-            messagingSenderId: "761383355945",
-            appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
-        };
+        // FIREBASE (SAME AS ABOVE)
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        let activePlate = null;
 
-        let selectedPlate = null;
-
-        // 1. טעינת תורים
-        db.collection("appointments").orderBy("date", "asc").onSnapshot(snap => {
-            const container = document.getElementById('adminAppts');
-            container.innerHTML = "";
-            snap.forEach(doc => {
+        // LOAD APPOINTMENTS
+        db.collection("appointments").onSnapshot(snap => {
+            document.getElementById('adminAppts').innerHTML = snap.docs.map(doc => {
                 const a = doc.data();
-                container.innerHTML += `
-                    <div class="admin-card p-4 border-r-4 border-green-500 flex justify-between items-center">
-                        <div>
-                            <div class="font-bold text-blue-900 ltr">${a.plate}</div>
-                            <div class="text-xs font-bold">${a.date} | ${a.time}</div>
-                        </div>
-                        <button onclick="deleteDoc('appointments', '${doc.id}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                    </div>`;
-            });
+                return `<div class="p-3 bg-gray-50 rounded-xl flex justify-between text-xs font-bold"><span>${a.plate} - ${a.name}</span><span>${a.date} | ${a.time}</span></div>`;
+            }).join('');
         });
 
-        // 2. טעינת לקוחות
+        // LOAD USERS
         db.collection("customers").onSnapshot(snap => {
-            const container = document.getElementById('adminCustomers');
-            container.innerHTML = "";
-            snap.forEach(doc => {
+            document.getElementById('adminUsers').innerHTML = snap.docs.map(doc => {
                 const c = doc.data();
-                container.innerHTML += `
-                    <div class="admin-card p-5">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-black text-lg text-blue-900">${c.firstName} ${c.lastName}</h3>
-                                <p class="text-xs text-gray-500 ltr">${c.phone} | ${c.plate}</p>
-                            </div>
-                            <button onclick="openEditModal('${c.plate}')" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold text-xs"><i class="fas fa-edit ml-1"></i> ניהול</button>
+                const signed = c.quotes ? c.quotes.filter(q => q.signed).length : 0;
+                return `
+                    <div class="p-4 border rounded-2xl flex justify-between items-center">
+                        <div>
+                            <p class="font-black text-blue-900">${c.fName} ${c.lName} <span class="text-xs font-normal ltr">(${c.plate})</span></p>
+                            <p class="text-[10px] text-gray-500">${c.carModel} | ${c.year} | ${signed} חתימות במערכת</p>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 text-[10px] bg-gray-50 p-3 rounded-xl">
-                            <div><b>דגם:</b> ${c.carModel}</div>
-                            <div><b>שנה:</b> ${c.carYear}</div>
-                            <div><b>ק"מ:</b> <span class="ltr">${c.km}</span></div>
-                        </div>
+                        <button onclick="openAdminModal('${c.plate}')" class="bg-blue-100 text-blue-900 px-4 py-2 rounded-xl text-xs font-bold">נהל</button>
                     </div>`;
-            });
+            }).join('');
         });
 
-        // 3. ניהול מודל
-        function openEditModal(plate) {
-            selectedPlate = plate;
-            document.getElementById('editModal').classList.remove('hidden');
-        }
+        function openAdminModal(plate) { activePlate = plate; document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
-        function closeModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            selectedPlate = null;
-        }
+        async function saveAdminChanges() {
+            const update = {
+                nextS: document.getElementById('mNextS').value,
+                nextT: document.getElementById('mNextT').value
+            };
+            const msg = document.getElementById('mMsg').value;
+            const qT = document.getElementById('qTitle').value;
+            const qP = document.getElementById('qPrice').value;
 
-        async function saveCustomerChanges() {
-            const nextTest = document.getElementById('updateNextTest').value;
-            const nextService = document.getElementById('updateNextService').value;
-            const msgText = document.getElementById('adminMsgText').value;
+            const docRef = db.collection("customers").doc(activePlate);
+            const doc = await docRef.get();
+            const data = doc.data();
 
-            const updates = {};
-            if(nextTest) updates.nextTest = nextTest;
-            if(nextService) updates.nextService = nextService;
+            if(update.nextS) await docRef.update({ nextS: update.nextS });
+            if(update.nextT) await docRef.update({ nextT: update.nextT });
             
-            try {
-                // עדכון נתונים
-                if(Object.keys(updates).length > 0) {
-                    await db.collection("customers").doc(selectedPlate).update(updates);
-                }
-
-                // שליחת הודעה אם נכתבה
-                if(msgText) {
-                    await db.collection("customers").doc(selectedPlate).update({
-                        messages: firebase.firestore.FieldValue.arrayUnion({
-                            from: "מרכז שירות ברע״מ",
-                            text: msgText,
-                            date: new Date().toLocaleDateString('he-IL')
-                        })
-                    });
-                }
-
-                alert("עודכן בהצלחה!");
-                closeModal();
-            } catch (e) { alert("שגיאה בעדכון"); }
-        }
-
-        async function deleteDoc(coll, id) {
-            if(confirm("למחוק פריט זה?")) {
-                await db.collection(coll).doc(id).delete();
+            if(msg) {
+                await docRef.update({ messages: firebase.firestore.FieldValue.arrayUnion({ from: "ברע״מ", text: msg }) });
             }
+
+            if(qT && qP) {
+                await docRef.update({ quotes: firebase.firestore.FieldValue.arrayUnion({ title: qT, price: qP, signed: false, id: Date.now() }) });
+            }
+
+            alert("עודכן בהצלחה!");
+            closeAdminModal();
         }
     </script>
 </body>
