@@ -2,81 +2,119 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>ניהול ברע״מ | VAG Admin Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ניהול ברע״מ | VAG Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
-        .ltr { direction: ltr; display: inline-block; }
-        .active-tab { color: #001e50; border-bottom: 3px solid #001e50; }
-        .client-card { border-radius: 2rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: 0.3s; }
-        .client-card:active { transform: scale(0.98); }
-        input { font-size: 16px !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap');
+        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
+        
+        /* עיצוב כרטיס לקוח לניהול */
+        .admin-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-card:active { transform: scale(0.97); background: #f8fafc; }
+
+        /* פאנל פרטי לקוח שנפתח מלמטה/צד */
+        #clientExplorer {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+        #clientExplorer.active { display: flex; }
+
+        /* Badge סטטוס */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .status-signed { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-24">
 
-    <div id="loginOverlay" class="fixed inset-0 bg-[#001e50] z-[1000] flex items-center justify-center p-6">
-        <div class="bg-white p-10 rounded-[3rem] w-full max-w-sm text-center shadow-2xl">
-            <h1 class="text-3xl font-black italic mb-2 tracking-tighter">ADMIN ACCESS</h1>
-            <p class="text-[10px] text-gray-400 font-bold mb-10 uppercase tracking-widest">Baram VAG Management</p>
-            <input id="passInput" type="password" placeholder="••••••••" class="w-full p-5 bg-slate-50 rounded-2xl text-center text-2xl ltr mb-6 border-none ring-1 ring-slate-100">
-            <button onclick="checkPass()" class="w-full bg-[#001e50] text-white p-6 rounded-[2rem] font-black shadow-xl active:scale-95 transition">כניסה למערכת</button>
-        </div>
-    </div>
-
-    <header class="bg-[#001e50] text-white p-6 pt-12 rounded-b-[3rem] shadow-xl sticky top-0 z-50">
+    <header class="bg-[#001e50] p-6 pt-10 pb-16 rounded-b-[2.5rem] shadow-xl sticky top-0 z-[100]">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-black italic">ניהול ברע״מ</h2>
-            <button onclick="logoutAdmin()" class="opacity-50"><i class="fas fa-power-off"></i></button>
+            <h1 class="text-white text-xl font-black italic">ניהול ברע״מ <span class="text-blue-400 text-xs">V1.2</span></h1>
+            <button onclick="logoutAdmin()" class="text-white/50"><i class="fas fa-sign-out-alt"></i></button>
         </div>
         <div class="relative">
-            <input type="text" id="mainSearch" onkeyup="filterClients()" placeholder="חיפוש לקוח / מספר רכב..." class="w-full p-5 bg-white/10 rounded-2xl text-white placeholder:text-white/40 outline-none border border-white/10 pr-12">
-            <i class="fas fa-search absolute right-5 top-1/2 -translate-y-1/2 text-white/30"></i>
+            <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="חפש לפי שם או מספר רכב..." 
+                   class="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder:text-white/40 outline-none focus:bg-white/20">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
         </div>
     </header>
 
-    <main class="p-5 max-w-md mx-auto space-y-4" id="clientsList">
-        </main>
+    <main class="p-4 -mt-8 relative z-[110]" id="clientsContainer">
+        <div class="text-center py-10 opacity-40 italic">טוען נתונים מהענן...</div>
+    </main>
 
-    <div id="explorer" class="fixed inset-0 bg-slate-50 z-[100] hidden flex flex-col">
-        <header class="bg-white p-6 pt-12 border-b flex justify-between items-center">
+    <div id="clientExplorer">
+        <header class="p-6 border-b flex justify-between items-center bg-slate-50">
             <div>
-                <h3 id="expName" class="text-xl font-black text-[#001e50]"></h3>
-                <p id="expPlate" class="text-[10px] font-black text-gray-400 ltr"></p>
+                <h2 id="expName" class="text-xl font-black text-[#001e50]">ישראל ישראלי</h2>
+                <p id="expPlate" class="text-xs font-bold text-slate-400 ltr tracking-widest"></p>
             </div>
-            <button onclick="closeExplorer()" class="text-2xl text-gray-300 px-4">&times;</button>
+            <button onclick="closeExplorer()" class="w-10 h-10 bg-white shadow-sm rounded-full flex items-center justify-center text-slate-400 text-2xl">&times;</button>
         </header>
 
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="prepQuote()" class="bg-blue-600 text-white p-5 rounded-3xl font-black text-xs shadow-lg"><i class="fas fa-plus ml-2"></i> שלח הצעה</button>
-                <button onclick="prepEdit()" class="bg-white border text-slate-800 p-5 rounded-3xl font-black text-xs shadow-sm"><i class="fas fa-edit ml-2"></i> ערוך פרטים</button>
+                <button onclick="sendQuotePrompt()" class="bg-blue-600 text-white p-4 rounded-2xl font-black text-xs shadow-lg active:scale-95 transition">
+                    <i class="fas fa-file-invoice-dollar ml-2"></i> שלח הצעת מחיר
+                </button>
+                <a id="whatsappLink" href="#" class="bg-green-600 text-white p-4 rounded-2xl font-black text-xs shadow-lg active:scale-95 transition text-center">
+                    <i class="fab fa-whatsapp ml-2"></i> שלח הודעה
+                </a>
             </div>
 
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-                <h4 class="text-[10px] font-black text-gray-300 uppercase mb-4">פרטי קשר ורכב</h4>
-                <p id="expPhone" class="text-sm font-black text-slate-700 ltr"></p>
-                <p id="expModel" class="text-xs font-bold text-slate-400 mt-1"></p>
-            </div>
+            <div id="signatureStatus" class="hidden p-4 rounded-2xl border-2">
+                </div>
 
-            <div id="sigView" class="hidden bg-green-50 p-6 rounded-[2rem] border border-green-100">
-                <p class="text-[9px] font-black text-green-600 uppercase mb-4">חתימה מאושרת מהלקוח</p>
-                <img id="sigImg" class="w-full bg-white rounded-2xl border border-green-200">
-            </div>
-
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm">
-                <h4 class="text-[10px] font-black text-gray-300 uppercase mb-4 italic">היסטוריה (ללא הגבלה)</h4>
-                <div id="expHistory" class="space-y-3"></div>
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">מידע טכני מהמערכת</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-[10px] text-slate-400">דגם:</p>
+                        <p id="expModel" class="text-xs font-black"></p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400">שנה:</p>
+                        <p id="expYear" class="text-xs font-black"></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="adminLogin" class="fixed inset-0 bg-[#001e50] z-[3000] flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl text-center">
+            <h2 class="text-2xl font-black italic mb-6">כניסת מנהל</h2>
+            <input id="adminPass" type="password" placeholder="קוד גישה" class="w-full p-4 bg-slate-50 rounded-2xl text-center text-xl ltr mb-4 outline-none border-2 border-transparent focus:border-blue-900">
+            <button onclick="tryAdminLogin()" class="w-full bg-[#001e50] text-white p-5 rounded-2xl font-black">התחבר</button>
+        </div>
+    </div>
+
     <script>
+        // חיבור ל-Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -88,97 +126,109 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Admin Security
-        function checkPass() {
-            if(document.getElementById('passInput').value === "baram!14567") {
-                localStorage.setItem('adminAuth', new Date().getTime() + 86400000);
-                location.reload();
-            } else alert("סיסמה שגויה");
+        let currentClients = [];
+        let activePlate = "";
+
+        // אבטחה בסיסית
+        function tryAdminLogin() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === "14567") { // הקוד שביקשת
+                document.getElementById('adminLogin').style.display = 'none';
+                loadAdminData();
+            } else {
+                alert("קוד שגוי");
+            }
         }
 
-        window.onload = () => {
-            if(localStorage.getItem('adminAuth') > new Date().getTime()) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                loadAdminData();
-            }
-        };
-
-        let activePlate = null;
-        let allClients = [];
-
+        // טעינת נתונים
         function loadAdminData() {
-            db.collection("customers").onSnapshot(snap => {
-                const cont = document.getElementById('clientsList');
-                cont.innerHTML = "";
-                allClients = [];
+            db.collection("customers").onSnapshot(snapshot => {
+                const container = document.getElementById('clientsContainer');
+                container.innerHTML = "";
+                currentClients = [];
 
-                snap.forEach(doc => {
+                snapshot.forEach(doc => {
                     const data = doc.data();
-                    allClients.push(data);
+                    currentClients.push(data);
                     
-                    const hasAction = data.pendingQuote && data.pendingQuote.signed;
+                    const hasPending = data.pendingQuote && !data.pendingQuote.signed;
+                    const hasSigned = data.pendingQuote && data.pendingQuote.signed;
 
-                    cont.innerHTML += `
-                        <div onclick="openExplorer('${data.plate}')" class="client-card bg-white p-6 flex justify-between items-center ${hasAction ? 'ring-2 ring-green-500' : ''}">
+                    const card = `
+                        <div class="admin-card" onclick="openExplorer('${data.plate}')">
                             <div>
-                                <h3 class="font-black text-slate-800">${data.fName} ${data.lName}</h3>
-                                <p class="text-[10px] font-bold text-slate-400 ltr mt-1">${data.plate} | ${data.model}</p>
+                                <h3 class="font-black text-slate-800 text-sm">${data.fName} ${data.lName}</h3>
+                                <p class="text-[10px] font-bold text-slate-400 ltr mt-0.5">${data.plate} | ${data.model}</p>
                             </div>
-                            <div class="text-left">
-                                ${hasAction ? '<span class="bg-green-100 text-green-600 text-[8px] font-black px-3 py-1 rounded-full animate-pulse">חתימה חדשה!</span>' : '<i class="fas fa-chevron-left text-gray-200"></i>'}
+                            <div class="flex flex-col items-end gap-1">
+                                ${hasSigned ? '<span class="status-badge status-signed">חתם</span>' : ''}
+                                ${hasPending ? '<span class="status-badge status-pending">ממתין</span>' : ''}
+                                <i class="fas fa-chevron-left text-slate-200 text-xs"></i>
                             </div>
                         </div>
                     `;
+                    container.innerHTML += card;
                 });
             });
         }
 
         function openExplorer(plate) {
+            const user = currentClients.find(u => u.plate === plate);
             activePlate = plate;
-            const user = allClients.find(u => u.plate === plate);
-            document.getElementById('explorer').classList.remove('hidden');
+            
             document.getElementById('expName').innerText = `${user.fName} ${user.lName}`;
             document.getElementById('expPlate').innerText = user.plate;
-            document.getElementById('expPhone').innerText = user.phone;
-            document.getElementById('expModel').innerText = `${user.model} | ${user.year} | ${user.km || 0} ק"מ`;
-            
+            document.getElementById('expModel').innerText = user.model || 'לא הוזן';
+            document.getElementById('expYear').innerText = user.year || 'לא הוזן';
+            document.getElementById('whatsappLink').href = `https://wa.me/972${user.phone.substring(1)}`;
+
+            const sigStatus = document.getElementById('signatureStatus');
             if(user.pendingQuote && user.pendingQuote.signed) {
-                document.getElementById('sigView').classList.remove('hidden');
-                document.getElementById('sigImg').src = user.pendingQuote.sigData;
+                sigStatus.className = "p-4 rounded-2xl border-2 border-green-100 bg-green-50 block";
+                sigStatus.innerHTML = `
+                    <p class="text-[10px] font-black text-green-600 mb-2 uppercase">חתימה מאושרת:</p>
+                    <img src="${user.pendingQuote.sigData}" class="w-full bg-white rounded-xl border border-green-200">
+                `;
+            } else if(user.pendingQuote) {
+                sigStatus.className = "p-4 rounded-2xl border-2 border-yellow-100 bg-yellow-50 block";
+                sigStatus.innerHTML = `<p class="text-xs font-bold text-yellow-700">שלחת הצעה, הלקוח טרם חתם.</p>`;
             } else {
-                document.getElementById('sigView').classList.add('hidden');
+                sigStatus.className = "hidden";
             }
 
-            renderHistory(user);
+            document.getElementById('clientExplorer').classList.add('active');
         }
 
-        function renderHistory(user) {
-            const h = document.getElementById('expHistory');
-            h.innerHTML = "";
-            const items = [...(user.history.quotes || []), ...(user.history.services || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
-            
-            items.forEach(item => {
-                h.innerHTML += `
-                    <div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center">
-                        <p class="text-[11px] font-bold">${item.title || item.desc}</p>
-                        <p class="text-[9px] text-gray-400 ltr">${item.date}</p>
-                    </div>
-                `;
-            });
+        function closeExplorer() {
+            document.getElementById('clientExplorer').classList.remove('active');
         }
 
-        async function prepQuote() {
-            const txt = prompt("הזן תיאור הצעה ומחיר סופי:");
-            if(!txt) return;
+        async function sendQuotePrompt() {
+            const details = prompt("הכנס תיאור קצר של העבודה והמחיר:");
+            if(!details) return;
+
             await db.collection("customers").doc(activePlate).update({
-                "pendingQuote": { details: txt, signed: false },
-                "lastAction": "הצעה נשלחה"
+                pendingQuote: {
+                    details: details,
+                    signed: false,
+                    date: new Date().toLocaleDateString('he-IL')
+                }
             });
-            alert("ההצעה הופיעה עכשיו אצל הלקוח בנייד!");
+            alert("ההצעה נשלחה בהצלחה לנייד של הלקוח!");
+            closeExplorer();
         }
 
-        function closeExplorer() { document.getElementById('explorer').classList.add('hidden'); }
-        function logoutAdmin() { localStorage.clear(); location.reload(); }
+        function filterClients() {
+            const term = document.getElementById('adminSearch').value.toLowerCase();
+            // לוגיקת סינון פשוטה בצד לקוח
+            const cards = document.querySelectorAll('.admin-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(term) ? 'flex' : 'none';
+            });
+        }
+
+        function logoutAdmin() { location.reload(); }
     </script>
 </body>
 </html>
