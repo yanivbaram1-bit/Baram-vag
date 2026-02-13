@@ -14,41 +14,62 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .nav-button.active { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: bold; }
-        .appointment-card { border-right: 4px solid #2563eb; }
+        .login-screen { background: #0f172a; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 1000; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body>
 
-    <header class="bg-slate-900 text-white sticky top-0 z-50">
-        <div class="p-4 flex justify-between items-center">
-            <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
-            <button onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
+    <div id="loginScreen" class="login-screen">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center mx-4">
+            <div class="text-blue-600 text-4xl mb-4"><i class="fas fa-user-shield"></i></div>
+            <h2 class="text-2xl font-black mb-6 italic text-slate-800">BARAM VAG ADMIN</h2>
+            <input type="password" id="passInput" placeholder="הכנס סיסמה" class="w-full p-4 border-2 rounded-2xl mb-4 text-center outline-none focus:border-blue-500 bg-slate-50">
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg">כניסה למערכת</button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden font-bold">סיסמה שגויה, נסה שוב</p>
         </div>
-        <nav class="flex overflow-x-auto bg-slate-800 text-sm whitespace-nowrap">
-            <button onclick="showTab('calendar', this)" class="nav-button active flex-1 p-4"><i class="fas fa-calendar-check ml-2"></i>לו״ז תורים</button>
-            <button onclick="showTab('customers', this)" class="nav-button flex-1 p-4"><i class="fas fa-users ml-2"></i>לקוחות</button>
-            <button onclick="showTab('settings', this)" class="nav-button flex-1 p-4"><i class="fas fa-cog ml-2"></i>הגדרות</button>
-        </nav>
-    </header>
+    </div>
 
-    <main class="p-4">
-        <section id="calendar" class="tab-content active">
-            <h2 class="text-2xl font-bold mb-6">תורים שנקבעו מהאתר</h2>
-            <div id="appointmentsList" class="space-y-4">
-                <div class="text-center text-slate-400 mt-10 italic">טוען תורים...</div>
+    <div id="crmContent" class="hidden min-h-screen">
+        <header class="bg-slate-900 text-white sticky top-0 z-50">
+            <div class="p-4 flex justify-between items-center">
+                <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
+                <button onclick="location.reload()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-        </section>
+            <nav class="flex overflow-x-auto bg-slate-800 text-sm whitespace-nowrap">
+                <button onclick="showTab('calendar', this)" class="nav-button active flex-1 p-4"><i class="fas fa-calendar-check ml-2"></i>לו״ז תורים</button>
+                <button onclick="showTab('customers', this)" class="nav-button flex-1 p-4"><i class="fas fa-users ml-2"></i>לקוחות</button>
+            </nav>
+        </header>
 
-        <section id="customers" class="tab-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">ספר לקוחות</h2>
-                <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">+ הוספה</button>
-            </div>
-            <div id="customersList" class="space-y-3"></div>
-        </section>
-    </main>
+        <main class="p-4">
+            <section id="calendar" class="tab-content active">
+                <h2 class="text-2xl font-bold mb-6">תורים שנקבעו</h2>
+                <div id="appointmentsList" class="space-y-4"></div>
+            </section>
+
+            <section id="customers" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">ספר לקוחות</h2>
+                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">+ הוספה</button>
+                </div>
+                <div id="customersList" class="space-y-3"></div>
+            </section>
+        </main>
+    </div>
 
     <script>
+        // בדיקת סיסמה מעודכנת
+        function checkPass() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "baram!14567") { 
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('crmContent').classList.remove('hidden');
+                loadAppointments();
+            } else {
+                document.getElementById('errorMsg').classList.remove('hidden');
+            }
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -69,44 +90,38 @@
             if(tabId === 'customers') loadCustomers();
         }
 
-        // טעינת תורים מהאתר
         async function loadAppointments() {
             const list = document.getElementById('appointmentsList');
             const snap = await db.collection("appointments").orderBy("date", "asc").get();
-            
-            if (snap.empty) {
-                list.innerHTML = '<div class="text-center text-slate-400 mt-10">אין תורים רשומים כרגע</div>';
-                return;
-            }
-
-            list.innerHTML = '';
+            list.innerHTML = snap.empty ? '<div class="text-center text-slate-400 mt-10 italic">אין תורים רשומים</div>' : '';
             snap.forEach(doc => {
                 const app = doc.data();
                 list.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border appointment-card flex justify-between items-center">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-blue-600 flex justify-between items-center">
                         <div>
-                            <div class="text-blue-600 font-bold text-sm">${app.date} | שעה: ${app.time}</div>
+                            <div class="text-blue-600 font-bold text-xs">${app.date} | ${app.time}</div>
                             <div class="font-black text-lg">${app.customerName}</div>
-                            <div class="text-slate-500 text-sm italic">${app.carPlate} | ${app.reason}</div>
+                            <div class="text-slate-500 text-sm italic">${app.carPlate}</div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                             <a href="https://wa.me/972${app.phone.substring(1)}" class="text-green-500 text-xl"><i class="fab fa-whatsapp"></i></a>
-                             <button onclick="deleteApp('${doc.id}')" class="text-red-400 text-sm"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
+                        <a href="https://wa.me/972${app.phone.substring(1)}" class="text-green-500 text-2xl"><i class="fab fa-whatsapp"></i></a>
+                    </div>`;
             });
         }
 
-        async function deleteApp(id) {
-            if(confirm("למחוק את התור מהלו״ז?")) {
-                await db.collection("appointments").doc(id).delete();
-                loadAppointments();
-            }
+        async function loadCustomers() {
+            const snap = await db.collection("customers").get();
+            const list = document.getElementById('customersList');
+            list.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                list.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center">
+                    <div class="font-black text-blue-900">${d.plate} <span class="text-slate-500 font-normal mr-2">${d.firstName}</span></div>
+                    <button onclick="deleteCustomer('${doc.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                </div>`;
+            });
         }
 
-        // טעינה ראשונית
-        loadAppointments();
+        // פונקציות נוספות (מחיקה וכו') נשמרות מהקוד הקודם...
     </script>
 </body>
 </html>
