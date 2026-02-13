@@ -3,108 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרכז שירות ברע״מ | CRM</title>
+    <title>מרכז שירות ברע״מ | VAG Specialist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px; }
-        input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; outline: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; }
+        .hero-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
+        .service-card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; margin-top: 5px; background: #f8fafc; }
         .btn-primary { background: #1e3a8a; color: white; width: 100%; padding: 15px; border-radius: 15px; font-weight: 700; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white p-4 text-center border-b-2 border-slate-200 sticky top-0 z-50">
-        <h1 class="text-2xl font-bold text-blue-900">מרכז שירות ברע״מ</h1>
-        <p class="text-xs text-slate-500 font-bold">מערכת ניהול לקוחות חכמה</p>
+    <header class="bg-white p-4 text-center border-b sticky top-0 z-50">
+        <h1 class="text-2xl font-extrabold text-blue-900">מרכז שירות ברע״מ</h1>
+        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">מומחי קבוצת VAG | באר שבע</p>
     </header>
 
-    <div class="p-4 max-w-md mx-auto">
-        
-        <div id="mainMenu">
-            <div class="card text-center">
-                <i class="fas fa-users-cog text-5xl text-blue-900 mb-4"></i>
-                <h2 class="text-xl font-bold mb-6">שלום, כיצד נוכל לעזור?</h2>
-                <button onclick="showPage('registerPage')" class="btn-primary mb-3">רישום לקוח חדש במערכת</button>
-                <button onclick="showPage('loginPage')" class="w-full border-2 border-blue-900 text-blue-900 p-4 rounded-xl font-bold">כניסה ללקוח רשום</button>
+    <div id="homePage">
+        <section class="hero-gradient text-white pt-10 pb-20 px-6 text-center">
+            <h2 class="text-3xl font-bold mb-2">מקצוענות ברמת יצרן</h2>
+            <p class="text-blue-100 opacity-80 mb-6">טיפולים, דיאגנוסטיקה ותיקונים לכל רכבי אאודי, פולקסווגן, סקודה וסיאט</p>
+            <div class="flex justify-center gap-3">
+                <a href="tel:086277195" class="bg-green-600 px-6 py-3 rounded-full font-bold shadow-lg"><i class="fas fa-phone ml-2"></i>חיוג</a>
+                <a href="https://wa.me/972505858750" class="bg-white text-blue-900 px-6 py-3 rounded-full font-bold shadow-lg"><i class="fab fa-whatsapp ml-2 text-green-600"></i>וואטסאפ</a>
+            </div>
+        </section>
+
+        <div class="max-w-md mx-auto px-4 -mt-10">
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button onclick="showPage('loginPage')" class="card flex flex-col items-center justify-center py-6 border-b-4 border-blue-600">
+                    <i class="fas fa-user-circle text-3xl text-blue-900 mb-2"></i>
+                    <span class="font-bold text-sm">אזור אישי</span>
+                </button>
+                <button onclick="showPage('registerPage')" class="card flex flex-col items-center justify-center py-6 border-b-4 border-green-600">
+                    <i class="fas fa-id-card text-3xl text-green-600 mb-2"></i>
+                    <span class="font-bold text-sm">רישום לקוח</span>
+                </button>
+            </div>
+
+            <h3 class="font-bold mb-4 text-slate-800">השירותים שלנו</h3>
+            <div class="grid grid-cols-2 gap-3 mb-10">
+                <div class="service-card"><i class="fas fa-microchip text-blue-600 text-xl mb-2"></i><p class="text-xs font-bold">דיאגנוסטיקה</p></div>
+                <div class="service-card"><i class="fas fa-oil-can text-blue-600 text-xl mb-2"></i><p class="text-xs font-bold">טיפול תקופתי</p></div>
+                <div class="service-card"><i class="fas fa-gears text-blue-600 text-xl mb-2"></i><p class="text-xs font-bold">שיפוץ גירים</p></div>
+                <div class="service-card"><i class="fas fa-snowflake text-blue-600 text-xl mb-2"></i><p class="text-xs font-bold">מיזוג אוויר</p></div>
+            </div>
+
+            <div class="card bg-slate-100 text-center mb-10">
+                <p class="text-xs font-bold text-slate-500">שעות פעילות:</p>
+                <p class="text-sm font-bold">א׳-ה׳ 07:30 - 15:30</p>
+                <p class="text-xs text-slate-400 mt-2">רחוב הסדנא 2, באר שבע</p>
             </div>
         </div>
+    </div>
 
-        <div id="registerPage" class="hidden">
-            <h2 class="text-xl font-bold mb-4">טופס רישום לקוח</h2>
-            <div class="card">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="input-group"><label>שם פרטי</label><input type="text" id="regFirst"></div>
-                    <div class="input-group"><label>שם משפחה</label><input type="text" id="regLast"></div>
-                </div>
-                <div class="input-group"><label>טלפון</label><input type="tel" id="regPhone"></div>
-                <div class="input-group"><label>כתובת</label><input type="text" id="regAddress"></div>
-                <div class="input-group"><label>תעודת זהות</label><input type="number" id="regId"></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="input-group"><label>סוג רכב</label><input type="text" id="regCarModel"></div>
-                    <div class="input-group"><label>צבע</label><input type="text" id="regColor"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="input-group"><label>מספר רכב</label><input type="text" id="regPlate"></div>
-                    <div class="input-group"><label>שנת רכב</label><input type="number" id="regYear"></div>
-                </div>
-                <div class="input-group"><label>קילומטראז'</label><input type="number" id="regKm"></div>
-                <button onclick="handleRegister()" class="btn-primary mt-4 shadow-lg">שמור והצטרף למועדון</button>
-                <button onclick="showPage('mainMenu')" class="w-full text-slate-400 mt-4 text-sm">חזרה</button>
-            </div>
-        </div>
-
-        <div id="loginPage" class="hidden">
-            <div class="card">
-                <h2 class="text-xl font-bold mb-4">התחברות לאזור האישי</h2>
-                <div class="input-group"><label>שם משפחה</label><input type="text" id="loginLast"></div>
-                <div class="input-group"><label>מספר רכב</label><input type="text" id="loginPlate"></div>
-                <button onclick="handleLogin()" class="btn-primary mt-2">התחבר</button>
-                <button onclick="showPage('mainMenu')" class="w-full text-slate-400 mt-4 text-sm">חזרה</button>
-            </div>
-        </div>
-
-        <div id="clientDashboard" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold italic">שלום, <span id="clientNameDisplay" class="text-blue-700"></span></h2>
-                <button onclick="location.reload()" class="text-xs text-red-500">יציאה</button>
-            </div>
-
-            <div class="card bg-slate-900 text-white border-b-4 border-blue-500">
-                <h3 class="text-xs opacity-60">פרטי רכב במערכת:</h3>
-                <p class="text-lg font-bold" id="carInfoDisplay"></p>
-                <div class="mt-1 text-xs text-blue-300" id="plateDisplay"></div>
-            </div>
-
-            <button onclick="bookWhatsApp()" class="w-full bg-green-500 text-white p-4 rounded-2xl font-bold mb-4 flex items-center justify-center gap-3 shadow-lg">
-                <i class="fab fa-whatsapp text-2xl"></i>
-                הזמן תור לטיפול עכשיו
-            </button>
-
+    <div id="registerPage" class="hidden p-4 max-w-md mx-auto">
+        <button onclick="showPage('homePage')" class="mb-4 text-blue-900 font-bold"><i class="fas fa-arrow-right ml-2"></i>חזרה לבית</button>
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">רישום לקוח חדש</h2>
             <div class="grid grid-cols-2 gap-3">
-                <div class="card"><label class="text-blue-600">טיפול אחרון</label><div class="font-bold text-sm" id="lastService"></div></div>
-                <div class="card"><label class="text-red-600">טיפול הבא</label><div class="font-bold text-sm" id="nextService"></div></div>
+                <div><label>שם פרטי</label><input type="text" id="regFirst"></div>
+                <div><label>שם משפחה</label><input type="text" id="regLast"></div>
             </div>
-
-            <div class="card"><label class="mb-1 text-xs">פירוט טיפול אחרון:</label><p class="text-sm text-slate-600" id="lastDetails"></p></div>
-            <div class="card"><label class="mb-1 text-xs text-red-500 font-bold">נדרש לטיפול הבא:</label><p class="text-sm text-slate-600" id="nextDetails"></p></div>
-
-            <div class="card bg-green-50 border border-green-200">
-                <h4 class="font-bold text-xs text-green-800">מבחן רישוי שנתי (טסט)</h4>
-                <div class="flex justify-between mt-2 text-xs">
-                    <span>אחרון: <b id="lastTest"></b></span>
-                    <span class="text-red-600">פג תוקף: <b id="nextTest"></b></span>
-                </div>
+            <div class="mt-3"><label>טלפון</label><input type="tel" id="regPhone"></div>
+            <div class="mt-3"><label>תעודת זהות</label><input type="number" id="regId"></div>
+            <div class="mt-3"><label>כתובת</label><input type="text" id="regAddress"></div>
+            <hr class="my-5">
+            <div class="grid grid-cols-2 gap-3">
+                <div><label>סוג רכב</label><input type="text" id="regCarModel"></div>
+                <div><label>צבע</label><input type="text" id="regColor"></div>
             </div>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+                <div><label>מספר רכב</label><input type="text" id="regPlate"></div>
+                <div><label>שנת רכב</label><input type="number" id="regYear"></div>
+            </div>
+            <div class="mt-3"><label>קילומטראז'</label><input type="number" id="regKm"></div>
+            <button onclick="handleRegister()" class="btn-primary mt-6">שמור והצטרף</button>
         </div>
+    </div>
+
+    <div id="loginPage" class="hidden p-4 max-w-md mx-auto">
+        <button onclick="showPage('homePage')" class="mb-4 text-blue-900 font-bold"><i class="fas fa-arrow-right ml-2"></i>חזרה</button>
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">כניסה לאזור אישי</h2>
+            <label>שם משפחה</label><input type="text" id="loginLast">
+            <div class="mt-3"><label>מספר רכב</label><input type="text" id="loginPlate"></div>
+            <button onclick="handleLogin()" class="btn-primary mt-6">התחבר</button>
+        </div>
+    </div>
+
+    <div id="clientDashboard" class="hidden p-4 max-w-md mx-auto">
+        <div class="flex justify-between mb-6">
+            <h2 class="text-xl font-bold">שלום, <span id="clientNameDisplay" class="text-blue-700"></span></h2>
+            <button onclick="location.reload()" class="text-red-500 font-bold text-xs">התנתק</button>
+        </div>
+        <div class="card bg-blue-900 text-white mb-4">
+            <p id="carInfoDisplay" class="text-lg font-bold"></p>
+            <p id="plateDisplay" class="text-xs opacity-70"></p>
+        </div>
+        <button onclick="bookWhatsApp()" class="w-full bg-green-600 text-white p-4 rounded-xl font-bold mb-6 flex items-center justify-center gap-3">
+            <i class="fab fa-whatsapp"></i> הזמן תור לטיפול
+        </button>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="card text-center py-4"><p class="text-[10px] text-blue-500">טיפול אחרון</p><b id="lastService" class="text-sm"></b></div>
+            <div class="card text-center py-4"><p class="text-[10px] text-red-500">טיפול הבא</p><b id="nextService" class="text-sm"></b></div>
+        </div>
+        <div class="card mb-3"><p class="text-[10px] opacity-60">בוצע בטיפול אחרון:</p><p id="lastDetails" class="text-sm font-bold"></p></div>
+        <div class="card mb-3 border-r-4 border-red-500"><p class="text-[10px] text-red-500 font-bold">דגשים לטיפול הבא:</p><p id="nextDetails" class="text-sm font-bold"></p></div>
     </div>
 
     <script>
@@ -118,69 +131,49 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
         let currentUser = null;
 
-        function showPage(pageId) {
-            ['mainMenu', 'registerPage', 'loginPage', 'clientDashboard'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(pageId).classList.remove('hidden');
+        function showPage(id) {
+            ['homePage', 'registerPage', 'loginPage', 'clientDashboard'].forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0,0);
         }
 
         function handleRegister() {
             const plate = document.getElementById('regPlate').value;
             const data = {
-                firstName: document.getElementById('regFirst').value,
-                lastName: document.getElementById('regLast').value,
-                phone: document.getElementById('regPhone').value,
-                address: document.getElementById('regAddress').value,
-                tz: document.getElementById('regId').value,
-                carModel: document.getElementById('regCarModel').value,
-                color: document.getElementById('regColor').value,
-                plate: plate,
-                year: document.getElementById('regYear').value,
+                firstName: document.getElementById('regFirst').value, lastName: document.getElementById('regLast').value,
+                phone: document.getElementById('regPhone').value, tz: document.getElementById('regId').value,
+                carModel: document.getElementById('regCarModel').value, plate: plate, year: document.getElementById('regYear').value,
                 km: document.getElementById('regKm').value,
-                lastServiceDate: "טרם עודכן",
-                nextServiceDate: "יקבע בביקור",
-                lastServiceWork: "נרשם למערכת",
-                nextServiceWork: "בדיקה כללית",
-                lastTestDate: "--",
-                nextTestDate: "--"
+                lastServiceDate: "טרם בוצע", nextServiceDate: "יקבע בביקור", lastServiceWork: "רישום למערכת", nextServiceWork: "בדיקה כללית"
             };
-
             db.collection("customers").doc(plate).set(data).then(() => {
-                alert("ברוך הבא למשפחת ברע״מ!");
-                showPage('mainMenu');
+                alert("נרשמת בהצלחה!");
+                showPage('homePage');
             });
         }
 
         function handleLogin() {
             const plate = document.getElementById('loginPlate').value;
             const lastName = document.getElementById('loginLast').value;
-
-            db.collection("customers").doc(plate).get().then((doc) => {
+            db.collection("customers").doc(plate).get().then(doc => {
                 if (doc.exists && doc.data().lastName === lastName) {
                     currentUser = doc.data();
                     document.getElementById('clientNameDisplay').innerText = currentUser.firstName;
-                    document.getElementById('carInfoDisplay').innerText = currentUser.carModel + " | " + currentUser.year;
+                    document.getElementById('carInfoDisplay').innerText = currentUser.carModel + " " + currentUser.year;
                     document.getElementById('plateDisplay').innerText = "מספר רכב: " + currentUser.plate;
                     document.getElementById('lastService').innerText = currentUser.lastServiceDate;
                     document.getElementById('nextService').innerText = currentUser.nextServiceDate;
                     document.getElementById('lastDetails').innerText = currentUser.lastServiceWork;
                     document.getElementById('nextDetails').innerText = currentUser.nextServiceWork;
-                    document.getElementById('lastTest').innerText = currentUser.lastTestDate;
-                    document.getElementById('nextTest').innerText = currentUser.nextTestDate;
                     showPage('clientDashboard');
-                } else {
-                    alert("פרטי כניסה שגויים");
-                }
+                } else { alert("פרטים שגויים"); }
             });
         }
 
         function bookWhatsApp() {
-            if(!currentUser) return;
-            const msg = `שלום למרכז שירות ברע"מ, אני מעוניין להזמין תור לטיפול.%0A%0A*פרטי לקוח:*%0Aשם: ${currentUser.firstName} ${currentUser.lastName}%0Aרכב: ${currentUser.carModel} (${currentUser.year})%0Aמספר רכב: ${currentUser.plate}%0Aקילומטראז': ${currentUser.km}`;
+            const msg = `שלום, אני ${currentUser.firstName} (${currentUser.plate}), מעוניין להזמין תור לטיפול ברכב ${currentUser.carModel}.`;
             window.open(`https://wa.me/972505858750?text=${msg}`, '_blank');
         }
     </script>
