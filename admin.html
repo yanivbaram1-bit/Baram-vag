@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול תורים - מרכז שירות ברע״מ</title>
+    <title>ניהול מרכז שירות ברע״מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -21,55 +21,66 @@
 
     <div id="loginScreen" class="login-screen">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center mx-4">
-            <h2 class="text-2xl font-black mb-6 text-slate-800">כניסת מנהל</h2>
+            <h2 class="text-2xl font-black mb-6 text-slate-800 italic text-nowrap">BARAM VAG ADMIN</h2>
             <input type="password" id="passInput" placeholder="סיסמה" class="w-full p-4 border-2 rounded-2xl mb-4 text-center outline-none focus:border-blue-500 bg-slate-50">
-            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">כניסה</button>
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">כניסה למערכת</button>
             <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden">סיסמה שגויה</p>
         </div>
     </div>
 
     <div id="crmContent" class="hidden min-h-screen">
-        <header class="bg-slate-900 text-white sticky top-0 z-50">
-            <div class="p-4 flex justify-between items-center">
+        <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+            <div class="p-4 flex justify-between items-center border-b border-slate-800">
                 <h1 class="text-xl font-black text-blue-400">ניהול ברע״מ</h1>
                 <button onclick="location.reload()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            <nav class="flex bg-slate-800 text-sm">
+            <nav class="flex overflow-x-auto bg-slate-800 text-xs whitespace-nowrap">
                 <button onclick="showTab('calendar', this)" class="nav-button active flex-1 p-4"><i class="fas fa-calendar-check ml-2"></i>תורים</button>
                 <button onclick="showTab('customers', this)" class="nav-button flex-1 p-4"><i class="fas fa-users ml-2"></i>לקוחות</button>
+                <button onclick="showTab('settings', this)" class="nav-button flex-1 p-4"><i class="fas fa-cog ml-2"></i>הגדרות</button>
             </nav>
         </header>
 
-        <main class="p-4">
+        <main class="p-4 pb-20">
             <section id="calendar" class="tab-content active">
-                <h2 class="text-2xl font-bold mb-6">תורים שנקבעו</h2>
-                <div id="appointmentsList" class="space-y-4">
-                    </div>
+                <h2 class="text-2xl font-bold mb-6 italic">תורים חדשים</h2>
+                <div id="appointmentsList" class="space-y-4"></div>
             </section>
 
             <section id="customers" class="tab-content">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">לקוחות</h2>
-                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">+ הוספה</button>
+                    <h2 class="text-2xl font-bold">ספר לקוחות</h2>
+                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">+ הוספה</button>
                 </div>
                 <div id="customersList" class="space-y-3"></div>
+            </section>
+
+            <section id="settings" class="tab-content">
+                <h2 class="text-2xl font-bold mb-6">הגדרות עמוד</h2>
+                <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                    <p class="text-slate-500 mb-4">ניהול תוכן האתר ופרטי המוסך</p>
+                    <button onclick="alert('הגדרות נשמרו')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold">שמור שינויים</button>
+                </div>
             </section>
         </main>
     </div>
 
-    <script>
-        // בדיקת סיסמה
-        function checkPass() {
-            const pass = document.getElementById('passInput').value;
-            if (pass === "baram!14567") { 
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('crmContent').classList.remove('hidden');
-                loadAppointments();
-            } else {
-                document.getElementById('errorMsg').classList.remove('hidden');
-            }
-        }
+    <div id="customerModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[2000] p-4">
+        <div class="bg-white p-6 rounded-[2rem] w-full max-w-sm shadow-2xl">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4">פרטי לקוח</h3>
+            <div class="space-y-3">
+                <input type="text" id="mPlate" placeholder="מספר רכב" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input type="text" id="mName" placeholder="שם מלא" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input type="tel" id="mPhone" placeholder="טלפון" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">שמור</button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold text-slate-500">ביטול</button>
+            </div>
+        </div>
+    </div>
 
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -81,6 +92,17 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        function checkPass() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "baram!14567") { 
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('crmContent').classList.remove('hidden');
+                loadAppointments();
+            } else {
+                document.getElementById('errorMsg').classList.remove('hidden');
+            }
+        }
+
         function showTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
@@ -90,44 +112,25 @@
             if(tabId === 'customers') loadCustomers();
         }
 
-        // טעינת תורים עם כל הפרטים
         async function loadAppointments() {
             const list = document.getElementById('appointmentsList');
             const snap = await db.collection("appointments").orderBy("date", "asc").get();
             list.innerHTML = snap.empty ? '<div class="text-center text-slate-400 mt-10 italic">אין תורים רשומים</div>' : '';
-            
             snap.forEach(doc => {
                 const app = doc.data();
                 list.innerHTML += `
-                    <div class="bg-white p-5 rounded-3xl shadow-md border-r-8 border-blue-600 relative">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <div class="text-blue-700 font-extrabold text-lg flex items-center gap-2">
-                                    <i class="fas fa-calendar-day"></i> ${app.date} 
-                                    <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-lg text-sm"><i class="fas fa-clock"></i> ${app.time}</span>
-                                </div>
-                                <div class="font-black text-xl mt-1 text-slate-900">${app.customerName}</div>
-                                <div class="text-slate-600 font-bold">רכב: ${app.carPlate}</div>
-                            </div>
-                            <div class="flex gap-2">
-                                <a href="https://wa.me/972${app.phone.substring(1)}" class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl shadow-sm"><i class="fab fa-whatsapp"></i></a>
-                                <button onclick="deleteApp('${doc.id}')" class="w-10 h-10 bg-red-50 text-red-400 rounded-full flex items-center justify-center"><i class="fas fa-trash"></i></button>
-                            </div>
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border-r-8 border-blue-600 flex justify-between items-center">
+                        <div>
+                            <div class="text-blue-600 font-bold text-sm">${app.date} | ${app.time}</div>
+                            <div class="font-black text-lg">${app.customerName}</div>
+                            <div class="text-slate-500 text-xs">${app.reason || ''}</div>
                         </div>
-                        
-                        <div class="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                            <div class="text-xs text-slate-400 font-bold mb-1">סיבת הגעה:</div>
-                            <div class="text-slate-800 font-medium">${app.reason || 'לא צוינה סיבה'}</div>
+                        <div class="flex gap-2">
+                             <a href="https://wa.me/972${app.phone.substring(1)}" class="text-green-500 text-2xl"><i class="fab fa-whatsapp"></i></a>
+                             <button onclick="deleteDoc('appointments', '${doc.id}', loadAppointments)" class="text-red-300"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>`;
             });
-        }
-
-        async function deleteApp(id) {
-            if(confirm("למחוק את התור?")) {
-                await db.collection("appointments").doc(id).delete();
-                loadAppointments();
-            }
         }
 
         async function loadCustomers() {
@@ -136,11 +139,56 @@
             list.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                list.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center">
-                    <div class="font-black text-blue-900">${d.plate} <span class="text-slate-500 font-normal mr-2">${d.firstName}</span></div>
-                    <button onclick="deleteCustomer('${doc.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
-                </div>`;
+                list.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center">
+                        <div>
+                            <div class="font-black text-blue-900">${d.plate}</div>
+                            <div class="text-slate-600 font-bold text-sm">${d.firstName}</div>
+                        </div>
+                        <div class="flex gap-3 items-center">
+                            <button onclick="editCustomer('${doc.id}', '${d.firstName}', '${d.phone}')" class="text-blue-500"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteDoc('customers', '${doc.id}', loadCustomers)" class="text-red-300"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
             });
+        }
+
+        function openModal() {
+            document.getElementById('mPlate').value = '';
+            document.getElementById('mName').value = '';
+            document.getElementById('mPhone').value = '';
+            document.getElementById('customerModal').classList.remove('hidden');
+        }
+
+        function editCustomer(id, name, phone) {
+            document.getElementById('mPlate').value = id;
+            document.getElementById('mPlate').disabled = true;
+            document.getElementById('mName').value = name;
+            document.getElementById('mPhone').value = phone;
+            document.getElementById('customerModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customerModal').classList.add('hidden');
+            document.getElementById('mPlate').disabled = false;
+        }
+
+        async function saveCustomer() {
+            const plate = document.getElementById('mPlate').value;
+            await db.collection("customers").doc(plate).set({
+                plate: plate,
+                firstName: document.getElementById('mName').value,
+                phone: document.getElementById('mPhone').value
+            }, { merge: true });
+            closeModal();
+            loadCustomers();
+        }
+
+        async function deleteDoc(col, id, callback) {
+            if(confirm("בטוח שברצונך למחוק?")) {
+                await db.collection(col).doc(id).delete();
+                callback();
+            }
         }
     </script>
 </body>
