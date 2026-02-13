@@ -2,154 +2,81 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול ברע״מ | VAG Admin System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>ניהול ברע״מ | VAG Admin Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f8fafc; overflow: hidden; }
-        .sidebar-link.active { background: rgba(255,255,255,0.1); border-right: 4px solid #3b82f6; }
-        .modal { transition: opacity 0.25s ease; }
+        body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
         .ltr { direction: ltr; display: inline-block; }
-        .hidden { display: none !important; }
+        .active-tab { color: #001e50; border-bottom: 3px solid #001e50; }
+        .client-card { border-radius: 2rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: 0.3s; }
+        .client-card:active { transform: scale(0.98); }
+        input { font-size: 16px !important; }
     </style>
 </head>
-<body class="flex h-screen">
+<body class="pb-32">
 
-    <div id="loginOverlay" class="fixed inset-0 bg-[#001e50] z-[1000] flex items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
-            <h1 class="text-3xl font-black text-[#001e50] mb-6 italic">ADMIN LOGIN</h1>
-            <input id="passInput" type="password" placeholder="הזן סיסמה" class="w-full p-5 bg-gray-100 rounded-2xl mb-4 text-center text-xl ltr">
-            <button onclick="checkAdminPass()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black hover:bg-blue-700 transition shadow-lg">כניסה למערכת</button>
+    <div id="loginOverlay" class="fixed inset-0 bg-[#001e50] z-[1000] flex items-center justify-center p-6">
+        <div class="bg-white p-10 rounded-[3rem] w-full max-w-sm text-center shadow-2xl">
+            <h1 class="text-3xl font-black italic mb-2 tracking-tighter">ADMIN ACCESS</h1>
+            <p class="text-[10px] text-gray-400 font-bold mb-10 uppercase tracking-widest">Baram VAG Management</p>
+            <input id="passInput" type="password" placeholder="••••••••" class="w-full p-5 bg-slate-50 rounded-2xl text-center text-2xl ltr mb-6 border-none ring-1 ring-slate-100">
+            <button onclick="checkPass()" class="w-full bg-[#001e50] text-white p-6 rounded-[2rem] font-black shadow-xl active:scale-95 transition">כניסה למערכת</button>
         </div>
     </div>
 
-    <aside class="w-64 bg-[#001e50] text-white flex flex-col shrink-0">
-        <div class="p-8 text-center border-b border-white/10">
-            <h2 class="text-2xl font-black italic tracking-tighter text-white">ברע״מ <span class="text-blue-400">ADMIN</span></h2>
+    <header class="bg-[#001e50] text-white p-6 pt-12 rounded-b-[3rem] shadow-xl sticky top-0 z-50">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black italic">ניהול ברע״מ</h2>
+            <button onclick="logoutAdmin()" class="opacity-50"><i class="fas fa-power-off"></i></button>
         </div>
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="showSection('clients')" class="sidebar-link active w-full flex items-center gap-3 p-4 rounded-xl text-right font-bold transition"><i class="fas fa-users"></i> לקוחות</button>
-            <button onclick="showSection('quotes')" class="sidebar-link w-full flex items-center gap-3 p-4 rounded-xl text-right font-bold transition"><i class="fas fa-file-invoice-dollar"></i> הצעות מחיר</button>
-            <button onclick="showSection('appointments')" class="sidebar-link w-full flex items-center gap-3 p-4 rounded-xl text-right font-bold transition"><i class="fas fa-calendar-check"></i> תורים</button>
-        </nav>
-        <button onclick="logoutAdmin()" class="m-6 p-4 bg-red-500/10 text-red-400 rounded-xl font-black text-xs uppercase tracking-widest"><i class="fas fa-power-off ml-2"></i> התנתק</button>
-    </aside>
+        <div class="relative">
+            <input type="text" id="mainSearch" onkeyup="filterClients()" placeholder="חיפוש לקוח / מספר רכב..." class="w-full p-5 bg-white/10 rounded-2xl text-white placeholder:text-white/40 outline-none border border-white/10 pr-12">
+            <i class="fas fa-search absolute right-5 top-1/2 -translate-y-1/2 text-white/30"></i>
+        </div>
+    </header>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-20 bg-white border-b px-8 flex items-center justify-between">
-            <h2 id="sectionTitle" class="text-xl font-black text-slate-800">ניהול לקוחות</h2>
-            <div class="flex items-center gap-4">
-                <input type="text" id="tableSearch" onkeyup="searchTable()" placeholder="חיפוש לפי שם או מספר רכב..." class="bg-slate-100 p-3 px-6 rounded-xl text-sm w-80 border-none outline-none focus:ring-2 ring-blue-500/20">
+    <main class="p-5 max-w-md mx-auto space-y-4" id="clientsList">
+        </main>
+
+    <div id="explorer" class="fixed inset-0 bg-slate-50 z-[100] hidden flex flex-col">
+        <header class="bg-white p-6 pt-12 border-b flex justify-between items-center">
+            <div>
+                <h3 id="expName" class="text-xl font-black text-[#001e50]"></h3>
+                <p id="expPlate" class="text-[10px] font-black text-gray-400 ltr"></p>
             </div>
+            <button onclick="closeExplorer()" class="text-2xl text-gray-300 px-4">&times;</button>
         </header>
 
-        <div class="flex-1 overflow-auto p-8">
-            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-right border-collapse">
-                    <thead class="bg-slate-50 border-b">
-                        <tr class="text-[11px] font-black text-slate-400 uppercase">
-                            <th class="p-6">לקוח</th>
-                            <th class="p-6">פרטי רכב</th>
-                            <th class="p-6">סטטוס</th>
-                            <th class="p-6">צפייה</th>
-                            <th class="p-6 text-center">פעולות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientsTableBody">
-                        </tbody>
-                </table>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="prepQuote()" class="bg-blue-600 text-white p-5 rounded-3xl font-black text-xs shadow-lg"><i class="fas fa-plus ml-2"></i> שלח הצעה</button>
+                <button onclick="prepEdit()" class="bg-white border text-slate-800 p-5 rounded-3xl font-black text-xs shadow-sm"><i class="fas fa-edit ml-2"></i> ערוך פרטים</button>
             </div>
-        </div>
-    </main>
 
-    <div id="explorerModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[500] flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-6xl h-[85vh] rounded-[3rem] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-8 bg-[#001e50] text-white flex justify-between items-center">
-                <div>
-                    <h2 id="expName" class="text-3xl font-black italic"></h2>
-                    <p id="expPlate" class="text-blue-300 font-bold ltr"></p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="openEditModal()" class="bg-white/10 p-3 px-6 rounded-xl font-black text-xs hover:bg-white/20 transition">ערוך פרטים</button>
-                    <button onclick="closeModal('explorerModal')" class="text-3xl">&times;</button>
-                </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                <h4 class="text-[10px] font-black text-gray-300 uppercase mb-4">פרטי קשר ורכב</h4>
+                <p id="expPhone" class="text-sm font-black text-slate-700 ltr"></p>
+                <p id="expModel" class="text-xs font-bold text-slate-400 mt-1"></p>
             </div>
-            
-            <div class="flex-1 flex overflow-hidden">
-                <div class="w-64 bg-slate-50 border-l p-6 space-y-2">
-                    <button onclick="switchTab('tab-quotes')" class="tab-btn w-full p-4 rounded-xl text-right font-black text-xs bg-white shadow-sm border-r-4 border-blue-600">הצעות מחיר ואישורים</button>
-                    <button onclick="switchTab('tab-history')" class="tab-btn w-full p-4 rounded-xl text-right font-black text-xs hover:bg-white transition">היסטוריית טיפולים</button>
-                    <button onclick="switchTab('tab-msgs')" class="tab-btn w-full p-4 rounded-xl text-right font-black text-xs hover:bg-white transition">הודעות ללקוח</button>
-                </div>
-                <div class="flex-1 p-8 overflow-y-auto bg-white">
-                    <div id="tab-quotes" class="tab-content space-y-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-black text-lg text-slate-800">הצעות מחיר (כולל חתימות)</h3>
-                            <button onclick="sendNewQuote()" class="bg-blue-600 text-white p-3 px-5 rounded-xl font-black text-xs">+ הצעה חדשה</button>
-                        </div>
-                        <div id="quotesList" class="space-y-3"></div>
-                    </div>
-                    <div id="tab-history" class="tab-content hidden space-y-4">
-                        <h3 class="font-black text-lg text-slate-800">היסטוריה מלאה (ללא הגבלה)</h3>
-                        <div id="fullHistoryList" class="space-y-2"></div>
-                    </div>
-                    <div id="tab-msgs" class="tab-content hidden space-y-4">
-                        <h3 class="font-black text-lg text-slate-800">שלח הודעה / עדכון ללקוח</h3>
-                        <textarea id="msgContent" class="w-full p-4 bg-slate-100 rounded-2xl h-32 text-sm outline-none" placeholder="הקלד הודעה שתופיע ללקוח באזור האישי..."></textarea>
-                        <button onclick="sendMessageToClient()" class="bg-[#001e50] text-white p-4 px-8 rounded-xl font-black">שלח הודעה</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[600] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl">
-            <h2 class="text-2xl font-black text-[#001e50] mb-8 italic">עריכת פרטי לקוח</h2>
-            <div class="space-y-4">
-                <input id="edFName" type="text" placeholder="שם מלא" class="w-full p-4 bg-slate-50 rounded-xl text-sm border">
-                <input id="edPhone" type="text" placeholder="טלפון" class="w-full p-4 bg-slate-50 rounded-xl text-sm border ltr">
-                <input id="edModel" type="text" placeholder="דגם רכב" class="w-full p-4 bg-slate-50 rounded-xl text-sm border">
-                <input id="edKm" type="number" placeholder="קילומטראז'" class="w-full p-4 bg-slate-50 rounded-xl text-sm border ltr">
-                <button onclick="saveClientEdit()" class="w-full bg-green-600 text-white p-5 rounded-xl font-black shadow-lg">שמור שינויים</button>
-                <button onclick="closeModal('editModal')" class="w-full text-slate-400 font-bold p-2 text-xs">ביטול</button>
+            <div id="sigView" class="hidden bg-green-50 p-6 rounded-[2rem] border border-green-100">
+                <p class="text-[9px] font-black text-green-600 uppercase mb-4">חתימה מאושרת מהלקוח</p>
+                <img id="sigImg" class="w-full bg-white rounded-2xl border border-green-200">
+            </div>
+
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm">
+                <h4 class="text-[10px] font-black text-gray-300 uppercase mb-4 italic">היסטוריה (ללא הגבלה)</h4>
+                <div id="expHistory" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. אבטחה וכניסה (24 שעות) ---
-        const ADMIN_PASS = "baram!14567";
-        
-        function checkAdminPass() {
-            const input = document.getElementById('passInput').value;
-            if(input === ADMIN_PASS) {
-                const now = new Date().getTime();
-                localStorage.setItem('adminAuth', now + (24 * 60 * 60 * 1000));
-                location.reload();
-            } else {
-                alert("סיסמה שגויה");
-            }
-        }
-
-        window.onload = () => {
-            const auth = localStorage.getItem('adminAuth');
-            if(auth && new Date().getTime() < parseInt(auth)) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                initAdmin();
-            }
-        };
-
-        function logoutAdmin() {
-            localStorage.removeItem('adminAuth');
-            location.reload();
-        }
-
-        // --- 2. FIREBASE & DATA ---
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -161,184 +88,97 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let allClients = [];
-        let activePlate = null;
+        // Admin Security
+        function checkPass() {
+            if(document.getElementById('passInput').value === "baram!14567") {
+                localStorage.setItem('adminAuth', new Date().getTime() + 86400000);
+                location.reload();
+            } else alert("סיסמה שגויה");
+        }
 
-        function initAdmin() {
+        window.onload = () => {
+            if(localStorage.getItem('adminAuth') > new Date().getTime()) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                loadAdminData();
+            }
+        };
+
+        let activePlate = null;
+        let allClients = [];
+
+        function loadAdminData() {
             db.collection("customers").onSnapshot(snap => {
+                const cont = document.getElementById('clientsList');
+                cont.innerHTML = "";
                 allClients = [];
-                const tbody = document.getElementById('clientsTableBody');
-                tbody.innerHTML = "";
-                
+
                 snap.forEach(doc => {
                     const data = doc.data();
                     allClients.push(data);
                     
-                    const hasSigned = (data.history.quotes || []).some(q => q.signed && !q.archived);
-                    
-                    tbody.innerHTML += `
-                        <tr class="border-b hover:bg-slate-50 transition">
-                            <td class="p-6">
-                                <div class="font-black text-slate-800">${data.fName} ${data.lName}</div>
-                                <div class="text-[10px] text-slate-400 font-bold ltr">${data.phone}</div>
-                            </td>
-                            <td class="p-6">
-                                <div class="bg-blue-50 text-blue-900 px-3 py-1 rounded-lg font-black text-xs ltr border border-blue-100">${data.plate}</div>
-                                <div class="text-[10px] font-bold mt-1 text-slate-500 uppercase">${data.model} | ${data.year}</div>
-                            </td>
-                            <td class="p-6">
-                                ${hasSigned ? '<span class="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full border border-green-200 animate-pulse">חתימה חדשה</span>' : '<span class="text-slate-300 text-[10px] font-black italic">אין פעולה נדרשת</span>'}
-                            </td>
-                            <td class="p-6 text-center">
-                                ${data.lastSeen ? '<i class="fas fa-eye text-blue-500"></i>' : '<i class="fas fa-eye-slash text-slate-200"></i>'}
-                            </td>
-                            <td class="p-6 text-center">
-                                <button onclick="exploreClient('${data.plate}')" class="bg-[#001e50] text-white p-3 px-6 rounded-xl font-black text-[11px] shadow-lg hover:scale-105 transition">ניהול לקוח</button>
-                            </td>
-                        </tr>
+                    const hasAction = data.pendingQuote && data.pendingQuote.signed;
+
+                    cont.innerHTML += `
+                        <div onclick="openExplorer('${data.plate}')" class="client-card bg-white p-6 flex justify-between items-center ${hasAction ? 'ring-2 ring-green-500' : ''}">
+                            <div>
+                                <h3 class="font-black text-slate-800">${data.fName} ${data.lName}</h3>
+                                <p class="text-[10px] font-bold text-slate-400 ltr mt-1">${data.plate} | ${data.model}</p>
+                            </div>
+                            <div class="text-left">
+                                ${hasAction ? '<span class="bg-green-100 text-green-600 text-[8px] font-black px-3 py-1 rounded-full animate-pulse">חתימה חדשה!</span>' : '<i class="fas fa-chevron-left text-gray-200"></i>'}
+                            </div>
+                        </div>
                     `;
                 });
             });
         }
 
-        // --- 3. EXPLORER & TABS ---
-        function exploreClient(plate) {
+        function openExplorer(plate) {
             activePlate = plate;
-            const client = allClients.find(c => c.plate === plate);
+            const user = allClients.find(u => u.plate === plate);
+            document.getElementById('explorer').classList.remove('hidden');
+            document.getElementById('expName').innerText = `${user.fName} ${user.lName}`;
+            document.getElementById('expPlate').innerText = user.plate;
+            document.getElementById('expPhone').innerText = user.phone;
+            document.getElementById('expModel').innerText = `${user.model} | ${user.year} | ${user.km || 0} ק"מ`;
             
-            document.getElementById('explorerModal').classList.remove('hidden');
-            document.getElementById('expName').innerText = `${client.fName} ${client.lName}`;
-            document.getElementById('expPlate').innerText = `${client.plate} | ${client.model}`;
-            
-            renderQuotesTab(client);
-            renderHistoryTab(client);
+            if(user.pendingQuote && user.pendingQuote.signed) {
+                document.getElementById('sigView').classList.remove('hidden');
+                document.getElementById('sigImg').src = user.pendingQuote.sigData;
+            } else {
+                document.getElementById('sigView').classList.add('hidden');
+            }
+
+            renderHistory(user);
         }
 
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('bg-white', 'shadow-sm', 'border-r-4', 'border-blue-600'));
+        function renderHistory(user) {
+            const h = document.getElementById('expHistory');
+            h.innerHTML = "";
+            const items = [...(user.history.quotes || []), ...(user.history.services || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
             
-            document.getElementById(id).classList.remove('hidden');
-            event.currentTarget.classList.add('bg-white', 'shadow-sm', 'border-r-4', 'border-blue-600');
-        }
-
-        function renderQuotesTab(client) {
-            const list = document.getElementById('quotesList');
-            list.innerHTML = "";
-            const quotes = client.history.quotes || [];
-            
-            quotes.forEach((q, idx) => {
-                list.innerHTML += `
-                    <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center">
-                        <div>
-                            <p class="font-black text-slate-800 text-sm">${q.title}</p>
-                            <p class="text-[10px] text-slate-400 ltr">${q.date}</p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            ${q.signed ? `<img src="${q.sigData}" class="h-10 border bg-white rounded-lg px-2" title="צפה בחתימה">` : '<span class="text-[10px] font-bold text-orange-500">ממתין לחתימה</span>'}
-                            <button onclick="downloadQuotePDF('${idx}')" class="text-slate-400 hover:text-blue-600"><i class="fas fa-file-pdf text-xl"></i></button>
-                        </div>
+            items.forEach(item => {
+                h.innerHTML += `
+                    <div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center">
+                        <p class="text-[11px] font-bold">${item.title || item.desc}</p>
+                        <p class="text-[9px] text-gray-400 ltr">${item.date}</p>
                     </div>
                 `;
             });
         }
 
-        function renderHistoryTab(client) {
-            const list = document.getElementById('fullHistoryList');
-            list.innerHTML = "";
-            
-            // איחוד כל הקטגוריות להיסטוריה אחת ארוכה
-            const fullHistory = [
-                ...(client.history.services || []).map(i => ({...i, type:'טיפול'})),
-                ...(client.history.tests || []).map(i => ({...i, type:'טסט'})),
-                ...(client.history.checks || []).map(i => ({...i, type:'ביקורת'}))
-            ].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            fullHistory.forEach(h => {
-                list.innerHTML += `
-                    <div class="p-4 bg-slate-50 rounded-xl border-r-4 border-slate-300 flex justify-between">
-                        <div>
-                            <span class="text-[9px] font-black uppercase text-slate-400">${h.type}</span>
-                            <p class="text-xs font-bold">${h.desc}</p>
-                        </div>
-                        <span class="text-[10px] font-bold ltr text-slate-400">${h.date}</span>
-                    </div>
-                `;
-            });
-        }
-
-        // --- 4. עריכה ושליחת נתונים ---
-        function openEditModal() {
-            const client = allClients.find(c => c.plate === activePlate);
-            document.getElementById('edFName').value = `${client.fName} ${client.lName}`;
-            document.getElementById('edPhone').value = client.phone;
-            document.getElementById('edModel').value = client.model;
-            document.getElementById('edKm').value = client.km;
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-
-        async function saveClientEdit() {
-            const nameParts = document.getElementById('edFName').value.split(" ");
-            const updates = {
-                fName: nameParts[0],
-                lName: nameParts[1] || "",
-                phone: document.getElementById('edPhone').value,
-                model: document.getElementById('edModel').value,
-                km: document.getElementById('edKm').value
-            };
-            await db.collection("customers").doc(activePlate).update(updates);
-            alert("פרטי הלקוח עודכנו!");
-            closeModal('editModal');
-        }
-
-        async function sendNewQuote() {
-            const title = prompt("הזן כותרת להצעה (למשל: טיפול 60,000 + ברקסים):");
-            const price = prompt("הזן סכום סופי ב₪:");
-            if(!title || !price) return;
-
-            const client = allClients.find(c => c.plate === activePlate);
-            const newQuote = {
-                id: "Q-" + Math.floor(1000 + Math.random() * 9000),
-                title: title,
-                total: price,
-                date: new Date().toLocaleDateString('he-IL'),
-                signed: false
-            };
-
-            const updatedQuotes = [...(client.history.quotes || []), newQuote];
+        async function prepQuote() {
+            const txt = prompt("הזן תיאור הצעה ומחיר סופי:");
+            if(!txt) return;
             await db.collection("customers").doc(activePlate).update({
-                "history.quotes": updatedQuotes,
-                "pendingQuote": { details: `${title} - סה"כ לתשלום: ${price} ₪` },
-                "lastAction": "הצעה חדשה נשלחה"
+                "pendingQuote": { details: txt, signed: false },
+                "lastAction": "הצעה נשלחה"
             });
-            alert("הצעת המחיר נשלחה ללקוח ותופיע לו באזור האישי!");
-            exploreClient(activePlate);
+            alert("ההצעה הופיעה עכשיו אצל הלקוח בנייד!");
         }
 
-        async function sendMessageToClient() {
-            const msg = document.getElementById('msgContent').value;
-            if(!msg) return;
-            await db.collection("customers").doc(activePlate).update({
-                "adminMessage": msg,
-                "msgDate": new Date().toLocaleString('he-IL')
-            });
-            alert("הודעה נשלחה בהצלחה.");
-            document.getElementById('msgContent').value = "";
-        }
-
-        // --- 5. UI UTILS ---
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function searchTable() {
-            const query = document.getElementById('tableSearch').value.toLowerCase();
-            document.querySelectorAll('#clientsTableBody tr').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-            });
-        }
-        function showSection(sec) {
-            document.getElementById('sectionTitle').innerText = sec === 'clients' ? 'ניהול לקוחות' : sec === 'quotes' ? 'מעקב הצעות מחיר' : 'יומן תורים';
-            document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
+        function closeExplorer() { document.getElementById('explorer').classList.add('hidden'); }
+        function logoutAdmin() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
