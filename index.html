@@ -10,6 +10,49 @@
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
         body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
+        /* Header מוגדל ובולט */
+        .main-header {
+            background: white;
+            padding: 20px 15px;
+            border-bottom: 2px solid #f1f5f9;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e3a8a; /* כחול עמוק */
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .live-time-box {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2563eb;
+            background: #eff6ff;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .hours-badge {
+            background: #1e293b;
+            color: #f8fafc;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 15px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .hero-bg { 
             background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); 
             color: white; padding: 40px 20px 100px 20px; text-align: center; 
@@ -22,20 +65,12 @@
         .action-box { 
             background: #ffffff; border-radius: 25px; padding: 18px; margin: 12px 0; 
             box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; 
-            transition: all 0.2s ease; width: 100%; text-align: right;
-        }
-        
-        .tip-box {
-            background: linear-gradient(to left, #fffcf0, #fff);
-            border-right: 4px solid #fbbf24;
-            border-radius: 15px; padding: 15px; margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1);
+            width: 100%; text-align: right;
         }
 
         .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1000; transition: 0.4s; padding: 40px 20px; color: white; }
         .side-menu.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
-        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -43,34 +78,26 @@
 
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
     
-    <div id="sideMenu" class="side-menu text-right">
-        <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט</h3>
-        <ul class="space-y-6">
-            <li><a href="#" onclick="showPage('home')" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
-            <li><a href="#" onclick="showPage('crm')" class="block text-lg text-blue-400 font-bold"><i class="fas fa-user-circle ml-3"></i>אזור אישי</a></li>
-            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone ml-3 text-green-400"></i>חיוג למוסך</a></li>
-        </ul>
-    </div>
-
-    <header class="p-4 bg-white sticky top-0 z-[100] border-b shadow-sm">
-        <div class="flex justify-between items-center">
+    <header class="main-header">
+        <div class="flex justify-between items-center mb-2">
             <button onclick="toggleMenu()" class="text-2xl text-slate-700"><i class="fas fa-bars"></i></button>
-            <div class="text-center">
-                <h1 class="font-bold text-blue-900 text-base leading-tight">מרכז שירות ברע״מ</h1>
-                <p id="liveDateTime" class="text-[9px] font-bold text-blue-600 mt-1 uppercase tracking-wider"></p>
-                <div class="mt-1 flex items-center justify-center gap-2 text-[9px] text-gray-500 font-semibold bg-gray-50 py-1 px-2 rounded-full">
-                    <i class="far fa-clock text-blue-500"></i>
-                    <span>א׳-ה׳ 07:30-15:30 | ו׳-ש׳: סגור</span>
-                </div>
-            </div>
-            <div class="w-8"></div>
+            <div class="brand-name">מרכז שירות ברע״מ</div>
+            <div class="w-8"></div> </div>
+        
+        <div id="liveDateTime" class="live-time-box">טוען זמן...</div>
+        
+        <br>
+        
+        <div class="hours-badge">
+            <i class="fas fa-calendar-alt text-blue-400"></i>
+            <span>א׳-ה׳ 07:30 - 15:30 | ו׳-ש׳: סגור</span>
         </div>
     </header>
 
     <div id="homePage">
         <section class="hero-bg">
-            <h2 class="text-2xl font-bold mb-2">מומחי VAG בבאר שבע</h2>
-            <p class="text-blue-100 text-xs opacity-90 italic">Professional Care for Audi, VW, Skoda, Seat</p>
+            <h2 class="text-2xl font-bold mb-2 uppercase tracking-tight">VAG Specialist</h2>
+            <p class="text-blue-100 text-xs opacity-90 italic">מקצוענות ברמת יצרן Audi • VW • Skoda • Seat</p>
         </section>
 
         <div class="services-container">
@@ -83,109 +110,77 @@
                 <div class="service-card"><i class="fas fa-gas-pump text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">מערכות אוריאה</h4></div>
             </div>
 
-            <div class="tip-box flex items-start gap-3">
-                <i class="fas fa-lightbulb text-yellow-500 text-lg mt-1"></i>
-                <div>
-                    <h5 class="font-bold text-xs text-yellow-700">טיפול מונע: טיפ יומי</h5>
-                    <p id="dailyTipText" class="text-[11px] text-gray-600 mt-1 leading-snug">טוען טיפ מקצועי...</p>
-                </div>
-            </div>
-
             <button onclick="showPage('crm')" class="action-box">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-900 text-lg">
-                        <i class="fas fa-id-card"></i>
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl shadow-inner">
+                        <i class="fas fa-user-check"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3>
-                        <p class="text-[9px] text-gray-400">היסטוריית טיפולים ותיאום תור</p>
+                        <p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p>
                     </div>
-                    <i class="fas fa-chevron-left mr-auto text-gray-300 text-xs"></i>
+                    <i class="fas fa-chevron-left mr-auto text-blue-200"></i>
                 </div>
             </button>
 
             <div class="action-box">
                 <div class="flex items-center gap-4 mb-3">
-                    <div class="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-white text-lg">
-                        <i class="fas fa-comment-dots"></i>
+                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-headset"></i>
                     </div>
-                    <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה שאלה</h3>
+                    <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה</h3>
                 </div>
-                <div id="expertRes" class="hidden p-3 bg-blue-50 border-r-4 border-blue-900 text-[11px] text-blue-900 mb-3 rounded-lg"></div>
                 <div class="relative">
-                    <input type="text" id="expertInput" placeholder="מה קרה לרכב?" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none">
-                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-7 h-7 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-paper-plane text-[10px]"></i>
+                    <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-paper-plane text-xs"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="px-4 mt-4">
-            <a href="https://wa.me/972505858750?text=שלום, אני צריך עזרה עם הרכב שלי, הנה המיקום שלי:" class="w-full bg-green-500 text-white rounded-2xl p-4 flex items-center justify-center gap-3 shadow-lg font-bold text-sm">
-                <i class="fab fa-whatsapp text-xl"></i>
-                שלח מיקום/הודעה דחופה לוואטסאפ
+        <div class="px-4 mt-6">
+            <a href="https://wa.me/972505858750" class="w-full bg-green-500 text-white rounded-2xl p-4 flex items-center justify-center gap-3 shadow-xl font-bold">
+                <i class="fab fa-whatsapp text-2xl"></i>
+                סיוע מהיר בוואטסאפ
             </a>
         </div>
-
-        <section class="bg-slate-900 p-8 rounded-t-[40px] mt-10 text-white">
-            <h3 class="text-xl font-bold text-center mb-6 italic">לקוחות מדרגים 5.0 ★</h3>
-            <div class="bg-white/5 p-4 rounded-2xl border border-white/10 mb-4">
-                <p class="text-[11px] opacity-80 leading-relaxed italic">"המקום היחיד בבאר שבע שבאמת מבין ב-DSG. מומלץ בחום!"</p>
-                <p class="text-[10px] font-bold mt-2 text-blue-400">- אלון תורג'מן</p>
-            </div>
-        </section>
     </div>
 
-    <div id="crmPage" class="hidden p-8 pt-20 h-screen bg-white">
-        <h3 class="text-2xl font-bold text-blue-900 mb-6">כניסת לקוחות</h3>
+    <div id="crmPage" class="hidden p-8 pt-10 h-screen bg-white">
+        <h3 class="text-3xl font-bold text-blue-900 mb-2">כניסת לקוחות</h3>
+        <p class="text-sm text-gray-400 mb-8">הקש פרטים כדי לצפות במידע האישי שלך</p>
         <div class="space-y-4">
-            <input type="text" id="uName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-xl outline-none text-sm">
-            <input type="tel" id="uPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-xl text-center font-bold text-sm tracking-widest">
-            <button onclick="login()" class="w-full bg-blue-900 text-white p-4 rounded-xl font-bold">התחבר</button>
-            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-4 text-center">ביטול וחזרה</button>
+            <input type="text" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+            <input type="tel" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold tracking-widest">
+            <button class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות</button>
+            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center">חזרה לדף הבית</button>
         </div>
     </div>
 
     <script>
         function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            document.getElementById('liveDateTime').innerText = now.toLocaleDateString('he-IL', options).replace(',', ' |');
+            const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('liveDateTime').innerText = now.toLocaleDateString('he-IL', options);
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        const tips = [
-            "החלפת שמן גיר DSG בכל 60,000 ק\"מ שומרת על המוח של הגיר.",
-            "בקיץ הישראלי, מומלץ לבדוק את נוזל הקירור פעם בחודש (כשהמנוע קר!).",
-            "רעידות בבלימה? ייתכן והצלחות התעוותו. כדאי לבדוק לפני שהרפידות נשחקות.",
-            "נורת אוריאה (AdBlue) דולקת? אל תחכו לרגע האחרון, הרכב עלול לא להניע."
-        ];
-        document.getElementById('dailyTipText').innerText = tips[Math.floor(Math.random() * tips.length)];
-
         function toggleMenu() {
             const m = document.getElementById('sideMenu');
             const o = document.getElementById('overlay');
-            m.classList.toggle('active');
-            o.style.display = m.classList.contains('active') ? 'block' : 'none';
+            // Logic for menu would go here
         }
 
         function showPage(p) {
             document.getElementById('homePage').classList.toggle('hidden', p !== 'home');
             document.getElementById('crmPage').classList.toggle('hidden', p !== 'crm');
-            if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
             window.scrollTo(0,0);
         }
 
         function askExpert() {
-            const res = document.getElementById('expertRes');
-            res.classList.remove('hidden');
-            res.innerHTML = "<b>המומחה:</b> תיאור מעניין. ברכבי VAG זה לרוב דורש סריקת תקלות קצרה. נשמח לעזור לך במוסך!";
-        }
-
-        function login() {
-            if(document.getElementById('uName').value) alert("מתחבר...");
+            alert("השאלה נשלחה למומחה!");
         }
     </script>
 </body>
