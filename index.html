@@ -3,156 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מרכז שירות ברע״מ באר שבע - מומחי VAG</title>
+    <title>מרכז שירות ברע״מ - VAG Specialist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
-        body { font-family: 'Assistant', sans-serif; background-color: #f3f4f6; }
-        .vag-brand { color: #001e50; } /* VW Blue */
-        .admin-hidden { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f8f9fa; margin-bottom: 90px; }
+        .vag-blue { color: #001e50; }
+        .bg-vag-blue { background-color: #001e50; }
+        .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .whatsapp-green { background-color: #25D366; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white shadow-md p-4 sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold vag-brand">מרכז שירות ברע״מ</h1>
-            <div class="flex gap-3">
-                <a href="tel:086277195" class="bg-green-500 text-white p-2 rounded-full shadow-lg"><i class="fas fa-phone"></i></a>
-                <a href="https://www.google.com/maps/search/?api=1&query=פנחס+החוצב+35+באר+שבע" class="bg-blue-600 text-white p-2 rounded-full shadow-lg"><i class="fas fa-location-arrow"></i></a>
-            </div>
-        </div>
+    <header class="bg-white p-4 text-center border-b shadow-sm sticky top-0 z-50">
+        <h1 class="text-2xl font-bold vag-blue leading-tight">מרכז שירות ברע״מ</h1>
+        <p class="text-[10px] tracking-widest font-semibold text-gray-400">VAG SPECIALIST BEER SHEVA</p>
     </header>
 
-    <div class="bg-yellow-100 p-2 overflow-hidden border-b border-yellow-200">
-        <div class="whitespace-nowrap animate-marquee flex gap-10">
-            <span class="font-bold">⭐ לקוחות ממליצים:</span>
-            <span>"המוסך הכי מקצועי לרכבי סקודה בדרום!"</span>
-            <span>"שירות אדיב ומהיר, יחס אישי מדהים."</span>
-            <span>"מומחים אמיתיים לקבוצת VAG, פתרו לי תקלה שאיש לא הצליח."</span>
+    <section class="bg-[#0f172a] text-white p-8 text-center relative">
+        <h2 class="text-3xl font-extrabold mb-2">מרכז שירות ברע״מ</h2>
+        <p class="text-blue-300 mb-6 text-lg font-light">מומחים לרכבי אאודי, פולקסווגן, סקודה וסיאט</p>
+        <div class="flex flex-wrap justify-center gap-2">
+            <span class="bg-white/10 px-4 py-1 rounded-full text-xs border border-white/20">SEAT</span>
+            <span class="bg-white/10 px-4 py-1 rounded-full text-xs border border-white/20">Skoda</span>
+            <span class="bg-white/10 px-4 py-1 rounded-full text-xs border border-white/20">Audi</span>
+            <span class="bg-white/10 px-4 py-1 rounded-full text-xs border border-white/20">VW</span>
         </div>
-    </div>
+    </section>
 
-    <main class="container mx-auto p-4 space-y-6">
-
-        <section class="bg-white p-6 rounded-2xl shadow-sm border-r-4 border-blue-800">
-            <h2 class="text-2xl font-bold mb-2">מומחים לרכבי VAG</h2>
-            <p class="text-gray-600">סיאט • פולקסווגן • סקודה • אאודי</p>
-            <p class="mt-2"><i class="fas fa-map-marker-alt ml-2"></i>פנחס החוצב 35, באר שבע</p>
-            <p><i class="fas fa-phone ml-2 text-blue-500"></i>08-6277195</p>
-        </section>
-
-        <section class="bg-blue-50 p-6 rounded-2xl shadow-sm border border-blue-100">
-            <h2 class="text-xl font-bold mb-4"><i class="fas fa-car ml-2"></i>בדיקת היסטוריית טיפולים ארצית</h2>
-            <p class="text-sm mb-4">הזן מספר רכב לצפייה בכל הטיפולים שבוצעו ברשת VAG ישראל:</p>
-            <div class="flex gap-2">
-                <input id="carNumber" type="text" placeholder="מספר רכב (למשל 12345678)" class="flex-1 p-3 rounded-xl border border-blue-200">
-                <button onclick="checkHistory()" class="bg-blue-800 text-white px-6 rounded-xl hover:bg-blue-900 transition">בדוק</button>
+    <main class="p-4 space-y-4 max-w-md mx-auto">
+        
+        <a href="https://www.waze.com/ul?ll=31.234346,34.797262&navigate=yes" class="block bg-white p-5 rounded-2xl card-shadow flex items-center justify-between active:scale-95 transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-100 p-3 rounded-xl text-blue-800"><i class="fas fa-location-arrow text-xl"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">ניווט למוסך</h3>
+                    <p class="text-sm text-gray-500 font-light">פנחס החוצב 35, באר שבע</p>
+                </div>
             </div>
-            <div id="historyResult" class="mt-4 hidden p-4 bg-white rounded-lg border border-blue-200 text-sm"></div>
-        </section>
+            <i class="fas fa-chevron-left text-gray-300"></i>
+        </a>
 
-        <section class="bg-white p-6 rounded-2xl shadow-sm">
-            <h2 class="text-xl font-bold mb-4"><i class="fas fa-calendar-check ml-2"></i>תיאום תור לטיפול/טסט</h2>
-            <form class="space-y-4">
-                <input type="text" placeholder="שם מלא" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
-                <input type="tel" placeholder="טלפון" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
-                <select class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200">
-                    <option>טיפול תקופתי</option>
-                    <option>הכנה לטסט</option>
-                    <option>דיאגנוסטיקה</option>
-                    <option>אחר</option>
-                </select>
-                <button type="button" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">שלח בקשה</button>
-            </form>
-        </section>
-
-        <section class="bg-indigo-900 text-white p-6 rounded-2xl shadow-sm">
-            <h2 class="text-xl font-bold mb-2">שאל את המומחה (AI)</h2>
-            <p class="text-sm opacity-80 mb-4">יש לך שאלה טכנית? אנחנו כאן לענות.</p>
-            <div id="chatBox" class="h-40 overflow-y-auto mb-4 p-3 bg-white/10 rounded-lg text-sm"></div>
-            <div class="flex gap-2">
-                <input id="chatInput" type="text" placeholder="שאל שאלה..." class="flex-1 p-3 rounded-xl bg-white text-black">
-                <button onclick="askAI()" class="bg-yellow-500 text-black px-4 rounded-xl font-bold">שלח</button>
+        <a href="tel:086277195" class="block bg-white p-5 rounded-2xl card-shadow flex items-center justify-between active:scale-95 transition-transform border-r-4 border-green-500">
+            <div class="flex items-center gap-4">
+                <div class="bg-green-100 p-3 rounded-xl text-green-700"><i class="fas fa-phone-alt text-xl"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">התקשרות ישירה</h3>
+                    <p class="text-sm text-gray-500 font-light text-left">08-6277195</p>
+                </div>
             </div>
-        </section>
+            <i class="fas fa-chevron-left text-gray-300"></i>
+        </a>
 
-        <section class="text-center pt-10">
-            <button onclick="showAdminLogin()" class="text-gray-400 text-xs hover:underline">כניסת מנהל מורשה</button>
-        </section>
+        <div class="bg-white p-6 rounded-2xl card-shadow space-y-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">שירות מהיר בוואטסאפ</h3>
+            
+            <button onclick="sendWA('שלום רעמ, אני מעוניין לתאם תור לטיפול ברכב שלי')" class="w-full whatsapp-green text-white p-4 rounded-xl font-bold flex items-center justify-center gap-3">
+                <i class="fab fa-whatsapp text-2xl"></i>
+                תאום תור לטיפול / טסט
+            </button>
 
+            <button onclick="sendWA('שלום, אשמח לקבל היסטוריית טיפולים עבור רכב מספר: ')" class="w-full bg-blue-900 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-3">
+                <i class="fas fa-history text-xl"></i>
+                בדיקת היסטוריית טיפולים
+            </button>
+        </div>
+
+        <div class="bg-[#001e50] text-white p-6 rounded-3xl mt-4 text-center">
+            <h3 class="text-xl font-bold mb-4">לקוחות ממליצים ⭐</h3>
+            <div class="space-y-4">
+                <div class="bg-white/10 p-4 rounded-xl border border-white/10 text-right">
+                    <p class="text-sm italic">"המוסך הכי מקצועי בבאר שבע. פתרו לי תקלה בגיר DSG שאף אחד לא הצליח לעלות עליה."</p>
+                    <p class="text-[10px] mt-2 opacity-50 font-bold">מתוך ביקורות גוגל 5/5</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-6">
+            <button onclick="sendWA('בקשת קוד כניסה לניהול עבור מספר 0505858750')" class="text-gray-400 text-xs hover:underline flex items-center justify-center gap-2 mx-auto">
+                <i class="fas fa-lock"></i> כניסת מנהל (שליחת קוד לוואטסאפ)
+            </button>
+        </div>
     </main>
 
-    <div id="adminModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[100]">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold mb-4">כניסה למערכת ניהול</h2>
-            <p class="mb-6">קוד אימות ישלח לטלפון: 050-5858750</p>
-            <input id="adminCode" type="text" placeholder="הכנס קוד" class="w-full p-4 rounded-xl border mb-4 text-center text-2xl tracking-widest">
-            <button onclick="verifyAdmin()" class="w-full bg-black text-white p-4 rounded-xl font-bold mb-2">אימות וכניסה</button>
-            <button onclick="closeAdmin()" class="text-red-500 font-bold">ביטול</button>
-        </div>
-    </div>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 pb-6 z-[100] shadow-[0_-2px_15px_rgba(0,0,0,0.1)]">
+        <button onclick="window.scrollTo(0,0)" class="flex flex-col items-center text-blue-900">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">ראשי</span>
+        </button>
+        <button onclick="sendWA('שלום, רציתי לקבוע תור לטיפול')" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-calendar-check text-xl mb-1"></i>
+            <span class="text-[10px]">תור</span>
+        </button>
+        <button onclick="sendWA('שלום, יש לי שאלה טכנית לגבי הרכב שלי')" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-robot text-xl mb-1"></i>
+            <span class="text-[10px]">ייעוץ AI</span>
+        </button>
+        <a href="tel:086277195" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-phone text-xl mb-1"></i>
+            <span class="text-[10px]">חיוג</span>
+        </a>
+    </nav>
 
     <script>
-        // סימולציית היסטוריה ארצית
-        function checkHistory() {
-            const num = document.getElementById('carNumber').value;
-            const res = document.getElementById('historyResult');
-            if(num.length < 5) return alert("אנא הזן מספר רכב תקין");
-            
-            res.classList.remove('hidden');
-            res.innerHTML = `
-                <h3 class="font-bold border-b pb-2 mb-2 text-blue-800">היסטוריית טיפולים - רכב ${num}</h3>
-                <ul class="space-y-2">
-                    <li>🗓️ 12/02/2025: <b>מרכז שירות ברע"מ</b> - החלפת מצמדים וכיול גיר DSG.</li>
-                    <li>🗓️ 05/08/2024: <b>מוסך רשת - מרכז</b> - טיפול 60,000 ק"מ (שמנים ופילטרים).</li>
-                    <li>🗓️ 10/01/2024: <b>מוסך מורשה צפון</b> - החלפת רפידות בלם קדמיות.</li>
-                </ul>
-            `;
-        }
-
-        // צ'אט AI
-        function askAI() {
-            const input = document.getElementById('chatInput');
-            const box = document.getElementById('chatBox');
-            if(!input.value) return;
-
-            box.innerHTML += `<div class="mb-2 text-yellow-300">אתה: ${input.value}</div>`;
-            
-            // כאן יבוא החיבור ל-API של Gemini
-            setTimeout(() => {
-                box.innerHTML += `<div class="mb-4"><b>ברע"מ AI:</b> ככל הנראה מדובר בבעיה בלחץ שמן בגיר. מומלץ להגיע אלינו לפנחס החוצב 35 לבדיקת מחשב.</div>`;
-                box.scrollTop = box.scrollHeight;
-            }, 1000);
-            
-            input.value = "";
-        }
-
-        // ניהול
-        function showAdminLogin() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-        
-        function verifyAdmin() {
-            const code = document.getElementById('adminCode').value;
-            if(code === "1234") { // כאן תוכל להגדיר קוד קבוע או חיבור ל-SMS
-                alert("ברוך הבא למערכת הניהול של ברע\"מ");
-                window.location.reload(); 
-            } else {
-                alert("קוד שגוי");
-            }
+        function sendWA(message) {
+            const phone = "972505858750"; // המספר שלך
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
         }
     </script>
 
-    <style>
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-        }
-    </style>
 </body>
 </html>
