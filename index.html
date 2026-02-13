@@ -10,42 +10,22 @@
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
         body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
-        /* Hero Section Fix */
         .hero-bg { 
             background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); 
-            color: white; 
-            padding: 60px 20px 110px 20px; 
-            text-align: center; 
-            clip-path: ellipse(150% 100% at 50% 0%);
-            position: relative;
-            z-index: 1;
+            color: white; padding: 60px 20px 110px 20px; text-align: center; 
+            clip-path: ellipse(150% 100% at 50% 0%); position: relative; z-index: 1;
         }
 
-        /* Services Grid Fix - הוספת z-index כדי שיצוף מעל הכחול */
-        .services-container {
-            position: relative;
-            z-index: 10; /* מבטיח שהסמלים יהיו מעל הרקע הכחול */
-            margin-top: -50px;
-            padding: 0 20px;
-        }
+        .services-container { position: relative; z-index: 10; margin-top: -50px; padding: 0 20px; }
+        .service-card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; text-align: center; }
 
-        .service-card { 
-            background: white; 
-            border-radius: 24px; 
-            padding: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-            border: 1px solid #f1f5f9;
-            text-align: center;
+        /* עיצוב המלבנים החדשים */
+        .action-box { 
+            background: #ffffff; border-radius: 30px; padding: 22px; margin: 15px 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; 
+            transition: all 0.3s ease; display: block; width: 100%; text-align: right;
         }
-
-        .expert-box { 
-            background: #ffffff; 
-            border-radius: 30px; 
-            padding: 25px; 
-            margin: 30px 0; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-            border: 1px solid #e2e8f0; 
-        }
+        .action-box:active { transform: scale(0.98); background-color: #fdfdfd; }
 
         .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1000; transition: 0.4s; padding: 40px 20px; color: white; }
         .side-menu.active { right: 0; }
@@ -62,8 +42,8 @@
         <h3 class="text-xl font-bold mb-8 border-b border-gray-700 pb-4">תפריט ברע"מ</h3>
         <ul class="space-y-6">
             <li><a href="#" onclick="showPage('home')" class="block text-lg"><i class="fas fa-home ml-3"></i>דף הבית</a></li>
-            <li><a href="#" onclick="showPage('crm')" class="block text-lg font-bold text-blue-400"><i class="fas fa-user-shield ml-3"></i>אזור אישי וניהול רכב</a></li>
-            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone ml-3"></i>חיוג מהיר למוסך</a></li>
+            <li><a href="#" onclick="showPage('crm')" class="block text-lg font-bold text-blue-400"><i class="fas fa-user-shield ml-3"></i>אזור אישי (CRM)</a></li>
+            <li><a href="tel:086277195" class="block text-lg"><i class="fas fa-phone ml-3"></i>חיוג למוסך</a></li>
         </ul>
     </div>
 
@@ -79,58 +59,45 @@
     <div id="homePage">
         <section class="hero-bg">
             <h2 class="text-3xl font-bold mb-3">מומחיות ללא פשרות</h2>
-            <p class="text-blue-100 text-sm opacity-90">מרכז השירות המוביל בנגב לרכבי קבוצת VAG</p>
+            <p class="text-blue-100 text-sm opacity-90">מרכז השירות המוביל בנגב לרכבי VAG</p>
         </section>
 
         <div class="services-container">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="service-card">
-                    <i class="fas fa-laptop-code text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">דיאגנוסטיקה</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">איתור תקלות בעזרת מחשוב מקורי</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-oil-can text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">טיפול תקופתי</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">שמנים וחלפים בתקן יצרן מחמיר</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-cogs text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">שיפוץ גירים</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">התמחות ב-DSG והחלפת מצמדים</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-bolt text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">חשמל ומיזוג</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">פתרון בעיות קצה במערכות חשמל</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-truck-monster text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">מערכות 4x4</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">טיפול במערכות Haldex וקוואטרו</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-gas-pump text-blue-600 text-3xl mb-3 block"></i>
-                    <h4 class="font-bold text-gray-800 text-xs">מערכות אוריאה</h4>
-                    <p class="text-[9px] text-gray-400 mt-1">טיפול ותיקון מערכות AdBlue</p>
-                </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="service-card"><i class="fas fa-laptop-code text-blue-600 text-3xl mb-2 block"></i><h4 class="font-bold text-xs text-gray-800">דיאגנוסטיקה</h4></div>
+                <div class="service-card"><i class="fas fa-oil-can text-blue-600 text-3xl mb-2 block"></i><h4 class="font-bold text-xs text-gray-800">טיפול תקופתי</h4></div>
+                <div class="service-card"><i class="fas fa-cogs text-blue-600 text-3xl mb-2 block"></i><h4 class="font-bold text-xs text-gray-800">שיפוץ גירים</h4></div>
+                <div class="service-card"><i class="fas fa-bolt text-blue-600 text-3xl mb-2 block"></i><h4 class="font-bold text-xs text-gray-800">חשמל ומיזוג</h4></div>
             </div>
 
-            <div class="expert-box">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white text-xl shadow-inner">
+            <button onclick="showPage('crm')" class="action-box">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-900 text-xl">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3>
+                        <p class="text-[10px] text-gray-400">צפייה בהיסטוריה, תיאום תור וניהול הרכב</p>
+                    </div>
+                    <div class="mr-auto text-gray-300"><i class="fas fa-chevron-left"></i></div>
+                </div>
+            </button>
+
+            <div class="action-box">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl">
                         <i class="fas fa-user-md"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה שאלה</h3>
-                        <p class="text-[10px] text-green-500 font-bold tracking-wide">זמין למענה טכני מקצועי</p>
+                        <p class="text-[10px] text-green-500 font-bold">זמין למענה טכני מקצועי</p>
                     </div>
                 </div>
-                <div id="expertRes" class="hidden p-4 bg-blue-50 border-r-4 border-blue-900 text-xs text-blue-900 mb-4 rounded-lg"></div>
+                <div id="expertRes" class="hidden p-3 bg-blue-50 border-r-4 border-blue-900 text-xs text-blue-900 mb-4 rounded-lg"></div>
                 <div class="relative">
-                    <input type="text" id="expertInput" placeholder="תאר לי מה הבעיה ברכב..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all">
-                    <button onclick="askExpert()" class="absolute left-2 top-2 bg-blue-900 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-paper-plane"></i>
+                    <input type="text" id="expertInput" placeholder="תאר לי מה הבעיה ברכב..." class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none">
+                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-8 h-8 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-paper-plane text-xs"></i>
                     </button>
                 </div>
             </div>
@@ -138,27 +105,27 @@
 
         <section class="bg-blue-900 p-10 rounded-t-[50px] mt-10 text-white">
             <h3 class="text-2xl font-bold text-center mb-8">מה אומרים עלינו?</h3>
-            <div class="bg-white/10 p-6 rounded-3xl border border-white/10 mb-4">
-                <div class="flex justify-between items-center mb-3">
+            <div class="bg-white/10 p-6 rounded-3xl border border-white/10 mb-6">
+                <div class="flex justify-between items-center mb-2">
                     <span class="font-bold">אביב כהן</span>
-                    <span class="text-yellow-400">★★★★★</span>
+                    <span class="text-yellow-400 text-xs">★★★★★</span>
                 </div>
-                <p class="text-xs opacity-80 leading-relaxed">"הגעתי עם בעיה מורכבת במנוע שאף אחד לא פתר. המקצועיות בברע"מ היא ברמה אחרת לגמרי."</p>
+                <p class="text-xs opacity-70 leading-relaxed">"הגעתי עם בעיה מורכבת במנוע שאף אחד לא פתר. המקצועיות בברע"מ היא ברמה אחרת לגמרי."</p>
             </div>
-            <button onclick="alert('נשלח לאישור מנהל')" class="w-full py-4 border border-dashed border-white/30 rounded-2xl text-xs font-bold opacity-60">
-                + הוסף ביקורת משלך (בכפוף לאישור)
+            <button onclick="alert('נשלח לאישור מנהל')" class="w-full py-4 border border-dashed border-white/30 rounded-2xl text-[10px] font-bold opacity-60">
+                + הוסף ביקורת משלך
             </button>
         </section>
     </div>
 
     <div id="crmPage" class="hidden p-8 pt-20 h-screen bg-white text-right">
-        <h3 class="text-3xl font-bold text-blue-900 mb-4">כניסת לקוחות</h3>
+        <h3 class="text-3xl font-bold text-blue-900 mb-2">כניסת לקוחות</h3>
         <p class="text-sm text-gray-400 mb-10">צפה בהיסטוריית הטיפולים ונהל את רכבך</p>
         <div class="space-y-4">
             <input type="text" id="uName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
             <input type="tel" id="uPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold tracking-widest">
             <button onclick="login()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-2xl">התחבר למערכת</button>
-            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6">חזרה לדף הבית</button>
+            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center">חזרה לדף הבית</button>
         </div>
     </div>
 
@@ -184,18 +151,13 @@
             res.classList.remove('hidden');
             res.innerHTML = "המומחה שלנו מנתח את השאלה...";
             setTimeout(() => {
-                res.innerHTML = "<b>תשובת המומחה:</b> על סמך מה שתיארת, נראה שיש צורך בחיבור סורק תקלות מקורי כדי לדייק את הדיאגנוזה. אנחנו זמינים עבורך מחר בבוקר.";
+                res.innerHTML = "<b>תשובת המומחה:</b> על סמך התיאור, מומלץ לבצע בדיקת מחשב ודיאגנוסטיקה מקצועית. אתה מוזמן לתאם תור לבדיקה ללא עלות.";
             }, 1200);
         }
 
         function login() {
             const n = document.getElementById('uName').value;
-            const p = document.getElementById('uPlate').value;
-            if(n && p) {
-                alert("שלום " + n + ", המערכת מתחברת...");
-            } else {
-                alert("נא למלא פרטים");
-            }
+            if(n) alert("ברוך הבא " + n);
         }
     </script>
 </body>
