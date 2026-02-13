@@ -6,90 +6,43 @@
     <title>מרכז שירות ברע״מ | VAG Specialist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
         body { font-family: 'Assistant', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
         /* Header מוגדל ובולט */
         .main-header {
-            background: white;
-            padding: 20px 15px;
-            border-bottom: 2px solid #f1f5f9;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: white; padding: 20px 15px; border-bottom: 2px solid #f1f5f9;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;
+            position: sticky; top: 0; z-index: 100;
         }
+        .brand-name { font-size: 26px; font-weight: 800; color: #1e3a8a; line-height: 1.1; margin-bottom: 6px; }
+        .live-time-box { font-size: 14px; font-weight: 700; color: #2563eb; background: #eff6ff; display: inline-block; padding: 5px 15px; border-radius: 10px; margin-bottom: 10px; }
+        .hours-badge { background: #1e293b; color: #f8fafc; font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 25px; display: inline-flex; align-items: center; gap: 8px; }
 
-        .brand-name {
-            font-size: 24px;
-            font-weight: 800;
-            color: #1e3a8a; /* כחול עמוק */
-            line-height: 1.2;
-            margin-bottom: 4px;
-        }
-
-        .live-time-box {
-            font-size: 13px;
-            font-weight: 700;
-            color: #2563eb;
-            background: #eff6ff;
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        .hours-badge {
-            background: #1e293b;
-            color: #f8fafc;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 6px 15px;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .hero-bg { 
-            background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); 
-            color: white; padding: 40px 20px 100px 20px; text-align: center; 
-            clip-path: ellipse(150% 100% at 50% 0%); position: relative; z-index: 1;
-        }
-
+        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 40px 20px 100px 20px; text-align: center; clip-path: ellipse(150% 100% at 50% 0%); position: relative; z-index: 1; }
         .services-container { position: relative; z-index: 10; margin-top: -60px; padding: 0 15px; }
         .service-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; text-align: center; }
+        
+        .action-box { background: #ffffff; border-radius: 25px; padding: 18px; margin: 12px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; text-align: right; transition: 0.2s; }
+        .action-box:active { transform: scale(0.97); }
 
-        .action-box { 
-            background: #ffffff; border-radius: 25px; padding: 18px; margin: 12px 0; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; 
-            width: 100%; text-align: right;
-        }
-
-        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0f172a; z-index: 1000; transition: 0.4s; padding: 40px 20px; color: white; }
-        .side-menu.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        .tip-box { background: linear-gradient(to left, #fffcf0, #fff); border-right: 4px solid #fbbf24; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1); }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-    
     <header class="main-header">
-        <div class="flex justify-between items-center mb-2">
-            <button onclick="toggleMenu()" class="text-2xl text-slate-700"><i class="fas fa-bars"></i></button>
-            <div class="brand-name">מרכז שירות ברע״מ</div>
-            <div class="w-8"></div> </div>
-        
+        <div class="brand-name">מרכז שירות ברע״מ</div>
         <div id="liveDateTime" class="live-time-box">טוען זמן...</div>
-        
         <br>
-        
         <div class="hours-badge">
-            <i class="fas fa-calendar-alt text-blue-400"></i>
+            <i class="fas fa-clock text-blue-400"></i>
             <span>א׳-ה׳ 07:30 - 15:30 | ו׳-ש׳: סגור</span>
         </div>
     </header>
@@ -110,68 +63,83 @@
                 <div class="service-card"><i class="fas fa-gas-pump text-blue-600 text-2xl mb-2 block"></i><h4 class="font-bold text-[11px]">מערכות אוריאה</h4></div>
             </div>
 
+            <div class="tip-box flex items-start gap-3">
+                <i class="fas fa-lightbulb text-yellow-500 text-lg mt-1"></i>
+                <div>
+                    <h5 class="font-bold text-xs text-yellow-700">טיפול מונע: טיפ יומי</h5>
+                    <p id="dailyTipText" class="text-[11px] text-gray-600 mt-1 leading-snug">טוען טיפ...</p>
+                </div>
+            </div>
+
             <button onclick="showPage('crm')" class="action-box">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl shadow-inner">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3>
-                        <p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p>
-                    </div>
-                    <i class="fas fa-chevron-left mr-auto text-blue-200"></i>
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-900 text-xl shadow-inner"><i class="fas fa-user-check"></i></div>
+                    <div><h3 class="font-bold text-gray-800 text-sm">כניסה לאזור אישי</h3><p class="text-[10px] text-gray-400">היסטוריית טיפולים וניהול תורים</p></div>
                 </div>
             </button>
 
             <div class="action-box">
                 <div class="flex items-center gap-4 mb-3">
-                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl">
-                        <i class="fas fa-headset"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fas fa-comment-dots"></i></div>
                     <h3 class="font-bold text-gray-800 text-sm">שאל את המומחה</h3>
                 </div>
                 <div class="relative">
-                    <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none focus:ring-1 focus:ring-blue-500">
-                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-lg">
-                        <i class="fas fa-paper-plane text-xs"></i>
-                    </button>
+                    <input type="text" id="expertInput" placeholder="מה הבעיה ברכב?" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none">
+                    <button onclick="askExpert()" class="absolute left-2 top-1.5 bg-blue-900 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs"></i></button>
                 </div>
+                <p id="chatStatus" class="text-[10px] text-blue-600 mt-2 hidden"></p>
             </div>
         </div>
 
-        <div class="px-4 mt-6">
+        <div class="px-4 mt-6 pb-10">
             <a href="https://wa.me/972505858750" class="w-full bg-green-500 text-white rounded-2xl p-4 flex items-center justify-center gap-3 shadow-xl font-bold">
                 <i class="fab fa-whatsapp text-2xl"></i>
-                סיוע מהיר בוואטסאפ
+                סיוע מהיר/מיקום בוואטסאפ
             </a>
         </div>
     </div>
 
     <div id="crmPage" class="hidden p-8 pt-10 h-screen bg-white">
         <h3 class="text-3xl font-bold text-blue-900 mb-2">כניסת לקוחות</h3>
-        <p class="text-sm text-gray-400 mb-8">הקש פרטים כדי לצפות במידע האישי שלך</p>
+        <p class="text-sm text-gray-400 mb-8">הקש פרטים לסנכרון הרכב</p>
         <div class="space-y-4">
-            <input type="text" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-            <input type="tel" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold tracking-widest">
-            <button class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות</button>
-            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center">חזרה לדף הבית</button>
+            <input type="text" id="custName" placeholder="שם מלא" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+            <input type="tel" id="custPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold tracking-widest">
+            <button onclick="saveCustomer()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-bold text-lg shadow-xl">התחברות</button>
+            <button onclick="showPage('home')" class="w-full text-gray-400 text-xs mt-6 text-center">חזרה</button>
         </div>
     </div>
 
     <script>
+        // חיבור ה-Config ששלחת
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
+            authDomain: "baram-vag-45e12.firebaseapp.com",
+            projectId: "baram-vag-45e12",
+            storageBucket: "baram-vag-45e12.firebasestorage.app",
+            messagingSenderId: "761383355945",
+            appId: "1:761383355945:web:552554b5a6b9fe5e78be38",
+            measurementId: "G-3WMX88H0NM"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         function updateDateTime() {
             const now = new Date();
             const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
-            document.getElementById('liveDateTime').innerText = now.toLocaleDateString('he-IL', options);
+            document.getElementById('liveDateTime').innerText = now.toLocaleDateString('he-IL', options).replace(',', ' |');
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        function toggleMenu() {
-            const m = document.getElementById('sideMenu');
-            const o = document.getElementById('overlay');
-            // Logic for menu would go here
-        }
+        const tips = [
+            "החלפת שמן גיר DSG בכל 60,000 ק\"מ שומרת על אורך חיי הגיר.",
+            "בקיץ הישראלי, בדקו נוזל קירור פעם בחודש (כשהמנוע קר בלבד!).",
+            "נורת אוריאה דולקת? אל תמתינו, הרכב עלול להינעל ולא להניע.",
+            "רעידות בבלימה מעידות לרוב על צלחות שחוקות. בטיחות לפני הכל!"
+        ];
+        document.getElementById('dailyTipText').innerText = tips[Math.floor(Math.random() * tips.length)];
 
         function showPage(p) {
             document.getElementById('homePage').classList.toggle('hidden', p !== 'home');
@@ -180,7 +148,32 @@
         }
 
         function askExpert() {
-            alert("השאלה נשלחה למומחה!");
+            const input = document.getElementById('expertInput');
+            const status = document.getElementById('chatStatus');
+            if(!input.value) return;
+            status.innerText = "שולח שאלה...";
+            status.classList.remove('hidden');
+            db.collection("expert_questions").add({
+                question: input.value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                status.innerText = "נשלח בהצלחה! המומחה יחזור אליך.";
+                input.value = "";
+            });
+        }
+
+        function saveCustomer() {
+            const name = document.getElementById('custName').value;
+            const plate = document.getElementById('custPlate').value;
+            if(!name || !plate) return alert("מלא פרטים");
+            db.collection("customers").add({
+                name: name,
+                plate: plate,
+                time: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("פרטיך נקלטו במערכת!");
+                showPage('home');
+            });
         }
     </script>
 </body>
