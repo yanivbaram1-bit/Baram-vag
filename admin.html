@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול פרימיום - מרכז שירות ברע״מ</title>
+    <title>ניהול מרכז שירות ברע״מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -11,126 +11,120 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap');
         body { font-family: 'Assistant', sans-serif; background: #f0f2f5; }
-        .ltr { direction: ltr; display: inline-block; }
+        .sidebar { background: #001e50; transition: all 0.3s; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
         .hidden { display: none !important; }
-        .modal-content { max-height: 90vh; overflow-y: auto; }
-        .vip-badge { background: linear-gradient(45deg, #ffd700, #b8860b); color: white; }
-        .pro-badge { background: #1e40af; color: white; }
-        .new-badge { background: #10b981; color: white; }
+        .ltr { direction: ltr; display: inline-block; }
     </style>
 </head>
-<body>
+<body class="flex min-h-screen">
 
-    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center">
+    <div id="loginOverlay" class="fixed inset-0 bg-[#001e50] z-[1000] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
-            <h2 class="text-2xl font-black mb-6 text-blue-900 italic">ADMIN LOGIN</h2>
-            <input type="password" id="adminPass" placeholder="סיסמה" class="w-full p-4 border-2 rounded-2xl mb-4 text-center font-bold outline-none focus:border-blue-900">
-            <button onclick="checkLogin()" class="w-full bg-blue-900 text-white p-4 rounded-2xl font-black">כניסה</button>
+            <h2 class="text-2xl font-bold mb-6 text-blue-900">כניסת מנהל</h2>
+            <input id="adminPass" type="password" placeholder="הכנס סיסמה" class="w-full p-4 border rounded-2xl mb-4 text-center ltr">
+            <button onclick="checkAdminAuth()" class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold hover:bg-blue-800 transition">כניסה</button>
         </div>
     </div>
 
-    <div id="adminPanel" class="hidden min-h-screen">
-        <header class="bg-white shadow-md p-4 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="bg-blue-900 text-white p-2 rounded-lg font-black italic">VAG</div>
-                    <h1 class="text-xl font-black text-blue-900">מרכז שירות ברע״מ - פנל ניהול</h1>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="openNewCustomerModal()" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm">+ לקוח חדש</button>
-                    <button onclick="logout()" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt text-xl"></i></button>
+    <div id="mainContent" class="hidden flex w-full">
+        <aside class="sidebar w-64 text-white p-6 hidden md:block">
+            <h1 class="text-2xl font-black italic mb-10">ברע״מ ADMIN</h1>
+            <nav class="space-y-4">
+                <a href="#" class="block p-3 rounded-xl bg-white/10 hover:bg-white/20"><i class="fas fa-users ml-2"></i> לקוחות</a>
+                <a href="#" class="block p-3 rounded-xl hover:bg-white/20"><i class="fas fa-file-invoice-dollar ml-2"></i> הצעות מחיר</a>
+                <a href="#" class="block p-3 rounded-xl hover:bg-white/20"><i class="fas fa-calendar-check ml-2"></i> תורים</a>
+                <button onclick="logoutAdmin()" class="block w-full text-right p-3 rounded-xl text-red-400 hover:bg-red-500/10"><i class="fas fa-sign-out-alt ml-2"></i> יציאה</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black text-gray-800">ניהול לקוחות פעילים</h2>
+                <div class="bg-white px-4 py-2 rounded-xl shadow-sm">
+                    <span id="notificationCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2">0</span>
+                    <span class="text-sm font-bold">התראות חדשות</span>
                 </div>
             </div>
-        </header>
 
-        <main class="max-w-7xl mx-auto p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="customerGrid">
-                </div>
+            <div class="card p-6 overflow-x-auto">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="text-gray-400 border-b">
+                            <th class="pb-4">לקוח / רכב</th>
+                            <th class="pb-4">סטטוס צפייה</th>
+                            <th class="pb-4 text-center">פעולות אחרונות</th>
+                            <th class="pb-4">הצעות מחיר</th>
+                            <th class="pb-4">ניהול</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                        </tbody>
+                </table>
+            </div>
         </main>
     </div>
 
-    <div id="manageModal" class="hidden fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-2 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-6xl shadow-2xl modal-content flex flex-col">
-            
-            <div class="p-6 border-b bg-gray-50 flex justify-between items-center sticky top-0 z-20">
-                <div class="flex items-center gap-4">
-                    <h3 class="font-black text-2xl text-blue-900">כרטיס לקוח מקצועי</h3>
-                    <select id="uType" class="p-2 rounded-lg text-xs font-bold border">
-                        <option value="new">לקוח מתחיל</option>
-                        <option value="pro">לקוח מתקדם</option>
-                        <option value="vip">לקוח VIP</option>
-                    </select>
+    <div id="customerModal" class="hidden fixed inset-0 bg-black/60 z-[500] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 id="modalClientName" class="text-2xl font-black text-blue-900"></h3>
+                    <p id="modalClientPlate" class="text-gray-400 font-bold ltr"></p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="deleteCustomer()" class="text-red-500 text-xs font-bold border border-red-200 px-3 py-1 rounded-lg hover:bg-red-50">מחק לקוח</button>
-                    <button onclick="closeModal()" class="text-gray-400 text-2xl"><i class="fas fa-times"></i></button>
-                </div>
+                <button onclick="closeCustomerModal()" class="text-gray-400 text-2xl">&times;</button>
             </div>
 
-            <div class="p-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
-                
-                <div class="lg:col-span-4 space-y-6">
-                    <h4 class="font-bold text-blue-600 border-b pb-2 uppercase text-xs">עריכת פרטי זיהוי</h4>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="col-span-1"><label class="text-[10px] font-bold">שם פרטי</label><input id="uFName" type="text" class="w-full p-2 border rounded-xl text-sm"></div>
-                        <div class="col-span-1"><label class="text-[10px] font-bold">שם משפחה</label><input id="uLName" type="text" class="w-full p-2 border rounded-xl text-sm"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold">תעודת זהות</label><input id="uID" type="text" class="w-full p-2 border rounded-xl text-sm ltr"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold">טלפון</label><input id="uPhone" type="text" class="w-full p-2 border rounded-xl text-sm ltr"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold">כתובת</label><input id="uAddr" type="text" class="w-full p-2 border rounded-xl text-sm"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold">מספר רכב</label><input id="uPlate" type="text" class="w-full p-2 border rounded-xl text-sm font-black ltr bg-yellow-50"></div>
-                        <div class="col-span-1"><label class="text-[10px] font-bold">דגם</label><input id="uModel" type="text" class="w-full p-2 border rounded-xl text-sm"></div>
-                        <div class="col-span-1"><label class="text-[10px] font-bold">שנה</label><input id="uYear" type="number" class="w-full p-2 border rounded-xl text-sm ltr"></div>
-                        <div class="col-span-2"><label class="text-[10px] font-bold">קילומטר</label><input id="uKm" type="number" class="w-full p-2 border rounded-xl text-sm ltr"></div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-8 border-r pr-6 space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-amber-600 uppercase text-xs">הצעת מחיר מפורטת (מע"מ 18%)</h4>
-                        <div class="text-[10px] text-gray-400 font-bold">מרכז שירות ברע״מ - באר שבע</div>
-                    </div>
-
-                    <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-black text-blue-900">פירוט עבודה</span>
-                            <button onclick="addRow('work')" class="bg-blue-900 text-white text-[10px] px-2 py-1 rounded-md">+ הוסף עבודה</button>
-                        </div>
-                        <div id="workRows" class="space-y-2"></div>
-                    </div>
-
-                    <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-black text-amber-900">פירוט חלפים</span>
-                            <button onclick="addRow('parts')" class="bg-amber-700 text-white text-[10px] px-2 py-1 rounded-md">+ הוסף חלק</button>
-                        </div>
-                        <div id="partRows" class="space-y-2"></div>
-                    </div>
-
-                    <div class="bg-slate-900 text-white p-6 rounded-[2rem] shadow-xl">
-                        <div class="flex justify-between items-center text-sm opacity-80 mb-2">
-                            <span>סה"כ לפני מע"מ:</span>
-                            <span id="sumPre" class="ltr">₪ 0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm opacity-80 mb-4">
-                            <span>מע"מ (18%):</span>
-                            <span id="sumVat" class="ltr">₪ 0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center text-2xl font-black text-green-400 border-t border-white/10 pt-4">
-                            <span>לתשלום סופי:</span>
-                            <span id="sumTotal" class="ltr">₪ 0.00</span>
-                        </div>
-                    </div>
-
-                    <button onclick="saveChanges()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg hover:bg-blue-800 transition-all">
-                        עדכן לקוח ושלח הצעה ממותגת
-                    </button>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <button onclick="showActionForm('quote')" class="bg-blue-600 text-white p-4 rounded-2xl text-xs font-bold hover:bg-blue-700">+ הצעת מחיר חדשה</button>
+                <button onclick="showActionForm('message')" class="bg-emerald-600 text-white p-4 rounded-2xl text-xs font-bold hover:bg-emerald-700">שלח הודעה ללקוח</button>
+                <button onclick="showActionForm('service')" class="bg-gray-800 text-white p-4 rounded-2xl text-xs font-bold">תיעוד טיפול/טסט</button>
+                <button onclick="downloadAllQuotes()" class="bg-orange-500 text-white p-4 rounded-2xl text-xs font-bold">הורד כל ההצעות (ZIP)</button>
             </div>
+
+            <div class="border-b mb-6">
+                <ul class="flex gap-6 text-sm font-bold text-gray-500">
+                    <li class="border-b-2 border-blue-900 text-blue-900 pb-2 cursor-pointer">היסטוריה מלאה (ללא הגבלת זמן)</li>
+                </ul>
+            </div>
+
+            <div id="historyTimeline" class="space-y-4">
+                </div>
         </div>
     </div>
 
     <script>
-        const VAT = 0.18; // 18% מע"מ כפי שביקשת
+        // --- 1. AUTH LOGIC (24 HOURS) ---
+        const ADMIN_PASS = "baram!14567";
+        
+        function checkAdminAuth() {
+            const input = document.getElementById('adminPass').value;
+            if(input === ADMIN_PASS) {
+                const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+                localStorage.setItem('adminAuthExpiry', expiry);
+                initAdmin();
+            } else {
+                alert("סיסמה שגויה!");
+            }
+        }
+
+        function isAuthValid() {
+            const expiry = localStorage.getItem('adminAuthExpiry');
+            if(!expiry) return false;
+            return new Date().getTime() < parseInt(expiry);
+        }
+
+        if(isAuthValid()) {
+            initAdmin();
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('adminAuthExpiry');
+            location.reload();
+        }
+
+        // --- 2. FIREBASE INIT ---
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -142,156 +136,121 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Login Logic (24h)
-        function checkLogin() {
-            if(document.getElementById('adminPass').value === 'baram!14567') {
-                localStorage.setItem('adminSession', new Date().getTime() + 86400000);
-                location.reload();
-            } else alert("סיסמה שגויה");
-        }
-        if(localStorage.getItem('adminSession') > new Date().getTime()) {
+        // --- 3. SYSTEM LOGIC ---
+        function initAdmin() {
             document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            loadData();
+            document.getElementById('mainContent').classList.remove('hidden');
+            loadClients();
         }
 
-        function logout() { localStorage.removeItem('adminSession'); location.reload(); }
+        async function loadClients() {
+            db.collection("customers").onSnapshot(snapshot => {
+                const body = document.getElementById('clientTableBody');
+                body.innerHTML = "";
+                let notifications = 0;
 
-        // Data Loading
-        function loadData() {
-            db.collection("customers").onSnapshot(snap => {
-                const cont = document.getElementById('customerGrid');
-                cont.innerHTML = "";
-                snap.forEach(doc => {
-                    const c = doc.data();
-                    const badgeClass = c.type === 'vip' ? 'vip-badge' : (c.type === 'pro' ? 'pro-badge' : 'new-badge');
-                    const badgeText = c.type === 'vip' ? 'VIP' : (c.type === 'pro' ? 'מתקדם' : 'מתחיל');
-                    
-                    cont.innerHTML += `
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border-2 border-transparent hover:border-blue-900 cursor-pointer transition-all" onclick="openModal('${doc.id}')">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h4 class="font-black text-blue-900 text-lg leading-none">${c.fName} ${c.lName}</h4>
-                                    <span class="text-[9px] font-bold text-gray-400 ltr">${c.plate}</span>
-                                </div>
-                                <span class="${badgeClass} text-[9px] px-2 py-1 rounded-full font-black uppercase">${badgeText}</span>
-                            </div>
-                            <div class="text-[11px] font-bold text-slate-500 space-y-1">
-                                <p><i class="fas fa-car ml-2"></i> ${c.model} (${c.year})</p>
-                                <p><i class="fas fa-phone ml-2 text-blue-300"></i> ${c.phone}</p>
-                            </div>
-                        </div>`;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const hasUnread = data.messages?.some(m => m.fromClient && !m.readByAdmin);
+                    const pendingSignature = data.quotes?.some(q => q.signed && !q.processedByAdmin);
+
+                    if(hasUnread || pendingSignature) notifications++;
+
+                    body.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50 transition">
+                            <td class="py-4">
+                                <p class="font-bold text-blue-900">${data.fName} ${data.lName}</p>
+                                <p class="text-xs text-gray-400 ltr font-bold">${data.plate} | ${data.model}</p>
+                            </td>
+                            <td class="py-4">
+                                ${data.lastQuoteSeen ? 
+                                    '<span class="text-green-500 text-xs font-bold"><i class="fas fa-check-double"></i> צפה בהצעה</span>' : 
+                                    '<span class="text-gray-300 text-xs font-bold">טרם צפה</span>'}
+                            </td>
+                            <td class="py-4 text-center">
+                                ${pendingSignature ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold animate-bounce">נחתמה הצעה!</span>' : '<span class="text-gray-400 text-xs">אין חדש</span>'}
+                            </td>
+                            <td class="py-4 font-bold text-sm ltr">
+                                ₪${calculateTotalQuotes(data.quotes)}
+                            </td>
+                            <td class="py-4">
+                                <button onclick="viewCustomer('${data.plate}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-black">ניהול היסטוריה</button>
+                            </td>
+                        </tr>
+                    `;
                 });
+                document.getElementById('notificationCount').innerText = notifications;
             });
         }
 
-        // Row Management
-        function addRow(type) {
-            const container = type === 'work' ? document.getElementById('workRows') : document.getElementById('partRows');
-            const id = 'row_' + Date.now();
-            container.insertAdjacentHTML('beforeend', `
-                <div id="${id}" class="flex gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                    <input type="text" placeholder="תיאור..." class="flex-grow text-xs q-desc">
-                    <input type="number" oninput="recalc()" placeholder="מחיר" class="w-20 text-xs ltr font-black q-price">
-                    <button onclick="document.getElementById('${id}').remove(); recalc();" class="text-red-300"><i class="fas fa-times-circle"></i></button>
-                </div>`);
+        async function viewCustomer(plate) {
+            const doc = await db.collection("customers").doc(plate).get();
+            const data = doc.data();
+            window.currentCustomerPlate = plate;
+
+            document.getElementById('customerModal').classList.remove('hidden');
+            document.getElementById('modalClientName').innerText = `${data.fName} ${data.lName}`;
+            document.getElementById('modalClientPlate').innerText = plate;
+
+            renderHistory(data);
         }
 
-        function recalc() {
-            let sub = 0;
-            document.querySelectorAll('.q-price').forEach(i => sub += (parseFloat(i.value) || 0));
-            const vat = sub * VAT;
-            const total = sub + vat;
-            document.getElementById('sumPre').innerText = `₪ ${sub.toFixed(2)}`;
-            document.getElementById('sumVat').innerText = `₪ ${vat.toFixed(2)}`;
-            document.getElementById('sumTotal').innerText = `₪ ${total.toFixed(2)}`;
-        }
-
-        // Modal Logic
-        let activeId = null;
-        async function openModal(id) {
-            activeId = id;
-            const doc = await db.collection("customers").doc(id).get();
-            const c = doc.data();
+        function renderHistory(data) {
+            const container = document.getElementById('historyTimeline');
+            container.innerHTML = "";
             
-            document.getElementById('uFName').value = c.fName || "";
-            document.getElementById('uLName').value = c.lName || "";
-            document.getElementById('uID').value = c.id || "";
-            document.getElementById('uPhone').value = c.phone || "";
-            document.getElementById('uAddr').value = c.addr || "";
-            document.getElementById('uModel').value = c.model || "";
-            document.getElementById('uYear').value = c.year || "";
-            document.getElementById('uKm').value = c.km || "";
-            document.getElementById('uPlate').value = id;
-            document.getElementById('uType').value = c.type || "new";
+            // איחוד כל האירועים (הצעות, טיפולים, הודעות) לציר זמן אחד
+            const events = [
+                ...(data.quotes || []).map(q => ({...q, type: 'quote'})),
+                ...(data.services || []).map(s => ({...s, type: 'service'})),
+                ...(data.messages || []).map(m => ({...m, type: 'message'}))
+            ].sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            document.getElementById('workRows').innerHTML = "";
-            document.getElementById('partRows').innerHTML = "";
-            recalc();
-            document.getElementById('manageModal').classList.remove('hidden');
-        }
+            events.forEach(ev => {
+                let icon = "fa-info-circle";
+                let color = "gray";
+                let content = "";
 
-        function closeModal() { document.getElementById('manageModal').classList.add('hidden'); }
+                if(ev.type === 'quote') {
+                    icon = "fa-file-signature";
+                    color = ev.signed ? "emerald" : "orange";
+                    content = `הצעת מחיר: ${ev.title} | ₪${ev.total} ${ev.signed ? '<b>(חתומה)</b>' : '(ממתין)'}`;
+                } else if(ev.type === 'service') {
+                    icon = "fa-tools";
+                    color = "blue";
+                    content = `טיפול/טסט: ${ev.desc} | ק"מ: ${ev.km}`;
+                }
 
-        async function openNewCustomerModal() {
-            activeId = null;
-            document.getElementById('uPlate').value = "";
-            document.getElementById('uFName').value = "";
-            // ... reset other fields ...
-            document.getElementById('manageModal').classList.remove('hidden');
-        }
-
-        async function saveChanges() {
-            const plate = document.getElementById('uPlate').value;
-            if(!plate) return alert("חובה להזין מספר רכב");
-
-            const work = [];
-            document.querySelectorAll('#workRows > div').forEach(r => {
-                work.push({ desc: r.querySelector('.q-desc').value, price: r.querySelector('.q-price').value });
+                container.innerHTML += `
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-${color}-50 border border-${color}-100">
+                        <div class="bg-${color}-500 text-white p-3 rounded-xl shadow-sm">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-gray-500">${new Date(ev.date).toLocaleString('he-IL')}</p>
+                            <p class="text-sm font-bold text-gray-800">${content}</p>
+                            ${ev.signature ? `<img src="${ev.signature}" class="h-12 border mt-2 bg-white rounded">` : ''}
+                        </div>
+                    </div>
+                `;
             });
-            const parts = [];
-            document.querySelectorAll('#partRows > div').forEach(r => {
-                parts.push({ desc: r.querySelector('.q-desc').value, price: r.querySelector('.q-price').value });
-            });
-
-            const data = {
-                fName: document.getElementById('uFName').value,
-                lName: document.getElementById('uLName').value,
-                id: document.getElementById('uID').value,
-                phone: document.getElementById('uPhone').value,
-                addr: document.getElementById('uAddr').value,
-                model: document.getElementById('uModel').value,
-                year: document.getElementById('uYear').value,
-                km: document.getElementById('uKm').value,
-                plate: plate,
-                type: document.getElementById('uType').value
-            };
-
-            const quote = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString('he-IL'),
-                work, parts,
-                total: document.getElementById('sumTotal').innerText,
-                signed: false
-            };
-
-            await db.collection("customers").doc(plate).set(data, { merge: true });
-            if(work.length > 0 || parts.length > 0) {
-                await db.collection("customers").doc(plate).update({
-                    quotes: firebase.firestore.FieldValue.arrayUnion(quote),
-                    messages: firebase.firestore.FieldValue.arrayUnion({ from: "ברע״מ", text: "נשלחה הצעת מחיר חדשה לחתימה." })
-                });
-            }
-            alert("נשמר בהצלחה!");
-            closeModal();
         }
 
-        async function deleteCustomer() {
-            if(confirm("מחיקת לקוח היא פעולה סופית. להמשיך?")) {
-                await db.collection("customers").doc(activeId).delete();
-                closeModal();
-            }
+        function calculateTotalQuotes(quotes) {
+            if(!quotes) return 0;
+            return quotes.reduce((acc, curr) => acc + parseInt(curr.total || 0), 0);
         }
+
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.add('hidden');
+        }
+
+        // --- פונקציות להורדה ושליחה (דוגמה) ---
+        async function downloadAllQuotes() {
+            alert("מכין קובץ להורדה עם כל הצעות המחיר של הלקוח...");
+            // כאן אפשר לשלב ספריה כמו JSZip
+        }
+
     </script>
 </body>
 </html>
