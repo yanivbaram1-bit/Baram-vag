@@ -28,6 +28,7 @@
             margin: 0; 
             padding: 0;
             color: var(--vag-navy);
+            overflow-x: hidden;
         }
 
         .vag-gradient { background: linear-gradient(135deg, #001e50 0%, #004080 100%); }
@@ -62,7 +63,7 @@
             border-radius: 1rem;
             background: #ffffff;
             width: 100%;
-            height: 180px;
+            height: 200px;
             touch-action: none;
         }
 
@@ -79,10 +80,23 @@
         
         input:focus, select:focus {
             border-color: var(--vag-accent) !important;
-            ring: 2px var(--vag-accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 176, 240, 0.2);
         }
 
         .active-page { display: block !important; }
+
+        /* Review Animation */
+        .review-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .review-card {
+            scroll-snap-align: center;
+        }
     </style>
 </head>
 <body class="pb-28">
@@ -112,7 +126,7 @@
 
         <section class="mt-12 px-6">
             <div class="vag-gradient rounded-[3rem] pt-12 pb-24 text-center text-white shadow-2xl">
-                <h2 class="text-3xl font-black mb-2">מומחיות ללא פשרות</h2>
+                <h2 class="text-3xl font-black mb-2 italic">VAG SPECIALIST</h2>
                 <p class="text-blue-200 text-sm font-medium">Audi • Volkswagen • SEAT • Škoda</p>
             </div>
 
@@ -127,13 +141,13 @@
                     <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-microchip text-2xl text-blue-900"></i>
                     </div>
-                    <p class="text-xs font-black text-gray-800">דיאגנוסטיקה VAG</p>
+                    <p class="text-xs font-black text-gray-800">דיאגנוסטיקה</p>
                 </div>
                 <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
                     <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-oil-can text-2xl text-blue-900"></i>
                     </div>
-                    <p class="text-xs font-black text-gray-800">טיפולים תקופתיים</p>
+                    <p class="text-xs font-black text-gray-800">טיפולים</p>
                 </div>
                 <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
                     <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
@@ -162,21 +176,21 @@
         </div>
 
         <section class="mt-16 mb-10">
-            <h3 class="text-center font-black text-xl mb-6 italic">מה הלקוחות שלנו אומרים?</h3>
-            <div class="flex gap-5 review-scroll px-6 pb-6 overflow-x-auto no-scrollbar snap-x">
-                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80 snap-center">
+            <h3 class="text-center font-black text-xl mb-6 italic">מה הלקוחות אומרים?</h3>
+            <div class="review-scroll px-6 pb-6 gap-5 no-scrollbar">
+                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80">
                     <div class="flex text-yellow-400 text-xs mb-3">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-sm italic font-semibold leading-relaxed">"המוסך הכי מקצועי שנתקלתי בו. מבינים ברכבי קבוצת VAG בעיניים עצומות."</p>
-                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- אבירם לוי</p>
+                    <p class="text-sm italic font-semibold leading-relaxed">"שירות VIP, מבינים ברכבי VAG ברמה הכי גבוהה בארץ."</p>
+                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- יניב ב.</p>
                 </div>
-                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80 snap-center">
+                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80">
                     <div class="flex text-yellow-400 text-xs mb-3">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-sm italic font-semibold leading-relaxed">"שירות VIP, מחירים הוגנים והסברים מפורטים על כל חלק שהוחלף."</p>
-                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- מיכל רז</p>
+                    <p class="text-sm italic font-semibold leading-relaxed">"סוף סוף מוסך שאפשר לסמוך עליו. הסברים מפורטים ומחיר הוגן."</p>
+                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- דניאל כ.</p>
                 </div>
             </div>
         </section>
@@ -190,10 +204,10 @@
                 </div>
                 <div>
                     <h2 id="welcomeName" class="font-black text-blue-900 text-xl tracking-tighter">שלום</h2>
-                    <p id="carInfo" class="text-[10px] font-extrabold text-gray-400 ltr tracking-widest"></p>
+                    <p id="carInfo" class="text-[10px] font-extrabold text-gray-400 ltr tracking-widest uppercase"></p>
                 </div>
             </div>
-            <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-inner"><i class="fas fa-power-off"></i></button>
+            <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center"><i class="fas fa-power-off"></i></button>
         </header>
 
         <main class="p-6 space-y-6 max-w-md mx-auto">
@@ -215,15 +229,15 @@
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-50">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-900"><i class="fas fa-calendar-check"></i></div>
-                    <h4 class="font-black text-sm uppercase">קביעת תור למוסך</h4>
+                    <h4 class="font-black text-sm uppercase">קביעת תור מהירה</h4>
                 </div>
                 <div class="space-y-4">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-gray-400 mr-2">בחר תאריך</label>
+                        <label class="text-[10px] font-black text-gray-400 mr-2 uppercase">בחר תאריך</label>
                         <input id="appDate" type="date" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm outline-none font-bold">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-gray-400 mr-2">בחר שעה</label>
+                        <label class="text-[10px] font-black text-gray-400 mr-2 uppercase">בחר שעה</label>
                         <select id="appTime" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm font-black outline-none">
                             <option value="08:00">08:00</option><option value="09:00">09:00</option>
                             <option value="10:00">10:00</option><option value="11:00">11:00</option>
@@ -231,7 +245,7 @@
                             <option value="14:00">14:00</option>
                         </select>
                     </div>
-                    <button onclick="bookAppt()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-2">אשר קביעת תור</button>
+                    <button id="bookBtn" onclick="bookAppt()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-2">אשר קביעת תור</button>
                 </div>
                 <div id="activeAppts" class="mt-6 space-y-3"></div>
             </div>
@@ -286,7 +300,7 @@
 
     <div id="loginModal" class="hidden fixed inset-0 bg-black/90 z-[400] flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-sm rounded-[3rem] p-10 text-center modal-animate">
-            <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-blue-900 text-3xl shadow-inner italic">VAG</div>
+            <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-blue-900 text-3xl shadow-inner font-black italic">VAG</div>
             <h2 class="text-2xl font-black text-blue-900 mb-2 italic">כניסת לקוח</h2>
             <p class="text-xs text-gray-400 mb-8 font-bold">הזן פרטים לצפייה בסטטוס הרכב</p>
             <div class="space-y-4">
@@ -308,7 +322,6 @@
     </div>
 
     <script>
-        // אתחול Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -322,24 +335,19 @@
 
         let signaturePad;
 
-        // ניהול זמן ושעות פעילות
+        // זמן וסטטוס מוסך
         function updateGarageStatus() {
             const now = new Date();
-            const day = now.getDay(); // 0-6 (Sunday is 0)
+            const day = now.getDay(); 
             const hour = now.getHours() + now.getMinutes() / 60;
             const statusText = document.getElementById('garageStatus');
             const indicator = document.getElementById('statusIndicator');
 
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {
-                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-            });
-            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            // ראשון עד חמישי, 07:30 עד 15:30
             if (day >= 0 && day <= 4 && hour >= 7.5 && hour < 15.5) {
-                statusText.innerText = "פתוח עכשיו לשירותכם";
+                statusText.innerText = "פתוח עכשיו (עד 15:30)";
                 statusText.className = "text-sm font-black text-green-600";
                 indicator.className = "status-dot status-open animate-pulse";
             } else {
@@ -348,37 +356,29 @@
                 indicator.className = "status-dot status-closed";
             }
         }
-        setInterval(updateGarageStatus, 1000);
-        updateGarageStatus();
+        setInterval(updateGarageStatus, 1000); updateGarageStatus();
 
         // טיפ יומי
         const tips = [
-            "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ או לפני נסיעה ארוכה.",
-            "נורת 'Check Engine' דולקת? אל תמשיך בנסיעה, חייג אלינו לבדיקת מחשב.",
-            "החלפת נוזל קירור מקורי מסוג G12/G13 חיונית לשמירה על ראש המנוע שלך.",
-            "בדיקת לחץ אוויר בצמיגים חוסכת עד 5% מצריכת הדלק של הרכב.",
-            "טיפול תקופתי כל 15,000 ק״מ או שנה הוא המפתח לאמינות רכבי קבוצת פולקסווגן."
+            "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ.",
+            "נורת Check Engine דולקת? אל תמתין, בוא לבדיקת מחשב.",
+            "השתמש רק בנוזל קירור G12/G13 מקורי כדי למנוע קורוזיה.",
+            "בדיקת לחץ אוויר חוסכת עד 5% מצריכת הדלק.",
+            "טיפול תקופתי כל 15,000 ק״מ הוא המפתח לאמינות."
         ];
         document.getElementById('dailyTip').innerText = tips[Math.floor(Math.random() * tips.length)];
 
-        // פונקציות עזר למודלים
-        function openModal(id) { 
-            document.getElementById(id).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
+        // פונקציות מודל
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
         // הרשמה
         async function handleRegister() {
             const plate = document.getElementById('rPlate').value.trim();
             const idNum = document.getElementById('rID').value.trim();
-            
             if(!plate || !idNum) return alert("שדות חובה (ת.ז ומספר רכב) חסרים");
 
-            const customerData = {
+            const data = {
                 fName: document.getElementById('rFName').value,
                 lName: document.getElementById('rLName').value,
                 id: idNum,
@@ -388,28 +388,22 @@
                 year: document.getElementById('rYear').value,
                 km: document.getElementById('rKm').value,
                 plate: plate,
-                nextT: "לא נקבע",
-                nextS: "לא נקבע",
-                messages: [],
-                quotes: [],
-                regDate: new Date().toISOString()
+                nextT: "לא נקבע", nextS: "לא נקבע",
+                messages: [], quotes: [], regDate: new Date().toISOString()
             };
 
             try {
-                await db.collection("customers").doc(plate).set(customerData);
+                await db.collection("customers").doc(plate).set(data);
                 alert("כרטיס לקוח נוצר בהצלחה! כעת תוכל להתחבר.");
                 closeModal('regModal');
-            } catch (err) {
-                alert("שגיאה ברישום: " + err.message);
-            }
+            } catch (err) { alert("שגיאה ברישום: " + err.message); }
         }
 
-        // התחברות
+        // כניסה
         async function handleLogin() {
             const idInput = document.getElementById('lID').value.trim();
             const plateInput = document.getElementById('lPlate').value.trim();
-
-            if(!idInput || !plateInput) return alert("נא להזין ת.ז ומספר רכב");
+            if(!idInput || !plateInput) return alert("נא להזין פרטים");
 
             try {
                 const doc = await db.collection("customers").doc(plateInput).get();
@@ -417,35 +411,30 @@
                     localStorage.setItem('userPlate', plateInput);
                     initPersonalArea(doc.data());
                     closeModal('loginModal');
-                } else {
-                    alert("פרטי הזיהוי אינם תואמים את הרישומים שלנו.");
-                }
-            } catch (err) {
-                alert("שגיאה בחיבור: " + err.message);
-            }
+                } else { alert("פרטי זיהוי לא תואמים"); }
+            } catch (err) { alert("שגיאה בחיבור: " + err.message); }
         }
 
-        // ניהול אזור אישי
+        // אתחול אזור אישי
         function initPersonalArea(user) {
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('personalArea').classList.remove('hidden');
             
             document.getElementById('welcomeName').innerText = `שלום, ${user.fName} ${user.lName}`;
-            document.getElementById('carInfo').innerText = `${user.model || 'רכב VAG'} | ${user.plate}`;
+            document.getElementById('carInfo').innerText = `${user.model || 'רכב'} | ${user.plate}`;
             document.getElementById('pNextT').innerText = user.nextT || "--/--/----";
             document.getElementById('pNextS').innerText = user.nextS || "--/--/----";
 
-            // אתחול משטח חתימה
-            const canvas = document.getElementById('sigPad');
-            signaturePad = new SignaturePad(canvas);
-            
-            // התאמת רזולוציית קנבס
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
+            // אתחול חתימה - חשוב לתת זמן ל-DOM להיבנות
+            setTimeout(() => {
+                const canvas = document.getElementById('sigPad');
+                signaturePad = new SignaturePad(canvas);
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }, 300);
 
-            // טעינת נתונים חיים
             loadActiveAppts(user.plate);
             loadMessages(user.plate);
             checkPendingQuotes(user.quotes || []);
@@ -456,68 +445,59 @@
             const plate = localStorage.getItem('userPlate');
             const date = document.getElementById('appDate').value;
             const time = document.getElementById('appTime').value;
+            if(!date) return alert("נא לבחור תאריך");
 
-            if(!date) return alert("נא לבחור תאריך הגעה");
+            const btn = document.getElementById('bookBtn');
+            btn.disabled = true;
+            btn.innerText = "מעבד...";
 
             try {
                 await db.collection("appointments").add({
-                    plate, date, time, 
-                    createdAt: new Date().toISOString(),
-                    status: "נקבע"
+                    plate, date, time, status: "נקבע", createdAt: new Date().toISOString()
                 });
-                alert("התור נקבע בהצלחה! נתראה במוסך.");
-            } catch (err) {
-                alert("שגיאה בקביעת התור.");
+                alert("התור נקבע בהצלחה!");
+                btn.disabled = false;
+                btn.innerText = "אשר קביעת תור";
+            } catch (err) { 
+                alert("שגיאה בקביעת התור: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "אשר קביעת תור";
             }
         }
 
-        // טעינת תורים פעילים
+        // טעינת תורים
         function loadActiveAppts(plate) {
-            db.collection("appointments").where("plate", "==", plate)
-              .onSnapshot(snap => {
-                const container = document.getElementById('activeAppts');
-                container.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-black text-gray-400 uppercase italic mb-2">תורים קרובים:</p>';
+            db.collection("appointments").where("plate", "==", plate).onSnapshot(snap => {
+                const cont = document.getElementById('activeAppts');
+                cont.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-black text-gray-400 uppercase italic mb-2">תורים קרובים:</p>';
                 snap.forEach(doc => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-clock text-blue-500"></i>
-                                <span class="text-xs font-black text-blue-900 ltr">${data.date} | ${data.time}</span>
-                            </div>
-                            <button onclick="deleteAppt('${doc.id}')" class="text-red-400 text-[10px] font-black uppercase">ביטול</button>
-                        </div>
-                    `;
+                    const d = doc.data();
+                    cont.innerHTML += `
+                        <div class="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100">
+                            <span class="text-xs font-black text-blue-900 ltr">${d.date} | ${d.time}</span>
+                            <button onclick="deleteAppt('${doc.id}')" class="text-red-500 text-[10px] font-black">ביטול</button>
+                        </div>`;
                 });
             });
         }
 
-        async function deleteAppt(id) {
-            if(confirm("האם לבטל את התור המתוכנן?")) {
-                await db.collection("appointments").doc(id).delete();
-            }
-        }
+        async function deleteAppt(id) { if(confirm("לבטל?")) await db.collection("appointments").doc(id).delete(); }
 
-        // טעינת הודעות
+        // הודעות
         function loadMessages(plate) {
             db.collection("customers").doc(plate).onSnapshot(doc => {
                 const data = doc.data();
                 const list = document.getElementById('messagesList');
                 if(data.messages && data.messages.length > 0) {
-                    list.innerHTML = "";
-                    data.messages.reverse().forEach(msg => {
-                        list.innerHTML += `
-                            <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-blue-900 shadow-sm">
-                                <p class="text-[11px] font-bold text-gray-700 leading-relaxed">${msg.text}</p>
-                                <p class="text-[8px] text-gray-400 mt-2 font-black ltr">${msg.date || ''}</p>
-                            </div>
-                        `;
-                    });
+                    list.innerHTML = data.messages.reverse().map(m => `
+                        <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-blue-900 shadow-sm">
+                            <p class="text-[11px] font-bold text-gray-700">${m.text}</p>
+                        </div>`).join('');
                 }
             });
         }
 
-        // הצעות מחיר ואישור
+        // הצעות מחיר
         function checkPendingQuotes(quotes) {
             const pending = quotes.find(q => !q.signed);
             const area = document.getElementById('quoteArea');
@@ -525,49 +505,33 @@
                 area.classList.remove('hidden');
                 document.getElementById('quoteContent').innerHTML = `
                     <div class="flex justify-between border-b pb-2 mb-2 font-black">
-                        <span>${pending.title}</span>
-                        <span>₪${pending.total}</span>
-                    </div>
-                    <p class="opacity-70">${pending.description || 'תיאור עבודה מפורט במוסך'}</p>
-                `;
+                        <span>${pending.title}</span><span>₪${pending.total}</span>
+                    </div><p>${pending.description || 'תיאור עבודה במוסך'}</p>`;
                 window.activeQuoteId = pending.id;
-            } else {
-                area.classList.add('hidden');
-            }
+            } else { area.classList.add('hidden'); }
         }
 
         async function approveQuote() {
-            if(signaturePad.isEmpty()) return alert("נא לחתום בתיבה לאישור ההצעה");
-
+            if(signaturePad.isEmpty()) return alert("נא לחתום לאישור");
             const plate = localStorage.getItem('userPlate');
-            const sigData = signaturePad.toDataURL();
-
             try {
                 const docRef = db.collection("customers").doc(plate);
                 const doc = await docRef.get();
-                let quotes = doc.data().quotes;
-                
+                let quotes = doc.data().quotes || [];
                 const qIndex = quotes.findIndex(q => q.id === window.activeQuoteId);
+                
                 if(qIndex !== -1) {
                     quotes[qIndex].signed = true;
-                    quotes[qIndex].signature = sigData;
+                    quotes[qIndex].signature = signaturePad.toDataURL();
                     quotes[qIndex].approvalDate = new Date().toLocaleString('he-IL');
-                    
                     await docRef.update({ quotes });
-                    alert("הצעת המחיר אושרה! הצוות עודכן ומתחיל בעבודה.");
+                    alert("אושר! הצוות עודכן.");
                     document.getElementById('quoteArea').classList.add('hidden');
                 }
-            } catch (err) {
-                alert("שגיאה בתהליך האישור.");
-            }
+            } catch (err) { alert("שגיאה באישור: " + err.message); }
         }
 
-        function logout() {
-            if(confirm("להתנתק מהאזור האישי?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        function logout() { if(confirm("להתנתק?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
