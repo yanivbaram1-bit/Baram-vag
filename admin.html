@@ -9,16 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-/* מניעת בחירת טקסט וגרירת תמונות */
-body {
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-img {
-    -webkit-user-drag: none;
-    user-drag: none;
-}
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;700;800&display=swap');
         body { font-family: 'Assistant', sans-serif; background: #f1f5f9; margin: 0; }
         .tab-content { display: none; }
@@ -153,16 +143,6 @@ img {
     </div>
 
     <script>
-  // חסימת מקש ימני
-document.addEventListener('contextmenu', event => event.preventDefault());
-
-// חסימת קיצורי מקלדת של בדיקת מרכיב (F12, Ctrl+Shift+I וכו')
-document.onkeydown = function(e) {
-    if(event.keyCode == 123) { return false; }
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; }
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; }
-    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; }
-};
         // 1. אבטחה
         function checkPass() {
             const pass = document.getElementById('adminPass').value;
