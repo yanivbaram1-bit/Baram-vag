@@ -10,12 +10,26 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; margin: 0; }
+        
+        /* הגנות CSS - מניעת סימון והעתקה */
+        body { 
+            font-family: 'Assistant', sans-serif; 
+            background: #f1f5f9; 
+            margin: 0;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* מניעת סימון טקסט */
+        }
+
+        img {
+            -webkit-user-drag: none; /* מניעת גרירת תמונות */
+            user-drag: none;
+        }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .sidebar-link.active { background: #1e293b; border-right: 4px solid #3b82f6; }
         
-        /* אבטחה - מסך כניסה */
         #adminAuth {
             position: fixed; inset: 0; background: #0f172a;
             display: flex; align-items: center; justify-content: center;
@@ -62,47 +76,47 @@
     <main class="mr-72 p-10 w-full">
         <div id="dash" class="tab-content active">
             <div class="grid grid-cols-4 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center">
-                    <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">רכבים במוסך</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center font-bold">
+                    <p class="text-slate-500 text-[10px] uppercase mb-1">רכבים במוסך</p>
                     <h3 id="statGarageCount" class="text-3xl font-black text-blue-600">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center">
-                    <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">הצעות פתוחות</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center font-bold">
+                    <p class="text-slate-500 text-[10px] uppercase mb-1">הצעות פתוחות</p>
                     <h3 id="statPendingQuotes" class="text-3xl font-black text-amber-500">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center">
-                    <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">שווי הצעות</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center font-bold">
+                    <p class="text-slate-500 text-[10px] uppercase mb-1">שווי הצעות</p>
                     <h3 id="statTotalValue" class="text-2xl font-black text-green-600">₪0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center">
-                    <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">לקוחות רשומים</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border text-center font-bold">
+                    <p class="text-slate-500 text-[10px] uppercase mb-1">לקוחות רשומים</p>
                     <h3 id="statClientCount" class="text-3xl font-black text-slate-900">0</h3>
                 </div>
             </div>
             
             <div class="bg-white rounded-[2rem] p-8 shadow-sm border">
-                <h4 class="font-black text-lg mb-6">פעילות אחרונה וחתימות</h4>
+                <h4 class="font-black text-lg mb-6 italic">פעילות אחרונה וחתימות</h4>
                 <div id="activityLog" class="space-y-3"></div>
             </div>
         </div>
 
         <div id="garage" class="tab-content">
-            <h2 class="text-3xl font-black mb-8 text-slate-800">רכבים בטיפול פעיל</h2>
+            <h2 class="text-3xl font-black mb-8 text-slate-800 italic">רכבים בטיפול פעיל</h2>
             <div id="garageCards" class="grid grid-cols-3 gap-6"></div>
         </div>
 
         <div id="quotes" class="tab-content">
             <h2 class="text-3xl font-black mb-8 text-slate-800 italic">שליחת הצעת מחיר דיגיטלית</h2>
             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl max-w-2xl border">
-                <select id="selClient" class="w-full p-4 bg-slate-50 border rounded-2xl mb-6 font-bold"></select>
+                <select id="selClient" class="w-full p-4 bg-slate-50 border rounded-2xl mb-6 font-bold outline-none ring-blue-500 focus:ring-2"></select>
                 <div id="rows" class="space-y-3 mb-6">
                     <div class="flex gap-2 quote-row">
-                        <input type="text" placeholder="תיאור העבודה" class="flex-[3] p-3 border rounded-xl desc">
-                        <input type="number" placeholder="מחיר" class="w-24 p-3 border rounded-xl price">
+                        <input type="text" placeholder="תיאור העבודה" class="flex-[3] p-3 border rounded-xl desc font-bold">
+                        <input type="number" placeholder="מחיר" class="w-24 p-3 border rounded-xl price font-black">
                     </div>
                 </div>
-                <button onclick="addRow()" class="text-blue-600 font-bold mb-6">+ שורה נוספת</button>
-                <button onclick="sendQuote()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black">שלח ללקוח</button>
+                <button onclick="addRow()" class="text-blue-600 font-bold mb-6 hover:underline">+ שורה נוספת</button>
+                <button onclick="sendQuote()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg">שלח ללקוח <i class="fas fa-paper-plane mr-2"></i></button>
             </div>
         </div>
 
@@ -110,13 +124,13 @@
             <h2 class="text-3xl font-black mb-8 text-slate-800 italic">ניהול מאגר לקוחות</h2>
             <div class="bg-white rounded-3xl shadow-sm overflow-hidden border">
                 <table class="w-full text-right">
-                    <thead class="bg-slate-900 text-white text-sm">
+                    <thead class="bg-slate-900 text-white text-xs uppercase">
                         <tr>
-                            <th class="p-4">לקוח</th>
-                            <th class="p-4">מספר רכב</th>
-                            <th class="p-4">דגם/שנה</th>
-                            <th class="p-4">טלפון</th>
-                            <th class="p-4">פעולות</th>
+                            <th class="p-5 font-black">לקוח</th>
+                            <th class="p-5 font-black">מספר רכב</th>
+                            <th class="p-5 font-black">דגם/שנה</th>
+                            <th class="p-5 font-black">טלפון</th>
+                            <th class="p-5 font-black text-center">פעולות ניהול</th>
                         </tr>
                     </thead>
                     <tbody id="clientList" class="divide-y text-sm"></tbody>
@@ -129,35 +143,51 @@
         <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
             <h3 class="text-2xl font-black mb-6 italic text-blue-900">עריכת פרטי לקוח</h3>
             <div class="space-y-4">
-                <input id="editFName" type="text" placeholder="שם פרטי" class="w-full p-3 border rounded-xl font-bold">
-                <input id="editLName" type="text" placeholder="שם משפחה" class="w-full p-3 border rounded-xl font-bold">
-                <input id="editPhone" type="text" placeholder="טלפון" class="w-full p-3 border rounded-xl font-bold ltr">
-                <input id="editModel" type="text" placeholder="דגם רכב" class="w-full p-3 border rounded-xl font-bold">
-                <input id="editYear" type="text" placeholder="שנת ייצור" class="w-full p-3 border rounded-xl font-bold text-center">
+                <input id="editFName" type="text" placeholder="שם פרטי" class="w-full p-4 border rounded-xl font-bold">
+                <input id="editLName" type="text" placeholder="שם משפחה" class="w-full p-4 border rounded-xl font-bold">
+                <input id="editPhone" type="text" placeholder="טלפון" class="w-full p-4 border rounded-xl font-bold ltr">
+                <input id="editModel" type="text" placeholder="דגם רכב" class="w-full p-4 border rounded-xl font-bold">
+                <input id="editYear" type="text" placeholder="שנת ייצור" class="w-full p-4 border rounded-xl font-bold text-center">
             </div>
             <div class="flex gap-2 mt-8">
-                <button onclick="saveClientEdit()" class="flex-1 bg-blue-600 text-white p-4 rounded-xl font-black">שמור שינויים</button>
+                <button onclick="saveClientEdit()" class="flex-1 bg-blue-600 text-white p-4 rounded-xl font-black shadow-lg">שמור שינויים</button>
                 <button onclick="closeEdit()" class="flex-1 bg-slate-100 text-slate-500 p-4 rounded-xl font-bold">ביטול</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. אבטחה
+        /* --- הגנות אבטחה (Code Protection) --- */
+        
+        // חסימת מקש ימני
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // חסימת קיצורי מקלדת (F12, Inspect Element)
+        document.onkeydown = function(e) {
+            if(event.keyCode == 123) { return false; } // F12
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+        };
+
+        // בדיקת סיסמת כניסה
         function checkPass() {
             const pass = document.getElementById('adminPass').value;
-            if(pass === "baram!14567") { // <--- כאן הקוד שלך
+            if(pass === "1234") { // <--- שנה את הקוד כאן במידת הצורך
                 document.getElementById('adminAuth').style.display = 'none';
                 sessionStorage.setItem('isVagAdmin', 'true');
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('adminPass').value = "";
             }
         }
+        
         if(sessionStorage.getItem('isVagAdmin') === 'true') {
             document.getElementById('adminAuth').style.display = 'none';
         }
 
-        // 2. Firebase
+        /* --- חיבור וניהול Firebase --- */
+
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -169,7 +199,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 3. ניווט
         function tab(id, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
@@ -177,7 +206,6 @@
             if(btn) btn.classList.add('active');
         }
 
-        // 4. לוגיקה של לקוחות ועריכה
         let currentPlate = "";
         function openEdit(plate, f, l, p, m, y) {
             currentPlate = plate;
@@ -200,7 +228,7 @@
             };
             await db.collection("customers").doc(currentPlate).update(upd);
             closeEdit();
-            alert("עודכן!");
+            alert("הפרטים עודכנו בהצלחה!");
         }
 
         async function updateStat(plate, stat) {
@@ -208,65 +236,61 @@
         }
 
         async function deleteClient(plate) {
-            if(confirm("למחוק לקוח?")) await db.collection("customers").doc(plate).delete();
+            if(confirm("למחוק לקוח זה לצמיתות?")) await db.collection("customers").doc(plate).delete();
         }
 
-        // 5. טעינת נתונים בזמן אמת
         db.collection("customers").onSnapshot(snap => {
             let totalV = 0, pendingQ = 0, inG = 0;
             const list = document.getElementById('clientList'); list.innerHTML = "";
             const cards = document.getElementById('garageCards'); cards.innerHTML = "";
-            const sel = document.getElementById('selClient'); sel.innerHTML = '<option value="">בחר לקוח...</option>';
+            const sel = document.getElementById('selClient'); sel.innerHTML = '<option value="">בחר לקוח להצעת מחיר...</option>';
             const logs = document.getElementById('activityLog'); logs.innerHTML = "";
 
             snap.forEach(doc => {
                 const d = doc.data();
                 const p = doc.id;
 
-                // טבלת לקוחות
                 list.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold">${d.fName} ${d.lName}</td>
-                        <td class="p-4 font-black">${p}</td>
-                        <td class="p-4 text-slate-500">${d.model || '-'} | ${d.year || '-'}</td>
-                        <td class="p-4 ltr">${d.phone}</td>
-                        <td class="p-4 flex gap-2">
-                            <button onclick="openEdit('${p}','${d.fName}','${d.lName}','${d.phone}','${d.model}','${d.year}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">ערוך</button>
-                            <button onclick="updateStat('${p}', 'בבדיקה')" class="bg-slate-900 text-white px-3 py-1 rounded text-xs italic">הכנס למוסך</button>
-                            <button onclick="deleteClient('${p}')" class="text-red-400 p-1"><i class="fas fa-trash"></i></button>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-slate-700">${d.fName} ${d.lName}</td>
+                        <td class="p-5 font-black text-blue-900">${p}</td>
+                        <td class="p-5 text-slate-500 font-bold">${d.model || '-'} | ${d.year || '-'}</td>
+                        <td class="p-5 ltr font-bold">${d.phone}</td>
+                        <td class="p-5 flex justify-center gap-3">
+                            <button onclick="openEdit('${p}','${d.fName}','${d.lName}','${d.phone}','${d.model}','${d.year}')" class="bg-blue-600 text-white px-4 py-1 rounded-lg text-xs font-black">ערוך</button>
+                            <button onclick="updateStat('${p}', 'בבדיקה')" class="bg-slate-900 text-white px-4 py-1 rounded-lg text-xs font-black italic">הכנס למוסך</button>
+                            <button onclick="deleteClient('${p}')" class="text-red-400 p-1 hover:text-red-600"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
 
-                sel.innerHTML += `<option value="${p}">${d.fName} [${p}]</option>`;
+                sel.innerHTML += `<option value="${p}">${d.fName} - ${p}</option>`;
 
-                // הצעות וחתימות
                 if(d.quotes) {
                     d.quotes.forEach(q => {
                         if(!q.signed) { pendingQ++; totalV += parseFloat(q.total || 0); }
                         else if(q.signature) {
-                            logs.innerHTML += `<div class="p-3 bg-green-50 rounded-xl text-xs border-r-4 border-green-500"><b>${d.fName}</b> חתם על ₪${q.total}</div>`;
+                            logs.innerHTML += `<div class="p-4 bg-green-50 rounded-2xl text-xs border-r-4 border-green-500 font-bold">הלקוח ${d.fName} חתם דיגיטלית על הצעה בסך ₪${q.total}</div>`;
                         }
                     });
                 }
 
-                // כרטיסי מוסך
                 if(d.status && d.status !== "רשום במערכת") {
                     inG++;
                     const signed = d.quotes?.some(q => q.signed);
                     cards.innerHTML += `
-                        <div class="bg-white p-6 rounded-[2rem] border relative">
-                            ${signed ? '<div class="absolute -top-2 -right-2 bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] animate-bounce"><i class="fas fa-check"></i></div>' : ''}
-                            <h4 class="font-black">${d.fName} | ${p}</h4>
-                            <p class="text-blue-600 text-xs font-bold mb-4 uppercase">${d.status}</p>
-                            <select onchange="updateStat('${p}', this.value)" class="w-full p-2 border rounded-lg text-xs bg-slate-50">
-                                <option value="">שנה סטטוס...</option>
-                                <option value="בבדיקה">בבדיקה</option>
-                                <option value="בעבודה">בעבודה</option>
+                        <div class="bg-white p-6 rounded-[2.5rem] border-2 ${signed ? 'border-green-100 shadow-green-50' : 'border-slate-100'} relative shadow-sm">
+                            ${signed ? '<div class="absolute -top-3 -right-3 bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center animate-bounce shadow-lg"><i class="fas fa-check"></i></div>' : ''}
+                            <h4 class="font-black text-lg">${d.fName} | ${p}</h4>
+                            <div class="bg-blue-50 text-blue-700 text-[10px] font-black p-2 rounded-xl mt-2 mb-4 text-center uppercase tracking-widest">${d.status}</div>
+                            <select onchange="updateStat('${p}', this.value)" class="w-full p-3 border rounded-xl text-xs font-bold bg-slate-50 outline-none">
+                                <option value="">עדכן סטטוס עבודה...</option>
+                                <option value="בבדיקה">בבדיקה/אבחון</option>
+                                <option value="בעבודה">בטיפול פעיל</option>
                                 <option value="ממתין לחלקים">ממתין לחלקים</option>
                                 <option value="מוכן לאיסוף">מוכן לאיסוף</option>
-                                <option value="רשום במערכת">שחרר (ארכיון)</option>
+                                <option value="רשום במערכת">סיום ושחרור (ארכיון)</option>
                             </select>
-                            ${(d.quotes && d.quotes[d.quotes.length-1]?.signature) ? `<img src="${d.quotes[d.quotes.length-1].signature}" class="h-8 mx-auto mt-4 opacity-50">` : ''}
+                            ${(d.quotes && d.quotes[d.quotes.length-1]?.signature) ? `<div class="mt-4 pt-4 border-t border-dashed text-center"><p class="text-[9px] font-black text-slate-400 mb-2">חתימה מאושרת:</p><img src="${d.quotes[d.quotes.length-1].signature}" class="h-10 mx-auto opacity-70"></div>` : ''}
                         </div>`;
                 }
             });
@@ -275,29 +299,30 @@
             document.getElementById('statPendingQuotes').innerText = pendingQ;
             document.getElementById('statTotalValue').innerText = "₪" + totalV.toLocaleString();
             document.getElementById('statClientCount').innerText = snap.size;
+            if(logs.innerHTML === "") logs.innerHTML = "<p class='text-xs text-slate-400 italic text-center'>אין עדכוני חתימות חדשים...</p>";
         });
 
-        // 6. הצעות מחיר
         function addRow() {
             const div = document.createElement('div'); div.className = "flex gap-2 quote-row mb-2";
-            div.innerHTML = `<input type="text" placeholder="תיאור" class="flex-[3] p-3 border rounded-xl desc"><input type="number" placeholder="מחיר" class="w-24 p-3 border rounded-xl price">`;
+            div.innerHTML = `<input type="text" placeholder="תיאור" class="flex-[3] p-4 border rounded-xl desc font-bold"><input type="number" placeholder="מחיר" class="w-24 p-4 border rounded-xl price font-black"><button onclick="this.parentElement.remove()" class="text-red-300 hover:text-red-500 px-2"><i class="fas fa-times"></i></button>`;
             document.getElementById('rows').appendChild(div);
         }
 
         async function sendQuote() {
             const p = document.getElementById('selClient').value;
-            if(!p) return alert("בחר לקוח!");
+            if(!p) return alert("אנא בחר לקוח מהרשימה!");
             let desc = "", tot = 0;
             document.querySelectorAll('.quote-row').forEach(r => {
                 const d = r.querySelector('.desc').value, pr = r.querySelector('.price').value;
                 if(d && pr) { desc += d + " | "; tot += parseFloat(pr); }
             });
-            const q = { id: Date.now().toString(), title: "אישור עבודה - ברע\"מ", description: desc, total: tot, signed: false, signature: "", createdAt: new Date().toLocaleString() };
+            if(tot === 0) return alert("הוסף לפחות פריט אחד להצעה!");
+            const q = { id: Date.now().toString(), title: "אישור עבודה - ברע\"מ", description: desc, total: tot, signed: false, signature: "", createdAt: new Date().toLocaleString('he-IL') };
             await db.collection("customers").doc(p).update({
                 quotes: firebase.firestore.FieldValue.arrayUnion(q),
                 status: "ממתין לאישור הצעה"
             });
-            alert("נשלח!");
+            alert("ההצעה נשלחה בהצלחה לנייד של הלקוח!");
         }
     </script>
 </body>
