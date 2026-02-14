@@ -9,6 +9,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
+      #adminAuth {
+    position: fixed;
+    inset: 0;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;700;800&display=swap');
         body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
         .tab-content { display: none; }
@@ -18,7 +27,23 @@
     </style>
 </head>
 <body class="flex">
+<body class="flex">
 
+    <div id="adminAuth">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center max-w-sm w-full mx-4">
+            <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-200">
+                <i class="fas fa-lock text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2 italic">כניסת מנהל</h2>
+            <p class="text-slate-400 text-sm mb-6 font-bold">הכנס קוד גישה למערכת ברע"מ</p>
+            <input type="password" id="adminPass" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-center text-2xl tracking-[1em] focus:border-blue-500 outline-none mb-4 transition-all" placeholder="••••">
+            <button onclick="checkPass()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black text-lg hover:bg-black transition-all">כניסה למערכת</button>
+            <p id="loginError" class="text-red-500 text-xs font-bold mt-4 hidden">קוד שגוי, נסה שוב.</p>
+        </div>
+    </div>
+
+    <aside class="w-72 bg-slate-900 text-white min-h-screen p-6 fixed">
+    ...
     <aside class="w-72 bg-slate-900 text-white min-h-screen p-6 fixed">
         <div class="mb-10 text-center">
             <div class="inline-block bg-blue-600 text-white px-4 py-1 rounded-lg font-black italic text-xl">VAG</div>
