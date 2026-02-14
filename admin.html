@@ -2,110 +2,61 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול ברע״מ VAG - מבצעי</title>
+    <title>ניהול מרכז שירות ברע"מ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;800&display=swap');
         body { font-family: 'Assistant', sans-serif; background: #f8fafc; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .sidebar-item.active { background: #1e293b; border-left: 4px solid #3b82f6; color: white; }
     </style>
 </head>
-<body class="flex min-h-screen">
+<body class="flex">
 
-    <div id="loginOverlay" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-6">
-        <div class="bg-white p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl text-center">
-            <h2 class="text-3xl font-black mb-2 italic">BARAM <span class="text-blue-600">VAG</span></h2>
-            <p class="text-gray-400 mb-8 font-bold uppercase">Admin Access</p>
-            <input id="email" type="email" placeholder="אימייל" class="w-full p-4 bg-gray-50 rounded-2xl mb-3 border outline-none">
-            <input id="pass" type="password" placeholder="סיסמה" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 border outline-none">
-            <button onclick="handleAuth()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black">כניסה למערכת</button>
-        </div>
-    </div>
-
-    <aside class="w-72 bg-slate-900 text-slate-300 fixed h-full flex flex-col p-6">
-        <h1 class="text-2xl font-black text-white italic mb-10">BARAM <span class="text-blue-500">VAG</span></h1>
-        <nav class="flex-1 space-y-2">
-            <button onclick="switchTab('customers')" id="nav-customers" class="sidebar-item active w-full p-4 rounded-2xl flex items-center gap-4 font-bold"><i class="fas fa-users"></i> לקוחות</button>
-            <button onclick="switchTab('garage')" id="nav-garage" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 font-bold"><i class="fas fa-wrench"></i> רכבים במוסך</button>
-            <button onclick="switchTab('quotes')" id="nav-quotes" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 font-bold"><i class="fas fa-file-invoice-dollar"></i> הצעות מחיר</button>
+    <aside class="w-64 bg-slate-900 text-white min-h-screen p-6 fixed">
+        <h1 class="text-2xl font-black italic mb-10 text-blue-500 text-center">BARAM VAG</h1>
+        <nav class="space-y-4">
+            <button onclick="tab('clients')" class="w-full text-right p-3 hover:bg-slate-800 rounded">לקוחות רשומים</button>
+            <button onclick="tab('garage')" class="w-full text-right p-3 hover:bg-slate-800 rounded">רכבים במוסך</button>
+            <button onclick="tab('quotes')" class="w-full text-right p-3 hover:bg-slate-800 rounded">הצעות מחיר</button>
         </nav>
-        <button onclick="firebase.auth().signOut()" class="p-4 text-red-400 font-bold flex items-center gap-4"><i class="fas fa-power-off"></i> התנתק</button>
     </aside>
 
-    <main class="flex-1 mr-72 p-10">
-        
-        <div id="tab-customers" class="tab-content active">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black">ניהול לקוחות</h2>
-                <button onclick="openEditModal(null)" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black">+ לקוח חדש</button>
-            </div>
-            <div class="bg-white rounded-[1.5rem] shadow-sm overflow-hidden">
-                <table class="w-full text-right">
+    <main class="mr-64 p-10 w-full">
+        <div id="clients" class="tab-content active">
+            <h2 class="text-3xl font-black mb-6 italic">לקוחות במערכת</h2>
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden">
+                <table class="w-full text-right text-sm">
                     <thead class="bg-slate-50 border-b">
-                        <tr>
-                            <th class="p-5">לקוח / רכב</th>
-                            <th class="p-5">ת"ז</th>
-                            <th class="p-5">טסט הבא</th>
-                            <th class="p-5">פעולות</th>
-                        </tr>
+                        <tr><th class="p-4">שם לקוח</th><th class="p-4">מספר רכב</th><th class="p-4">טלפון</th><th class="p-4">פעולות</th></tr>
                     </thead>
-                    <tbody id="customerTableBody"></tbody>
+                    <tbody id="clientList"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="tab-garage" class="tab-content">
-            <h2 class="text-3xl font-black mb-8">רכבים בעבודה</h2>
-            <div id="garageGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        <div id="garage" class="tab-content">
+            <h2 class="text-3xl font-black mb-6 italic">סטטוס עבודה במוסך</h2>
+            <div id="garageCards" class="grid grid-cols-3 gap-6"></div>
         </div>
 
-        <div id="tab-quotes" class="tab-content">
-            <h2 class="text-3xl font-black mb-8">הצעות מחיר</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white p-8 rounded-[1.5rem] shadow-sm">
-                    <h3 class="font-black mb-4">יצירת הצעה חדשה</h3>
-                    <select id="qPlate" class="w-full p-4 bg-gray-50 rounded-xl border mb-4"></select>
-                    <div id="quoteRows" class="space-y-2 mb-4">
-                        <div class="flex gap-2 quote-row">
-                            <input type="text" placeholder="תיאור" class="flex-[3] p-3 border rounded-lg desc">
-                            <input type="number" placeholder="כמות" class="w-20 p-3 border rounded-lg qty" value="1">
-                            <input type="number" placeholder="מחיר" class="w-24 p-3 border rounded-lg price">
-                        </div>
+        <div id="quotes" class="tab-content">
+            <h2 class="text-3xl font-black mb-6 italic text-blue-900">בניית הצעת מחיר מקצועית</h2>
+            <div class="bg-white p-10 rounded-3xl shadow-lg border border-blue-50">
+                <select id="selClient" class="w-full p-4 bg-slate-50 border rounded-2xl mb-6 font-bold"></select>
+                <div id="rows" class="space-y-3 mb-6">
+                    <div class="flex gap-2 quote-row">
+                        <input type="text" placeholder="תיאור העבודה/חלק" class="flex-[3] p-3 border rounded-xl desc">
+                        <input type="number" placeholder="מחיר" class="w-32 p-3 border rounded-xl price">
                     </div>
-                    <button onclick="addQuoteRow()" class="text-blue-600 text-sm font-bold mb-6">+ הוסף שורה</button>
-                    <button onclick="sendProfessionalQuote()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-black">שלח לחתימת לקוח</button>
                 </div>
-                <div id="signedQuotesList" class="space-y-4"></div>
+                <button onclick="addRow()" class="text-blue-600 font-bold mb-6">+ הוסף שורה</button>
+                <button onclick="sendQuote()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black italic">שלח הצעה לחתימה בטלפון</button>
             </div>
         </div>
     </main>
-
-    <div id="editModal" class="hidden fixed inset-0 z-[10000] bg-slate-900/80 backdrop-blur flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] p-10 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-2xl font-black mb-8">פרטי לקוח</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <input id="f-fName" placeholder="שם פרטי" class="p-3 border rounded-xl">
-                <input id="f-lName" placeholder="שם משפחה" class="p-3 border rounded-xl">
-                <input id="f-id" placeholder="תעודת זהות" class="p-3 border rounded-xl">
-                <input id="f-phone" placeholder="טלפון" class="p-3 border rounded-xl">
-                <input id="f-plate" placeholder="מספר רכב" class="p-3 border rounded-xl font-bold bg-blue-50">
-                <input id="f-model" placeholder="דגם רכב" class="p-3 border rounded-xl">
-                <input id="f-nextT" type="date" class="p-3 border rounded-xl">
-                <input id="f-nextS" type="date" class="p-3 border rounded-xl">
-            </div>
-            <div class="mt-8 flex gap-4">
-                <button onclick="saveFullCustomer()" class="flex-1 bg-slate-900 text-white p-4 rounded-xl font-black">שמור</button>
-                <button onclick="closeEditModal()" class="flex-1 bg-gray-100 p-4 rounded-xl">ביטול</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         const firebaseConfig = {
@@ -119,40 +70,49 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Auth
-        function handleAuth() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            firebase.auth().signInWithEmailAndPassword(email, pass)
-                .then(() => document.getElementById('loginOverlay').style.display = 'none')
-                .catch(e => alert("גישה נדחתה"));
-        }
-        firebase.auth().onAuthStateChanged(user => { if(user) { document.getElementById('loginOverlay').style.display = 'none'; initApp(); } });
-
-        function switchTab(id) {
+        function tab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-            document.getElementById('tab-'+id).classList.add('active');
-            document.getElementById('nav-'+id).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
-        function initApp() {
-            db.collection("customers").onSnapshot(snap => {
-                renderCustomers(snap);
-                renderGarage(snap);
-                renderQuotesSelect(snap);
-                renderSignedQuotesList(snap);
-            });
-        }
-
-        function renderCustomers(snap) {
-            const body = document.getElementById('customerTableBody');
-            body.innerHTML = "";
+        db.collection("customers").onSnapshot(snap => {
+            const list = document.getElementById('clientList'); list.innerHTML = "";
+            const cards = document.getElementById('garageCards'); cards.innerHTML = "";
+            const sel = document.getElementById('selClient'); sel.innerHTML = '<option>בחר לקוח...</option>';
+            
             snap.forEach(doc => {
                 const d = doc.data();
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-5 font-bold">${d.fName} ${d.lName || ''}<br><span class="text-xs text-blue-600">${d.plate}</span></td>
-                        <td class="p-5 font-mono">${d.id}</td>
-                        <td class="p-5 text-red-500 font-bold">${d.nextT || '-'}</td>
-                        <td class="p-5"><button onclick="open
+                list.innerHTML += `<tr class="border-b"><td class="p-4 font-bold">${d.fName} ${d.lName}</td><td class="p-4">${doc.id}</td><td class="p-4">${d.phone}</td><td class="p-4"><button class="bg-blue-100 px-3 py-1 rounded">כרטיס</button></td></tr>`;
+                sel.innerHTML += `<option value="${doc.id}">${d.fName} - ${doc.id}</option>`;
+                
+                if(d.status && d.status !== "רשום במערכת") {
+                    cards.innerHTML += `<div class="bg-white p-6 rounded-2xl shadow-sm border-r-4 border-blue-500"><h4 class="font-black">${d.fName} | ${doc.id}</h4><p class="text-blue-600 font-bold text-xs mt-2">${d.status}</p><select onchange="updateStat('${doc.id}', this.value)" class="mt-4 w-full p-2 border rounded text-xs"><option>עדכן סטטוס...</option><option value="בעבודה">בעבודה</option><option value="ממתין לחלקים">ממתין לחלקים</option><option value="מוכן לאיסוף">מוכן לאיסוף</option></select></div>`;
+                }
+            });
+        });
+
+        function addRow() {
+            const div = document.createElement('div'); div.className = "flex gap-2 quote-row";
+            div.innerHTML = `<input type="text" placeholder="תיאור" class="flex-[3] p-3 border rounded-xl desc"><input type="number" placeholder="מחיר" class="w-32 p-3 border rounded-xl price">`;
+            document.getElementById('rows').appendChild(div);
+        }
+
+        async function updateStat(plate, stat) {
+            await db.collection("customers").doc(plate).update({ status: stat });
+        }
+
+        async function sendQuote() {
+            const plate = document.getElementById('selClient').value;
+            const rows = document.querySelectorAll('.quote-row');
+            let items = [], total = 0;
+            rows.forEach(r => {
+                const d = r.querySelector('.desc').value, p = r.querySelector('.price').value;
+                if(d && p) { items.push({desc: d, total: p}); total += parseFloat(p); }
+            });
+            const quote = { id: Date.now(), items, grandTotal: total, signed: false };
+            await db.collection("customers").doc(plate).update({ quotes: firebase.firestore.FieldValue.arrayUnion(quote), status: "ממתין לאישור הצעה" });
+            alert("ההצעה הופיעה בטלפון של הלקוח!");
+        }
+    </script>
+</body>
+</html>
