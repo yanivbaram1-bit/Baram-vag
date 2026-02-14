@@ -3,99 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול | מרכז שירות ברע״מ</title>
+    <title>Baram VAG - Admin Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; }
-        .input-pro { @apply w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,29,80,0.8); backdrop-filter: blur(10px); z-index: 2000; padding: 20px; overflow-y: auto; }
-        .modal-overlay.active { display: block; }
+        body { font-family: 'Assistant', sans-serif; background: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-blur: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-    <div id="loginGate" class="fixed inset-0 bg-[#001e50] z-[5000] flex items-center justify-center p-6 hidden">
-        <div class="bg-white p-10 rounded-[3rem] w-full max-w-sm text-center shadow-2xl">
-            <h1 class="text-3xl font-black italic mb-2 text-[#001e50]">ברע״מ</h1>
-            <p class="text-[10px] font-bold opacity-30 mb-8 uppercase tracking-widest">Admin Control Center</p>
-            <input id="emailField" type="email" placeholder="אימייל" class="input-pro mb-3 text-center">
-            <input id="passField" type="password" placeholder="סיסמה" class="input-pro mb-6 text-center">
-            <button onclick="signIn()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black">התחברות</button>
+    <div id="adminAuth" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-sm text-center">
+            <i class="fas fa-user-shield text-4xl text-blue-400 mb-4"></i>
+            <h2 class="text-2xl font-black mb-6">כניסת מנהל - ברע״מ</h2>
+            <input id="adminEmail" type="email" placeholder="אימייל מנהל" class="w-full p-4 bg-slate-800 rounded-2xl mb-3 border border-slate-700 outline-none">
+            <input id="adminPass" type="password" placeholder="סיסמה" class="w-full p-4 bg-slate-800 rounded-2xl mb-6 border border-slate-700 outline-none">
+            <button onclick="adminLogin()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-black transition-all">התחבר למערכת</button>
         </div>
     </div>
 
-    <div id="mainDashboard" class="hidden">
-        <header class="bg-[#001e50] text-white p-10 rounded-b-[3.5rem] shadow-xl mb-8">
-            <div class="flex justify-between items-start mb-8">
-                <div><h1 class="text-2xl font-black italic">מרכז שירות ברע״מ</h1><p class="text-xs opacity-50 font-bold">מערכת ניהול ובקרה</p></div>
-                <button onclick="firebase.auth().signOut()" class="bg-white/10 p-4 rounded-2xl"><i class="fas fa-sign-out-alt"></i></button>
+    <div id="dashboard" class="hidden">
+        <nav class="glass sticky top-0 z-50 p-4 flex justify-between items-center px-8">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black">B</div>
+                <h1 class="text-xl font-black tracking-tight">Baram VAG <span class="text-blue-400">Admin</span></h1>
             </div>
-            <input type="text" onkeyup="search(this.value)" placeholder="חפש לפי שם או לוחית..." class="w-full p-5 rounded-[2rem] bg-white/10 border-none text-white placeholder:text-white/40 outline-none">
-        </header>
+            <button onclick="firebase.auth().signOut(); location.reload();" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </nav>
 
-        <div id="clientsGrid" class="px-6 space-y-4 pb-24 max-w-4xl mx-auto"></div>
-        <button onclick="openClientModal()" class="fixed bottom-8 left-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl"><i class="fas fa-plus"></i></button>
-    </div>
-
-    <div id="clientModal" class="modal-overlay">
-        <div class="bg-white rounded-[3rem] p-8 max-w-3xl mx-auto">
-            <div class="flex justify-between border-b pb-4 mb-6">
-                <h2 class="text-2xl font-black text-[#001e50]">כרטיס לקוח</h2>
-                <button onclick="closeModal()" class="text-3xl opacity-20">&times;</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-2"><input id="fName" placeholder="שם פרטי" class="input-pro"><input id="lName" placeholder="שם משפחה" class="input-pro"></div>
-                    <input id="idNum" placeholder="תעודת זהות מלאה (9 ספרות)" class="input-pro">
-                    <input id="phone" placeholder="טלפון" class="input-pro">
-                </div>
-                <div class="space-y-4">
-                    <input id="plate" placeholder="מספר רכב" class="input-pro ltr">
-                    <input id="model" placeholder="דגם רכב" class="input-pro">
-                    <select id="status" class="input-pro text-blue-600">
-                        <option value="ממתין לאבחון">ממתין לאבחון</option>
-                        <option value="בטיפול">בטיפול</option>
-                        <option value="הצעה אושרה - ממתין לביצוע">הצעה אושרה - ממתין לביצוע</option>
-                        <option value="מוכן למסירה">מוכן למסירה</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="sigSection" class="hidden mb-8 p-6 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
-                <h3 class="text-[10px] font-black text-emerald-700 uppercase mb-3">חתימת לקוח מאושרת</h3>
-                <img id="sigImg" class="mx-auto max-h-32 bg-white rounded-lg mb-2 shadow-sm">
-                <p id="sigDate" class="text-[10px] font-bold text-emerald-600"></p>
-            </div>
-
-            <div class="bg-slate-50 p-6 rounded-3xl mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-black text-sm uppercase">פירוט הצעת מחיר</h3>
+        <main class="p-4 md:p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-black">רכבים בטיפול / תורים</h3>
                     <div class="flex gap-2">
-                        <button onclick="addItemRow('עבודה')" class="bg-slate-800 text-white text-[10px] px-3 py-2 rounded-lg">+ עבודה</button>
-                        <button onclick="addItemRow('חלק')" class="bg-blue-600 text-white text-[10px] px-3 py-2 rounded-lg">+ חלק</button>
+                        <span class="bg-green-500/20 text-green-400 status-badge">8 פתוחים</span>
+                        <span class="bg-blue-500/20 text-blue-400 status-badge">3 תורים היום</span>
                     </div>
                 </div>
-                <div id="itemsContainer" class="space-y-2 mb-4"></div>
-                <div class="flex justify-between font-black text-lg p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
-                    <span>סה"כ לתשלום:</span><span id="sumTotal" class="text-blue-600">₪0.00</span>
+
+                <div id="customerList" class="grid gap-4">
+                    <div class="text-center p-20 opacity-20"><i class="fas fa-spinner fa-spin text-3xl"></i></div>
                 </div>
             </div>
 
-            <div class="flex gap-3">
-                <button onclick="saveClient()" class="flex-1 bg-emerald-600 text-white p-5 rounded-2xl font-black shadow-lg">שמור נתונים</button>
-                <button onclick="deleteClient()" id="delBtn" class="bg-red-50 text-red-500 px-6 rounded-2xl font-bold hidden"><i class="fas fa-trash-alt"></i></button>
+            <div class="space-y-6">
+                <div class="glass p-6 rounded-[2rem]">
+                    <h4 class="font-bold mb-4 text-blue-400"><i class="fas fa-bolt ml-2"></i>פעולות מהירות</h4>
+                    <button onclick="alert('בפיתוח: שליחת SMS לכל הלקוחות')" class="w-full text-right p-4 hover:bg-white/5 rounded-2xl transition-all border-b border-white/5 flex justify-between items-center">
+                        <span>שלח הודעה לכולם</span>
+                        <i class="fas fa-chevron-left text-xs"></i>
+                    </button>
+                    <button onclick="updateGarageStatus()" class="w-full text-right p-4 hover:bg-white/5 rounded-2xl transition-all border-b border-white/5 flex justify-between items-center">
+                        <span>שינוי סטטוס מוסך (עמוס)</span>
+                        <i class="fas fa-clock text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="glass p-6 rounded-[2rem]">
+                    <h4 class="font-bold mb-4 text-green-400"><i class="fas fa-chart-line ml-2"></i>סיכום יומי</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-white/5 rounded-2xl">
+                            <p class="text-2xl font-black">12</p>
+                            <p class="text-[10px] text-gray-400 uppercase">לקוחות רשומים</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl">
+                            <p class="text-2xl font-black">4</p>
+                            <p class="text-[10px] text-gray-400 uppercase">הצעות שאושרו</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="quoteModal" class="hidden fixed inset-0 z-[2000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md">
+            <h2 class="text-2xl font-black mb-2 text-blue-400">הצעת מחיר חדשה</h2>
+            <p id="targetCar" class="text-xs text-gray-400 mb-6"></p>
+            <div class="space-y-4">
+                <input id="qTitle" type="text" placeholder="תיאור התיקון (למשל: החלפת קלאצ'ים DSG)" class="w-full p-4 bg-slate-800 rounded-2xl border border-slate-700 outline-none">
+                <input id="qPrice" type="number" placeholder="סכום כולל (₪)" class="w-full p-4 bg-slate-800 rounded-2xl border border-slate-700 outline-none">
+                <button onclick="sendQuoteToClient()" class="w-full bg-green-600 hover:bg-green-500 p-4 rounded-2xl font-black shadow-lg shadow-green-900/20">שלח לחתימת לקוח</button>
+                <button onclick="closeQuoteModal()" class="w-full text-gray-500 text-xs font-bold">ביטול</button>
             </div>
         </div>
     </div>
 
     <script>
+        // FIREBASE CONFIG (אותו דבר כמו בדף לקוח)
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -105,91 +109,102 @@
             appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
-        let currentPlate = null;
+        const auth = firebase.auth();
 
-        auth.onAuthStateChanged(user => {
-            if (user && user.email === 'yanivbaram1@gmail.com') {
-                document.getElementById('loginGate').classList.add('hidden');
-                document.getElementById('mainDashboard').classList.remove('hidden');
-                listenToClients();
-            } else { document.getElementById('loginGate').classList.remove('hidden'); }
-        });
+        let activePlate = null;
 
-        async function signIn() {
-            const e = document.getElementById('emailField').value;
-            const p = document.getElementById('passField').value;
-            try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאה בכניסה"); }
+        // 1. SECURITY: Admin Login
+        async function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                loadCustomers();
+            } catch (e) { alert("גישה נדחתה: משתמש לא מורשה"); }
         }
 
-        function addItemRow(type, desc = "", price = "") {
-            const div = document.createElement('div');
-            div.className = 'flex gap-2 items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm';
-            div.innerHTML = `<span class="text-[9px] font-black w-10 ${type==='עבודה'?'text-blue-500':'text-emerald-500'}">${type}</span>
-                <input type="text" placeholder="תיאור" value="${desc}" class="flex-1 outline-none text-sm font-bold">
-                <input type="number" placeholder="0" value="${price}" oninput="recalc()" class="w-20 text-center font-bold text-sm">
-                <button onclick="this.parentElement.remove(); recalc();" class="text-red-300 px-2">&times;</button>`;
-            document.getElementById('itemsContainer').appendChild(div);
-        }
+        // 2. LOAD CUSTOMERS REAL-TIME
+        function loadCustomers() {
+            db.collection("customers").onSnapshot(snapshot => {
+                const list = document.getElementById('customerList');
+                list.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const hasPendingQuote = data.quotes && data.quotes.some(q => !q.signed);
+                    const isSigned = data.quotes && data.quotes.some(q => q.signed);
 
-        function recalc() {
-            let total = 0;
-            document.querySelectorAll('#itemsContainer input[type="number"]').forEach(i => total += parseFloat(i.value || 0));
-            document.getElementById('sumTotal').innerText = `₪${(total * 1.18).toFixed(2)}`;
-        }
+                    list.innerHTML += `
+                        <div class="glass p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-4 hover:border-blue-500/50 transition-all">
+                            <div class="flex items-center gap-4 w-full">
+                                <div class="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center text-blue-400 border border-white/5">
+                                    <i class="fas fa-car text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <h4 class="font-black text-lg">${data.fName}</h4>
+                                    <p class="text-xs text-gray-400 ltr">${data.plate} | ${data.model || 'VAG Model'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2 w-full md:w-auto">
+                                ${hasPendingQuote ? '<span class="bg-amber-500/20 text-amber-400 status-badge">ממתין לחתימה</span>' : ''}
+                                ${isSigned ? '<span class="bg-green-500/20 text-green-400 status-badge">מאושר לביצוע</span>' : ''}
+                            </div>
 
-        function listenToClients() {
-            db.collection("customers").onSnapshot(snap => {
-                const grid = document.getElementById('clientsGrid'); grid.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const tag = d.signed ? '<span class="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full ml-2">חתום ✓</span>' : '';
-                    grid.innerHTML += `<div class="bg-white p-6 rounded-[2rem] shadow-sm flex justify-between items-center cursor-pointer border-2 border-transparent hover:border-blue-500" onclick="editClient('${d.plate}')">
-                        <div><h4 class="font-black">${d.fName} ${d.lName} ${tag}</h4><p class="text-[10px] opacity-40 ltr">${d.plate} | ${d.model}</p></div>
-                        <span class="text-[10px] font-black text-blue-600">${d.status}</span></div>`;
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <button onclick="openQuoteModal('${data.plate}')" class="flex-1 md:flex-none bg-blue-600/20 text-blue-400 px-4 py-2 rounded-xl text-xs font-bold border border-blue-500/30">
+                                    הצעת מחיר
+                                </button>
+                                <button onclick="deleteCustomer('${data.plate}')" class="p-2 text-red-900 hover:text-red-500 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 });
             });
         }
 
-        async function saveClient() {
-            const p = document.getElementById('plate').value;
-            const rows = [];
-            document.getElementById('itemsContainer').childNodes.forEach(r => {
-                rows.push({ type: r.children[0].innerText, desc: r.children[1].value, price: r.children[2].value });
-            });
-            await db.collection("customers").doc(p).set({
-                fName: document.getElementById('fName').value, lName: document.getElementById('lName').value,
-                idNum: document.getElementById('idNum').value, phone: document.getElementById('phone').value,
-                plate: p, model: document.getElementById('model').value, status: document.getElementById('status').value,
-                quoteItems: rows, total: document.getElementById('sumTotal').innerText
-            }, {merge: true});
-            closeModal();
+        // 3. QUOTE SYSTEM
+        function openQuoteModal(plate) {
+            activePlate = plate;
+            document.getElementById('targetCar').innerText = "שליחת הצעה לרכב: " + plate;
+            document.getElementById('quoteModal').classList.remove('hidden');
         }
 
-        function editClient(plate) {
-            db.collection("customers").doc(plate).get().then(doc => {
-                const d = doc.data(); currentPlate = plate; openClientModal();
-                document.getElementById('fName').value = d.fName; document.getElementById('lName').value = d.lName;
-                document.getElementById('idNum').value = d.idNum; document.getElementById('plate').value = d.plate;
-                document.getElementById('model').value = d.model; document.getElementById('status').value = d.status;
-                document.getElementById('itemsContainer').innerHTML = "";
-                if(d.quoteItems) d.quoteItems.forEach(i => addItemRow(i.type, i.desc, i.price));
-                const sigSection = document.getElementById('sigSection');
-                if(d.signed) {
-                    sigSection.classList.remove('hidden'); document.getElementById('sigImg').src = d.signatureImg;
-                    document.getElementById('sigDate').innerText = "נחתם ב: " + d.approvalDate;
-                } else { sigSection.classList.add('hidden'); }
-                document.getElementById('delBtn').classList.remove('hidden'); recalc();
+        async function sendQuoteToClient() {
+            const title = document.getElementById('qTitle').value;
+            const price = document.getElementById('qPrice').value;
+            if(!title || !price) return alert("מלא את כל הפרטים");
+
+            const newQuote = {
+                id: Date.now(),
+                title: title,
+                total: price,
+                signed: false,
+                date: new Date().toLocaleDateString()
+            };
+
+            await db.collection("customers").doc(activePlate).update({
+                quotes: firebase.firestore.FieldValue.arrayUnion(newQuote)
             });
+
+            alert("ההצעה נשלחה לנייד של הלקוח!");
+            closeQuoteModal();
         }
 
-        function openClientModal() { document.getElementById('clientModal').classList.add('active'); }
-        function closeModal() { document.getElementById('clientModal').classList.remove('active'); }
-        async function deleteClient() { if(confirm("למחוק את כרטיס הלקוח?")) { await db.collection("customers").doc(currentPlate).delete(); closeModal(); } }
-        function search(val) {
-            const v = val.toLowerCase();
-            document.querySelectorAll('#clientsGrid > div').forEach(c => c.style.display = c.innerText.toLowerCase().includes(v) ? 'flex' : 'none');
+        function closeQuoteModal() {
+            document.getElementById('quoteModal').classList.add('hidden');
+            document.getElementById('qTitle').value = "";
+            document.getElementById('qPrice').value = "";
+        }
+
+        async function deleteCustomer(plate) {
+            if(confirm("למחוק את הלקוח וההיסטוריה שלו?")) {
+                await db.collection("customers").doc(plate).delete();
+            }
         }
     </script>
 </body>
