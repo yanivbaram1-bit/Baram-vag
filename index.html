@@ -2,244 +2,313 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>מרכז שירות ברע״מ | VAG Specialist</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f4f7f9; scroll-behavior: smooth; }
-        .ltr { direction: ltr; display: inline-block; }
-        .vag-blue { background-color: #001e50; } /* צבע פולקסווגן רשמי */
-        .category-grid { position: relative; z-index: 10; margin-top: -40px; }
-        .review-scroll { overflow-x: auto; scroll-snap-type: x mandatory; }
-        .review-card { scroll-snap-align: start; flex: 0 0 80%; }
-        .hidden { display: none !important; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;600;700;800&display=swap');
+        
+        :root {
+            --vag-navy: #001e50;
+            --vag-blue: #004080;
+            --vag-accent: #00b0f0;
+            --bg-light: #f4f7f9;
+        }
+
+        body { 
+            font-family: 'Assistant', sans-serif; 
+            background: var(--bg-light); 
+            scroll-behavior: smooth; 
+            margin: 0; 
+            padding: 0;
+            color: var(--vag-navy);
+        }
+
+        .vag-gradient { background: linear-gradient(135deg, #001e50 0%, #004080 100%); }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        .category-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .category-card:active { transform: scale(0.95); }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .status-open { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
+        .status-closed { background-color: #ef4444; }
+
+        #sigPad {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            background: #ffffff;
+            width: 100%;
+            height: 180px;
+            touch-action: none;
+        }
+
+        .modal-animate {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        input:focus, select:focus {
+            border-color: var(--vag-accent) !important;
+            ring: 2px var(--vag-accent);
+        }
+
+        .active-page { display: block !important; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-28">
 
-    <header class="bg-white pt-8 pb-12 text-center border-b">
-        <div class="vag-blue text-white inline-block px-8 py-3 rounded-2xl font-black italic text-3xl mb-2 shadow-lg">VAG</div>
-        <h1 class="text-3xl font-black text-[#001e50]">מרכז שירות ברע״מ</h1>
-        <p class="text-gray-500 font-bold">بאר שבע</p>
-    </header>
+    <div id="mainPage" class="active-page">
+        <header class="bg-white pt-10 pb-16 text-center border-b relative">
+            <div class="vag-gradient text-white inline-block px-10 py-4 rounded-3xl font-black italic text-4xl mb-3 shadow-2xl tracking-tighter">VAG</div>
+            <h1 class="text-4xl font-extrabold text-[#001e50] tracking-tight">מרכז שירות ברע״מ</h1>
+            <p class="text-gray-400 font-bold tracking-widest text-sm mt-1 uppercase">Be'er Sheva Specialist Center</p>
+        </header>
 
-    <div class="max-w-md mx-auto px-4 -mt-6">
-        <div class="bg-white rounded-2xl p-4 shadow-xl flex justify-between items-center border border-gray-100">
-            <div class="text-right">
-                <p id="liveDate" class="text-xs font-black text-gray-800"></p>
-                <p id="liveTime" class="text-lg font-black text-blue-900 ltr"></p>
-            </div>
-            <div class="text-left border-r pr-4">
-                <p class="text-[10px] font-bold text-gray-400 uppercase">שעות פעילות</p>
-                <p class="text-xs font-black text-green-600 ltr">08:00 - 17:00</p>
-            </div>
-        </div>
-    </div>
-
-    <section class="mt-10 px-4">
-        <div class="vag-blue rounded-[2.5rem] pt-10 pb-20 text-center text-white shadow-inner">
-            <h2 class="text-2xl font-black mb-1">מומחי VAG</h2>
-            <p class="text-sm opacity-80 font-light">סיאט • סקודה • אודי • פולקסווגן</p>
-        </div>
-
-        <div class="max-w-md mx-auto grid grid-cols-2 gap-4 px-4 category-grid">
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-tools text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">מכונאות</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-microchip text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">דיאגנוסטיקה</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-oil-can text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">טיפולים</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-snowflake text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">מיזוג אוויר</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-car-battery text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">חשמל רכב</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-md text-center border border-blue-50">
-                <i class="fas fa-file-invoice text-2xl text-blue-900 mb-2"></i>
-                <p class="text-xs font-black">הכנה לטסט</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="max-w-md mx-auto mt-8 px-6">
-        <div class="bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-xl flex items-center gap-4">
-            <i class="fas fa-lightbulb text-yellow-500 text-xl"></i>
-            <div>
-                <h4 class="text-xs font-black text-yellow-800">טיפ יומי מאיתנו</h4>
-                <p id="dailyTip" class="text-[11px] text-yellow-700 font-semibold"></p>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-md mx-auto mt-8 px-6">
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-blue-100 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-400 to-purple-500"></div>
-            <div class="flex items-center gap-3 mb-4">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" class="w-6 h-6">
-                <h4 class="font-black text-sm">מומחה AI לרכבי VAG</h4>
-            </div>
-            <input id="aiInput" type="text" placeholder="שאלו אותי על נורות, תקלות או טיפולים..." class="w-full bg-gray-50 p-3 rounded-xl text-xs outline-none focus:ring-1 ring-blue-400">
-            <button onclick="askAI()" class="w-full mt-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white p-3 rounded-xl text-xs font-bold shadow-md">שלח שאלה</button>
-            <div id="aiLoading" class="hidden mt-3 text-center"><i class="fas fa-circle-notch fa-spin text-blue-500"></i></div>
-            <p id="aiResponse" class="mt-4 text-[11px] text-gray-700 leading-relaxed bg-blue-50 p-3 rounded-xl hidden"></p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 px-6 mt-10 max-w-md mx-auto">
-        <button onclick="openModal('loginModal')" class="bg-blue-900 text-white p-4 rounded-2xl font-black shadow-lg hover:bg-blue-800 transition-all">כניסה</button>
-        <button onclick="openModal('regModal')" class="bg-white border-2 border-blue-900 text-blue-900 p-4 rounded-2xl font-black">הרשמה</button>
-    </div>
-
-    <section class="mt-12 vag-blue py-10">
-        <h3 class="text-white font-black text-center mb-6">לקוחות ממליצים (Google 5★)</h3>
-        <div class="flex gap-4 review-scroll px-6 pb-4">
-            <div class="review-card bg-white/10 p-5 rounded-3xl border border-white/20 text-white">
-                <div class="flex text-yellow-400 text-[10px] mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="text-xs italic leading-relaxed font-light">"מקצוענים ברמה הכי גבוהה בארץ לרכבי VAG. שירות שקוף ומחיר הוגן."</p>
-                <p class="mt-3 text-[10px] font-bold opacity-60">- דניאל לוי</p>
-            </div>
-            <div class="review-card bg-white/10 p-5 rounded-3xl border border-white/20 text-white">
-                <div class="flex text-yellow-400 text-[10px] mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="text-xs italic leading-relaxed font-light">"רק אצל ברע״מ אני שקט עם הגולף שלי. מומחים אמיתיים."</p>
-                <p class="mt-3 text-[10px] font-bold opacity-60">- יוסי כהן</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="fixed bottom-6 left-0 right-0 px-6 flex gap-3 z-[100] max-w-md mx-auto">
-        <a href="tel:086277195" class="flex-1 bg-green-500 text-white p-4 rounded-2xl text-center shadow-2xl font-black flex items-center justify-center gap-2">
-            <i class="fas fa-phone-alt"></i>חיוג למוסך
-        </a>
-        <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" target="_blank" class="flex-1 bg-blue-600 text-white p-4 rounded-2xl text-center shadow-2xl font-black flex items-center justify-center gap-2">
-            <i class="fas fa-location-arrow"></i>ניווט WAZE
-        </a>
-    </div>
-
-    <div id="regModal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-blue-900">פתיחת כרטיס לקוח</h2>
-                <button onclick="closeModal('regModal')" class="text-gray-300"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="space-y-3">
-                <div class="grid grid-cols-2 gap-2">
-                    <input id="rFName" type="text" placeholder="שם מלא" class="p-4 bg-gray-50 rounded-2xl text-sm outline-none focus:bg-white border">
-                    <input id="rLName" type="text" placeholder="שם משפחה" class="p-4 bg-gray-50 rounded-2xl text-sm outline-none focus:bg-white border">
+        <div class="max-w-md mx-auto px-5 -mt-8 relative z-50">
+            <div class="glass-morphism rounded-3xl p-5 flex justify-between items-center border">
+                <div class="text-right">
+                    <p id="liveDate" class="text-[11px] font-extrabold text-gray-500 uppercase"></p>
+                    <p id="liveTime" class="text-2xl font-black text-blue-900 ltr"></p>
                 </div>
-                <input id="rID" type="number" placeholder="תעודת זהות (חובה)" class="w-full p-4 bg-gray-50 rounded-2xl text-sm ltr">
-                <input id="rPhone" type="tel" placeholder="טלפון" class="w-full p-4 bg-gray-50 rounded-2xl text-sm ltr">
-                <input id="rAddr" type="text" placeholder="כתובת מלאה" class="w-full p-4 bg-gray-50 rounded-2xl text-sm">
-                <div class="grid grid-cols-2 gap-2">
-                    <input id="rModel" type="text" placeholder="דגם רכב" class="p-4 bg-gray-50 rounded-2xl text-sm">
-                    <input id="rYear" type="number" placeholder="שנה" class="p-4 bg-gray-50 rounded-2xl text-sm ltr">
+                <div class="text-left border-r pr-6">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">סטטוס פעילות</p>
+                    <div class="flex items-center">
+                        <span id="statusIndicator" class="status-dot"></span>
+                        <p id="garageStatus" class="text-sm font-black"></p>
+                    </div>
                 </div>
-                <input id="rKm" type="number" placeholder="קילומטר עדכני" class="w-full p-4 bg-gray-50 rounded-2xl text-sm ltr">
-                <input id="rPlate" type="number" placeholder="מספר רכב (חובה)" class="w-full p-4 bg-blue-50 border-blue-100 rounded-2xl text-sm ltr font-black">
-                <button onclick="handleRegister()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg mt-4">סיום והרשמה</button>
             </div>
         </div>
-    </div>
 
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl">
-            <h2 class="text-2xl font-black text-blue-900 mb-2">כניסה לאזור אישי</h2>
-            <p class="text-xs text-gray-400 mb-8">הזן פרטים לזיהוי מהיר</p>
-            <input id="lID" type="number" placeholder="תעודת זהות" class="w-full p-4 bg-gray-50 rounded-2xl mb-3 ltr text-center font-bold border">
-            <input id="lPlate" type="number" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 ltr text-center font-bold border">
-            <button onclick="handleLogin()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg">כניסה למערכת</button>
-            <button onclick="closeModal('loginModal')" class="mt-4 text-gray-400 text-sm font-bold">חזור לדף הבית</button>
-        </div>
-    </div>
-
-    <div id="personalArea" class="hidden fixed inset-0 bg-white z-[300] overflow-y-auto pb-24">
-        <header class="bg-white p-6 border-b flex justify-between items-center sticky top-0 z-50">
-            <div>
-                <h2 id="welcomeName" class="font-black text-blue-900 text-xl italic">שלום, לקוח</h2>
-                <p id="carInfo" class="text-[10px] font-bold text-gray-400 ltr"></p>
+        <section class="mt-12 px-6">
+            <div class="vag-gradient rounded-[3rem] pt-12 pb-24 text-center text-white shadow-2xl">
+                <h2 class="text-3xl font-black mb-2">מומחיות ללא פשרות</h2>
+                <p class="text-blue-200 text-sm font-medium">Audi • Volkswagen • SEAT • Škoda</p>
             </div>
-            <button onclick="logout()" class="bg-gray-100 p-2 rounded-xl text-red-500"><i class="fas fa-power-off"></i></button>
+
+            <div class="max-w-md mx-auto grid grid-cols-2 gap-4 px-4 -mt-16">
+                <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-tools text-2xl text-blue-900"></i>
+                    </div>
+                    <p class="text-xs font-black text-gray-800">מכונאות כללית</p>
+                </div>
+                <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-microchip text-2xl text-blue-900"></i>
+                    </div>
+                    <p class="text-xs font-black text-gray-800">דיאגנוסטיקה VAG</p>
+                </div>
+                <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-oil-can text-2xl text-blue-900"></i>
+                    </div>
+                    <p class="text-xs font-black text-gray-800">טיפולים תקופתיים</p>
+                </div>
+                <div class="category-card bg-white p-6 rounded-[2rem] shadow-lg text-center border border-blue-50">
+                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-snowflake text-2xl text-blue-900"></i>
+                    </div>
+                    <p class="text-xs font-black text-gray-800">מיזוג אוויר</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-md mx-auto mt-10 px-6">
+            <div class="bg-blue-900 rounded-[2rem] p-6 shadow-xl flex items-center gap-5 text-white">
+                <div class="bg-white/20 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0">
+                    <i class="fas fa-lightbulb text-yellow-300"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black uppercase text-blue-300 mb-1 tracking-widest">טיפ מומחה VAG</h4>
+                    <p id="dailyTip" class="text-sm font-bold leading-snug"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 px-6 mt-12 max-w-md mx-auto">
+            <button onclick="openModal('loginModal')" class="bg-blue-900 text-white py-6 rounded-3xl font-black text-lg shadow-2xl hover:bg-blue-800 transition-all active:scale-95">כניסה</button>
+            <button onclick="openModal('regModal')" class="bg-white border-2 border-blue-900 text-blue-900 py-6 rounded-3xl font-black text-lg shadow-xl active:scale-95">הרשמה</button>
+        </div>
+
+        <section class="mt-16 mb-10">
+            <h3 class="text-center font-black text-xl mb-6 italic">מה הלקוחות שלנו אומרים?</h3>
+            <div class="flex gap-5 review-scroll px-6 pb-6 overflow-x-auto no-scrollbar snap-x">
+                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80 snap-center">
+                    <div class="flex text-yellow-400 text-xs mb-3">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-sm italic font-semibold leading-relaxed">"המוסך הכי מקצועי שנתקלתי בו. מבינים ברכבי קבוצת VAG בעיניים עצומות."</p>
+                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- אבירם לוי</p>
+                </div>
+                <div class="review-card glass-morphism p-6 rounded-[2.5rem] border shrink-0 w-80 snap-center">
+                    <div class="flex text-yellow-400 text-xs mb-3">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-sm italic font-semibold leading-relaxed">"שירות VIP, מחירים הוגנים והסברים מפורטים על כל חלק שהוחלף."</p>
+                    <p class="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">- מיכל רז</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="personalArea" class="hidden fixed inset-0 bg-[#f8fafc] z-[300] overflow-y-auto">
+        <header class="bg-white p-6 border-b flex justify-between items-center sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 vag-gradient rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h2 id="welcomeName" class="font-black text-blue-900 text-xl tracking-tighter">שלום</h2>
+                    <p id="carInfo" class="text-[10px] font-extrabold text-gray-400 ltr tracking-widest"></p>
+                </div>
+            </div>
+            <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-inner"><i class="fas fa-power-off"></i></button>
         </header>
 
         <main class="p-6 space-y-6 max-w-md mx-auto">
-            <div id="smartAlert" class="hidden bg-blue-900 text-white p-4 rounded-2xl shadow-lg relative overflow-hidden">
-                <div class="relative z-10 flex items-center gap-3">
-                    <i class="fas fa-bell animate-bounce text-yellow-400"></i>
-                    <p id="alertMsg" class="text-xs font-bold leading-tight"></p>
-                </div>
-                <div class="absolute -right-4 -top-4 opacity-10 text-6xl"><i class="fas fa-tools"></i></div>
-            </div>
-
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                <h4 class="font-black text-sm mb-4 border-b pb-2">תחזוקת רכב</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-3 rounded-2xl">
-                        <p class="text-[9px] text-gray-400 font-bold mb-1">טסט הבא</p>
-                        <p id="pNextT" class="text-xs font-black text-blue-900 ltr">--/--/----</p>
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-50 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl"><i class="fas fa-car-side"></i></div>
+                <h4 class="font-black text-sm mb-6 uppercase tracking-widest text-gray-400 border-b pb-2">תחזוקת רכב ומועדים</h4>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-blue-500 uppercase italic">טסט שנתי</p>
+                        <p id="pNextT" class="text-sm font-black text-gray-800 ltr font-mono">--/--/----</p>
                     </div>
-                    <div class="bg-gray-50 p-3 rounded-2xl">
-                        <p class="text-[9px] text-gray-400 font-bold mb-1">טיפול הבא</p>
-                        <p id="pNextS" class="text-xs font-black text-blue-900 ltr">--/--/----</p>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-blue-500 uppercase italic">טיפול הבא</p>
+                        <p id="pNextS" class="text-sm font-black text-gray-800 ltr font-mono">--/--/----</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                <h4 class="font-black text-sm mb-4"><i class="fas fa-calendar-check ml-2 text-blue-900"></i>קביעת תור</h4>
-                <input id="appDate" type="date" class="w-full p-4 bg-gray-50 rounded-2xl mb-3 text-sm ltr outline-none border">
-                <select id="appTime" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 text-sm ltr outline-none border font-bold">
-                    <option value="08:00">08:00</option>
-                    <option value="09:00">09:00</option>
-                    <option value="10:00">10:00</option>
-                    <option value="11:00">11:00</option>
-                    <option value="12:00">12:00</option>
-                    <option value="13:00">13:00</option>
-                    <option value="14:00">14:00</option>
-                    <option value="15:00">15:00</option>
-                    <option value="16:00">16:00</option>
-                </select>
-                <button onclick="bookAppt()" class="w-full bg-blue-900 text-white p-4 rounded-2xl font-black">אשר הגעה</button>
-                <div id="activeAppts" class="mt-4 space-y-2"></div>
-            </div>
-
-            <div id="quoteArea" class="hidden bg-amber-50 rounded-3xl p-6 border-2 border-dashed border-amber-200">
-                <h4 class="font-black text-sm text-amber-800 mb-2">הצעת מחיר ממתינה לאישורך</h4>
-                <div id="quoteContent" class="text-[11px] text-gray-600 mb-4 bg-white p-3 rounded-xl"></div>
-                
-                <div class="bg-white p-2 rounded-xl border mb-4">
-                    <p class="text-[9px] font-bold mb-1 text-center">חתום כאן לאישור העבודה:</p>
-                    <canvas id="sigPad" class="w-full h-32 border-b touch-none"></canvas>
-                    <button onclick="signaturePad.clear()" class="text-[9px] text-gray-400 mt-1">נקה חתימה</button>
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-50">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-900"><i class="fas fa-calendar-check"></i></div>
+                    <h4 class="font-black text-sm uppercase">קביעת תור למוסך</h4>
                 </div>
-                
-                <button onclick="approveQuote()" class="w-full bg-amber-600 text-white p-4 rounded-2xl font-black shadow-md">חתום ושלח אישור</button>
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 mr-2">בחר תאריך</label>
+                        <input id="appDate" type="date" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm outline-none font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 mr-2">בחר שעה</label>
+                        <select id="appTime" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm font-black outline-none">
+                            <option value="08:00">08:00</option><option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option><option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option><option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                        </select>
+                    </div>
+                    <button onclick="bookAppt()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-2">אשר קביעת תור</button>
+                </div>
+                <div id="activeAppts" class="mt-6 space-y-3"></div>
             </div>
 
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                <h4 class="font-black text-sm mb-4"><i class="fas fa-envelope-open-text ml-2 text-blue-900"></i>תיבת הודעות</h4>
-                <div id="messagesList" class="space-y-3">
-                    <p class="text-[10px] text-gray-400 italic">אין הודעות חדשות מהצוות.</p>
+            <div id="quoteArea" class="hidden bg-amber-50 rounded-[2.5rem] p-8 border-2 border-dashed border-amber-200">
+                <div class="flex items-center gap-3 mb-4 text-amber-900">
+                    <i class="fas fa-file-invoice-dollar text-xl"></i>
+                    <h4 class="font-black text-sm uppercase">הצעת מחיר ממתינה</h4>
+                </div>
+                <div id="quoteContent" class="text-xs text-gray-700 mb-6 bg-white p-4 rounded-2xl shadow-sm font-medium leading-relaxed"></div>
+                <div class="bg-white p-4 rounded-3xl border border-amber-100 mb-6">
+                    <p class="text-[10px] font-black text-gray-400 text-center mb-3 uppercase italic">חתימת הלקוח לאישור עבודה</p>
+                    <canvas id="sigPad"></canvas>
+                    <button onclick="signaturePad.clear()" class="w-full text-[9px] text-gray-400 font-bold mt-2 uppercase">נקה חתימה</button>
+                </div>
+                <button onclick="approveQuote()" class="w-full bg-amber-600 text-white p-6 rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-all">חתום ואשר לביצוע</button>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-50">
+                <h4 class="font-black text-sm mb-6 uppercase tracking-widest text-gray-400 border-b pb-2">תיבת הודעות</h4>
+                <div id="messagesList" class="space-y-4">
+                    <p class="text-xs text-gray-300 italic text-center py-4">אין הודעות חדשות מהמוסך.</p>
                 </div>
             </div>
         </main>
     </div>
 
+    <div id="regModal" class="hidden fixed inset-0 bg-black/90 z-[400] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 max-h-[90vh] overflow-y-auto modal-animate">
+            <h2 class="text-3xl font-black text-blue-900 mb-2 italic">רישום לקוח חדש</h2>
+            <p class="text-xs text-gray-400 mb-8 font-bold uppercase tracking-widest">פתיחת כרטיס רכב דיגיטלי במערכת</p>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="rFName" placeholder="שם פרטי" class="p-5 bg-gray-50 rounded-2xl border text-sm font-bold">
+                    <input id="rLName" placeholder="שם משפחה" class="p-5 bg-gray-50 rounded-2xl border text-sm font-bold">
+                </div>
+                <input id="rID" type="number" placeholder="תעודת זהות" class="w-full p-5 bg-gray-50 rounded-2xl border text-sm font-bold ltr">
+                <input id="rPhone" type="tel" placeholder="מספר טלפון נייד" class="w-full p-5 bg-gray-50 rounded-2xl border text-sm font-bold ltr">
+                <input id="rAddr" placeholder="כתובת מגורים" class="w-full p-5 bg-gray-50 rounded-2xl border text-sm font-bold">
+                <div class="pt-4 border-t"><p class="text-[10px] font-black text-blue-800 uppercase mb-3 italic">פרטי רכב</p></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="rModel" placeholder="דגם רכב" class="p-5 bg-gray-50 rounded-2xl border text-sm font-bold">
+                    <input id="rYear" type="number" placeholder="שנת ייצור" class="p-5 bg-gray-50 rounded-2xl border text-sm font-bold ltr">
+                </div>
+                <input id="rKm" type="number" placeholder="קילומטראז' נוכחי" class="w-full p-5 bg-gray-50 rounded-2xl border text-sm font-bold ltr">
+                <input id="rPlate" type="number" placeholder="מספר רכב" class="w-full p-6 bg-blue-50 border-2 border-blue-100 rounded-3xl font-black text-center text-2xl tracking-widest ltr">
+                <button onclick="handleRegister()" class="w-full bg-blue-900 text-white p-6 rounded-3xl font-black text-xl shadow-2xl mt-4">צור כרטיס לקוח</button>
+                <button onclick="closeModal('regModal')" class="w-full text-gray-400 text-xs font-black uppercase py-2">סגור ללא שמירה</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/90 z-[400] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-sm rounded-[3rem] p-10 text-center modal-animate">
+            <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-blue-900 text-3xl shadow-inner italic">VAG</div>
+            <h2 class="text-2xl font-black text-blue-900 mb-2 italic">כניסת לקוח</h2>
+            <p class="text-xs text-gray-400 mb-8 font-bold">הזן פרטים לצפייה בסטטוס הרכב</p>
+            <div class="space-y-4">
+                <input id="lID" type="number" placeholder="תעודת זהות" class="w-full p-5 bg-gray-50 rounded-2xl border text-center font-black ltr">
+                <input id="lPlate" type="number" placeholder="מספר רכב" class="w-full p-5 bg-gray-50 rounded-2xl border text-center font-black text-xl tracking-widest ltr">
+                <button onclick="handleLogin()" class="w-full bg-blue-900 text-white p-6 rounded-3xl font-black text-lg shadow-2xl active:scale-95 transition-all">התחבר למערכת</button>
+                <button onclick="closeModal('loginModal')" class="mt-4 text-gray-400 text-[10px] font-black uppercase tracking-widest">חזרה לדף הבית</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 left-0 right-0 px-6 flex gap-4 z-[100] max-w-md mx-auto">
+        <a href="tel:086277195" class="flex-1 bg-[#10b981] text-white p-5 rounded-[2rem] text-center shadow-2xl font-black flex items-center justify-center gap-3 active:scale-95 transition-all">
+            <i class="fas fa-phone-alt"></i>חיוג למוסך
+        </a>
+        <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" target="_blank" class="flex-1 bg-[#004080] text-white p-5 rounded-[2rem] text-center shadow-2xl font-black flex items-center justify-center gap-3 active:scale-95 transition-all">
+            <i class="fas fa-location-arrow"></i>ניווט WAZE
+        </a>
+    </div>
+
     <script>
-        // 1. FIREBASE INIT
+        // אתחול Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -251,52 +320,65 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 2. LIVE CLOCK & DATE
-        function startClock() {
+        let signaturePad;
+
+        // ניהול זמן ושעות פעילות
+        function updateGarageStatus() {
             const now = new Date();
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {weekday:'long', day:'numeric', month:'long'});
-            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-        }
-        setInterval(startClock, 1000);
-        startClock();
+            const day = now.getDay(); // 0-6 (Sunday is 0)
+            const hour = now.getHours() + now.getMinutes() / 60;
+            const statusText = document.getElementById('garageStatus');
+            const indicator = document.getElementById('statusIndicator');
 
-        // 3. DAILY TIP
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+
+            // ראשון עד חמישי, 07:30 עד 15:30
+            if (day >= 0 && day <= 4 && hour >= 7.5 && hour < 15.5) {
+                statusText.innerText = "פתוח עכשיו לשירותכם";
+                statusText.className = "text-sm font-black text-green-600";
+                indicator.className = "status-dot status-open animate-pulse";
+            } else {
+                statusText.innerText = "המוסך סגור כרגע";
+                statusText.className = "text-sm font-black text-red-500";
+                indicator.className = "status-dot status-closed";
+            }
+        }
+        setInterval(updateGarageStatus, 1000);
+        updateGarageStatus();
+
+        // טיפ יומי
         const tips = [
-            "מומלץ לבדוק לחץ אוויר בצמיגים פעם בחודש לנסיעה חסכונית.",
-            "נורת שירות דולקת? אל תחכו, זה הזמן לטיפול תקופתי מונע.",
-            "בדיקת חורף היא חובה - וודאו שהמגבים והאורות תקינים.",
-            "שימוש בחלפים מקוריים לקבוצת VAG שומר על ערך הרכב שלכם."
+            "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ או לפני נסיעה ארוכה.",
+            "נורת 'Check Engine' דולקת? אל תמשיך בנסיעה, חייג אלינו לבדיקת מחשב.",
+            "החלפת נוזל קירור מקורי מסוג G12/G13 חיונית לשמירה על ראש המנוע שלך.",
+            "בדיקת לחץ אוויר בצמיגים חוסכת עד 5% מצריכת הדלק של הרכב.",
+            "טיפול תקופתי כל 15,000 ק״מ או שנה הוא המפתח לאמינות רכבי קבוצת פולקסווגן."
         ];
-        document.getElementById('dailyTip').innerText = tips[new Date().getDate() % tips.length];
+        document.getElementById('dailyTip').innerText = tips[Math.floor(Math.random() * tips.length)];
 
-        // 4. GEMINI AI (VAG ONLY)
-        function askAI() {
-            const q = document.getElementById('aiInput').value.toLowerCase();
-            const res = document.getElementById('aiResponse');
-            const load = document.getElementById('aiLoading');
-            
-            if(!q) return;
-            load.classList.remove('hidden');
-            res.classList.add('hidden');
-
-            setTimeout(() => {
-                load.classList.add('hidden');
-                res.classList.remove('hidden');
-                if(q.includes('vag') || q.includes('פולקס') || q.includes('אודי') || q.includes('סקודה') || q.includes('סיאט') || q.includes('נורה') || q.includes('שמן')) {
-                    res.innerText = "שלום, אני Gemini. בתור מומחה VAG, הבעיה שתיארת דורשת בדיקת מחשב במוסך ברע״מ. אצלנו תמצאו דיאגנוסטיקה מקורית שתפתור את התקלה במדויק.";
-                } else {
-                    res.innerText = "מצטער, אני מוסמך לענות רק על שאלות הקשורות לרכבי קבוצת VAG (פולקסווגן, אודי, סיאט, סקודה).";
-                }
-            }, 1200);
+        // פונקציות עזר למודלים
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
-        // 5. REGISTRATION
+        // הרשמה
         async function handleRegister() {
-            const plate = document.getElementById('rPlate').value;
-            const idNum = document.getElementById('rID').value;
-            if(!plate || !idNum) return alert("שדות חובה חסרים!");
+            const plate = document.getElementById('rPlate').value.trim();
+            const idNum = document.getElementById('rID').value.trim();
+            
+            if(!plate || !idNum) return alert("שדות חובה (ת.ז ומספר רכב) חסרים");
 
-            const data = {
+            const customerData = {
                 fName: document.getElementById('rFName').value,
                 lName: document.getElementById('rLName').value,
                 id: idNum,
@@ -306,137 +388,186 @@
                 year: document.getElementById('rYear').value,
                 km: document.getElementById('rKm').value,
                 plate: plate,
-                nextT: "לא נקבע", nextS: "לא נקבע",
-                messages: [], quotes: []
+                nextT: "לא נקבע",
+                nextS: "לא נקבע",
+                messages: [],
+                quotes: [],
+                regDate: new Date().toISOString()
             };
 
-            await db.collection("customers").doc(plate).set(data);
-            alert("ההרשמה הושלמה! כעת ניתן להיכנס לאזור האישי.");
-            closeModal('regModal');
-        }
-
-        // 6. LOGIN
-        async function handleLogin() {
-            const id = document.getElementById('lID').value;
-            const plate = document.getElementById('lPlate').value;
-            const doc = await db.collection("customers").doc(plate).get();
-
-            if(doc.exists && doc.data().id === id) {
-                localStorage.setItem('userPlate', plate);
-                initPersonalArea(doc.data());
-            } else {
-                alert("פרטים לא נכונים. וודא מספר רכב ותעודת זהות.");
+            try {
+                await db.collection("customers").doc(plate).set(customerData);
+                alert("כרטיס לקוח נוצר בהצלחה! כעת תוכל להתחבר.");
+                closeModal('regModal');
+            } catch (err) {
+                alert("שגיאה ברישום: " + err.message);
             }
         }
 
-        // 7. PERSONAL AREA LOGIC
-        let signaturePad;
-        function initPersonalArea(user) {
-            document.getElementById('personalArea').classList.remove('hidden');
-            document.getElementById('welcomeName').innerText = `שלום, ${user.fName} ${user.lName}`;
-            document.getElementById('carInfo').innerText = `${user.model} | ${user.plate}`;
-            document.getElementById('pNextT').innerText = user.nextT;
-            document.getElementById('pNextS').innerText = user.nextS;
+        // התחברות
+        async function handleLogin() {
+            const idInput = document.getElementById('lID').value.trim();
+            const plateInput = document.getElementById('lPlate').value.trim();
 
-            // Initialize Signature Pad
+            if(!idInput || !plateInput) return alert("נא להזין ת.ז ומספר רכב");
+
+            try {
+                const doc = await db.collection("customers").doc(plateInput).get();
+                if(doc.exists && doc.data().id === idInput) {
+                    localStorage.setItem('userPlate', plateInput);
+                    initPersonalArea(doc.data());
+                    closeModal('loginModal');
+                } else {
+                    alert("פרטי הזיהוי אינם תואמים את הרישומים שלנו.");
+                }
+            } catch (err) {
+                alert("שגיאה בחיבור: " + err.message);
+            }
+        }
+
+        // ניהול אזור אישי
+        function initPersonalArea(user) {
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('personalArea').classList.remove('hidden');
+            
+            document.getElementById('welcomeName').innerText = `שלום, ${user.fName} ${user.lName}`;
+            document.getElementById('carInfo').innerText = `${user.model || 'רכב VAG'} | ${user.plate}`;
+            document.getElementById('pNextT').innerText = user.nextT || "--/--/----";
+            document.getElementById('pNextS').innerText = user.nextS || "--/--/----";
+
+            // אתחול משטח חתימה
             const canvas = document.getElementById('sigPad');
             signaturePad = new SignaturePad(canvas);
+            
+            // התאמת רזולוציית קנבס
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
 
-            checkAlerts(user);
+            // טעינת נתונים חיים
             loadActiveAppts(user.plate);
             loadMessages(user.plate);
-            checkPendingQuotes(user.quotes);
+            checkPendingQuotes(user.quotes || []);
         }
 
-        function checkAlerts(user) {
-            const alertBox = document.getElementById('smartAlert');
-            const alertMsg = document.getElementById('alertMsg');
-            const now = new Date();
-            const month = now.getMonth() + 1;
-
-            if(month >= 11 || month <= 2) {
-                alertBox.classList.remove('hidden');
-                alertMsg.innerText = "החורף כאן! מגיע לך בדיקת בטיחות ומגבים חינם במרכז שירות ברע״מ.";
-            } else if (month >= 6 && month <= 8) {
-                alertBox.classList.remove('hidden');
-                alertMsg.innerText = "קיץ חם בבאר שבע! מומלץ לבדוק את יעילות המזגן והנוזלים.";
-            }
-        }
-
+        // קביעת תור
         async function bookAppt() {
             const plate = localStorage.getItem('userPlate');
             const date = document.getElementById('appDate').value;
             const time = document.getElementById('appTime').value;
-            if(!date) return alert("בחר תאריך");
 
-            await db.collection("appointments").add({
-                plate, date, time, name: document.getElementById('welcomeName').innerText
-            });
-            alert("התור נקבע! נתראה במוסך.");
-            location.reload();
+            if(!date) return alert("נא לבחור תאריך הגעה");
+
+            try {
+                await db.collection("appointments").add({
+                    plate, date, time, 
+                    createdAt: new Date().toISOString(),
+                    status: "נקבע"
+                });
+                alert("התור נקבע בהצלחה! נתראה במוסך.");
+            } catch (err) {
+                alert("שגיאה בקביעת התור.");
+            }
         }
 
+        // טעינת תורים פעילים
         function loadActiveAppts(plate) {
-            db.collection("appointments").where("plate", "==", plate).onSnapshot(snap => {
-                const cont = document.getElementById('activeAppts');
-                cont.innerHTML = "";
+            db.collection("appointments").where("plate", "==", plate)
+              .onSnapshot(snap => {
+                const container = document.getElementById('activeAppts');
+                container.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-black text-gray-400 uppercase italic mb-2">תורים קרובים:</p>';
                 snap.forEach(doc => {
-                    const a = doc.data();
-                    cont.innerHTML += `<div class="bg-blue-50 p-3 rounded-xl flex justify-between items-center text-xs">
-                        <span class="ltr font-bold">${a.date} | ${a.time}</span>
-                        <button onclick="cancelAppt('${doc.id}')" class="text-red-500 font-black">ביטול</button>
-                    </div>`;
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-clock text-blue-500"></i>
+                                <span class="text-xs font-black text-blue-900 ltr">${data.date} | ${data.time}</span>
+                            </div>
+                            <button onclick="deleteAppt('${doc.id}')" class="text-red-400 text-[10px] font-black uppercase">ביטול</button>
+                        </div>
+                    `;
                 });
             });
         }
 
-        async function cancelAppt(id) {
-            if(confirm("לבטל את התור?")) await db.collection("appointments").doc(id).delete();
+        async function deleteAppt(id) {
+            if(confirm("האם לבטל את התור המתוכנן?")) {
+                await db.collection("appointments").doc(id).delete();
+            }
         }
 
+        // טעינת הודעות
         function loadMessages(plate) {
             db.collection("customers").doc(plate).onSnapshot(doc => {
-                const msgs = doc.data().messages || [];
-                const cont = document.getElementById('messagesList');
-                if(msgs.length > 0) {
-                    cont.innerHTML = "";
-                    msgs.forEach(m => {
-                        cont.innerHTML += `<div class="bg-gray-50 p-3 rounded-xl border-r-4 border-blue-900 text-[11px]">${m.text}</div>`;
+                const data = doc.data();
+                const list = document.getElementById('messagesList');
+                if(data.messages && data.messages.length > 0) {
+                    list.innerHTML = "";
+                    data.messages.reverse().forEach(msg => {
+                        list.innerHTML += `
+                            <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-blue-900 shadow-sm">
+                                <p class="text-[11px] font-bold text-gray-700 leading-relaxed">${msg.text}</p>
+                                <p class="text-[8px] text-gray-400 mt-2 font-black ltr">${msg.date || ''}</p>
+                            </div>
+                        `;
                     });
                 }
             });
         }
 
+        // הצעות מחיר ואישור
         function checkPendingQuotes(quotes) {
             const pending = quotes.find(q => !q.signed);
+            const area = document.getElementById('quoteArea');
             if(pending) {
-                document.getElementById('quoteArea').classList.remove('hidden');
-                document.getElementById('quoteContent').innerText = `${pending.title} - סה"כ לתשלום: ${pending.total}`;
+                area.classList.remove('hidden');
+                document.getElementById('quoteContent').innerHTML = `
+                    <div class="flex justify-between border-b pb-2 mb-2 font-black">
+                        <span>${pending.title}</span>
+                        <span>₪${pending.total}</span>
+                    </div>
+                    <p class="opacity-70">${pending.description || 'תיאור עבודה מפורט במוסך'}</p>
+                `;
                 window.activeQuoteId = pending.id;
+            } else {
+                area.classList.add('hidden');
             }
         }
 
         async function approveQuote() {
-            if(signaturePad.isEmpty()) return alert("חובה לחתום לאישור!");
-            const sigData = signaturePad.toDataURL();
-            const plate = localStorage.getItem('userPlate');
-            
-            const doc = await db.collection("customers").doc(plate).get();
-            const quotes = doc.data().quotes;
-            const qIndex = quotes.findIndex(q => q.id === window.activeQuoteId);
-            
-            quotes[qIndex].signed = true;
-            quotes[qIndex].sigData = sigData;
-            quotes[qIndex].signedDate = new Date().toLocaleString();
+            if(signaturePad.isEmpty()) return alert("נא לחתום בתיבה לאישור ההצעה");
 
-            await db.collection("customers").doc(plate).update({ quotes });
-            alert("הצעת המחיר אושרה ונשלחה למוסך!");
-            document.getElementById('quoteArea').classList.add('hidden');
+            const plate = localStorage.getItem('userPlate');
+            const sigData = signaturePad.toDataURL();
+
+            try {
+                const docRef = db.collection("customers").doc(plate);
+                const doc = await docRef.get();
+                let quotes = doc.data().quotes;
+                
+                const qIndex = quotes.findIndex(q => q.id === window.activeQuoteId);
+                if(qIndex !== -1) {
+                    quotes[qIndex].signed = true;
+                    quotes[qIndex].signature = sigData;
+                    quotes[qIndex].approvalDate = new Date().toLocaleString('he-IL');
+                    
+                    await docRef.update({ quotes });
+                    alert("הצעת המחיר אושרה! הצוות עודכן ומתחיל בעבודה.");
+                    document.getElementById('quoteArea').classList.add('hidden');
+                }
+            } catch (err) {
+                alert("שגיאה בתהליך האישור.");
+            }
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function logout() { localStorage.clear(); location.reload(); }
+        function logout() {
+            if(confirm("להתנתק מהאזור האישי?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
