@@ -3,54 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ברע״מ VAG | אפליקציית לקוח</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>מרכז שירות ברע״מ | VAG Specialist App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;800&display=swap');
-        body { font-family: 'Assistant', sans-serif; background: #f4f7f9; }
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
+        body { font-family: 'Assistant', sans-serif; background: #f4f7f9; user-select: none; -webkit-tap-highlight-color: transparent; }
         .vag-blue { background-color: #001e50; }
-        #sigPad { width: 100%; height: 180px; background: white; border: 2px dashed #cbd5e1; border-radius: 1rem; }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        #sigPad { width: 100%; height: 200px; background: #f9fafb; border: 2px dashed #e2e8f0; border-radius: 1rem; }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="pb-10">
-    <header class="vag-blue pt-12 pb-24 text-white text-center rounded-b-[3rem]">
-        <h1 class="text-4xl font-black italic">BARAM <span class="text-blue-400">VAG</span></h1>
-        <p class="opacity-70 mt-2">מרכז שירות מומחה - באר שבע</p>
+<body class="pb-24">
+
+    <header class="vag-blue pt-12 pb-24 px-6 text-white text-center rounded-b-[3rem] shadow-2xl">
+        <h1 class="text-3xl font-black italic tracking-tighter">BARAM <span class="text-blue-400">VAG</span></h1>
+        <p class="text-sm opacity-70 mt-1 font-light">מומחים לרכבי פולקסווגן, אודי, סקודה וסיאט</p>
+        
+        <div class="flex justify-center gap-4 mt-8">
+            <a href="tel:086277195" class="bg-white/10 hover:bg-white/20 p-4 rounded-2xl backdrop-blur-md transition-all">
+                <i class="fas fa-phone-alt text-xl"></i>
+            </a>
+            <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" target="_blank" class="bg-white/10 hover:bg-white/20 p-4 rounded-2xl backdrop-blur-md transition-all">
+                <i class="fas fa-location-arrow text-xl"></i>
+            </a>
+            <button onclick="sendWhatsApp('שלום, רציתי לברר לגבי הרכב שלי')" class="bg-green-500 hover:bg-green-600 p-4 rounded-2xl transition-all shadow-lg">
+                <i class="fab fa-whatsapp text-xl"></i>
+            </button>
+        </div>
     </header>
 
-    <main class="max-w-md mx-auto px-6 -mt-12">
-        <div id="authBox" class="bg-white p-8 rounded-[2rem] shadow-xl">
-            <h2 class="text-xl font-black text-center mb-6">כניסה לאזור האישי</h2>
-            <input id="lPlate" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-black mb-4 outline-none">
-            <input id="lID" placeholder="תעודת זהות" class="w-full p-4 bg-gray-50 border rounded-2xl text-center mb-6 outline-none">
-            <button onclick="handleLogin()" class="w-full vag-blue text-white p-5 rounded-2xl font-black">התחבר</button>
-        </div>
+    <main class="max-w-md mx-auto px-6 -mt-12 space-y-6">
+        
+        <section id="authSection" class="card p-8">
+            <h2 class="text-xl font-black text-[#001e50] mb-6 text-center">כניסה לאזור האישי</h2>
+            <div class="space-y-4">
+                <input id="lPlate" type="number" placeholder="מספר רכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-black ltr outline-none focus:ring-2 ring-blue-900">
+                <input id="lID" type="number" placeholder="תעודת זהות בעל הרכב" class="w-full p-4 bg-gray-50 border rounded-2xl text-center font-bold ltr outline-none focus:ring-2 ring-blue-900">
+                <button onclick="handleLogin()" class="w-full vag-blue text-white p-5 rounded-2xl font-black shadow-xl active:scale-95 transition-all">התחברות</button>
+            </div>
+        </section>
 
-        <div id="dash" class="hidden space-y-6 mt-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-r-8 border-blue-500 flex justify-between">
-                <div><p class="text-xs text-gray-400 font-bold">סטטוס רכב</p><h3 id="statText" class="text-xl font-black text-blue-900">טוען...</h3></div>
+        <section id="userDashboard" class="hidden space-y-6">
+            
+            <div class="card p-6 border-r-8 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">סטטוס נוכחי</p>
+                        <h3 id="liveStatusText" class="text-xl font-black text-blue-900 status-pulse">בבדיקה...</h3>
+                    </div>
+                    <i class="fas fa-tools text-blue-100 text-3xl"></i>
+                </div>
             </div>
 
-            <div id="quoteBox" class="hidden bg-amber-50 p-6 rounded-3xl border-2 border-amber-200">
-                <h3 class="font-black text-amber-900 mb-4 text-center">הצעת מחיר לאישור</h3>
-                <div class="bg-white rounded-xl shadow-inner mb-4 overflow-hidden">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="card p-5 text-center">
+                    <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase">טסט הבא</p>
+                    <p id="dispNextT" class="font-black text-red-500 ltr"></p>
+                </div>
+                <div class="card p-5 text-center">
+                    <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase">טיפול הבא</p>
+                    <p id="dispNextS" class="font-black text-blue-900 ltr"></p>
+                </div>
+            </div>
+
+            <div id="quoteArea" class="hidden card p-6 border-2 border-dashed border-amber-300 bg-amber-50">
+                <h3 class="text-lg font-black text-amber-900 mb-4 italic">הצעת מחיר ממתינה לאישור</h3>
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm mb-4">
                     <table class="w-full text-right text-xs">
-                        <tbody id="qTable"></tbody>
-                        <tfoot class="bg-gray-100 font-black"><tr><td class="p-3">סה"כ (כולל מע"מ)</td><td id="qTotal" class="p-3 text-center"></td></tr></tfoot>
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-2">תיאור</th>
+                                <th class="p-2 text-center">סה"כ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quoteLines"></tbody>
+                        <tfoot class="bg-gray-50 font-black">
+                            <tr>
+                                <td class="p-2 border-t">סה"כ לתשלום (כולל מע"מ)</td>
+                                <td id="quoteTotal" class="p-2 border-t text-center text-blue-900 text-sm"></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
+                <p class="text-[10px] text-gray-500 mb-2 font-bold">חתום כאן לאישור הביצוע:</p>
                 <canvas id="sigPad"></canvas>
-                <button onclick="approve()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-black mt-4 shadow-lg">אשר וחתום</button>
+                <button onclick="approveQuote()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-black mt-4 shadow-lg shadow-green-200">חתום ואשר לביצוע</button>
             </div>
+
+            <button onclick="contactSupport()" class="w-full bg-white border-2 border-green-500 text-green-600 p-5 rounded-3xl font-black flex items-center justify-center gap-3">
+                <i class="fab fa-whatsapp text-2xl"></i>
+                <span>צ'אט ישיר עם המכונאי</span>
+            </button>
             
-            <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" class="block w-full bg-white p-5 rounded-2xl text-center font-bold border-2 border-blue-100">נווט אל המוסך 📍</a>
-        </div>
+            <button onclick="logout()" class="w-full text-gray-400 text-xs font-bold uppercase tracking-widest">התנתק מהמערכת</button>
+        </section>
+
     </main>
 
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t flex justify-around p-4 z-50">
+        <button onclick="location.reload()" class="flex flex-col items-center text-blue-900">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold">ראשי</span>
+        </button>
+        <button onclick="sendWhatsApp('היי, אשמח לקבוע תור לטיפול')" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-calendar-alt text-xl"></i>
+            <span class="text-[10px] font-bold">תור חדש</span>
+        </button>
+        <a href="https://waze.com/ul?q=פנחס החוצב 35 באר שבע" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-map-marker-alt text-xl"></i>
+            <span class="text-[10px] font-bold">ניווט</span>
+        </a>
+    </nav>
+
     <script>
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
@@ -61,45 +135,98 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let sPad, curPlate, curData;
 
+        let signaturePad;
+        let userData = null;
+
+        // AUTH LOGIC
         async function handleLogin() {
-            const p = document.getElementById('lPlate').value.trim(), id = document.getElementById('lID').value.trim();
-            const doc = await db.collection("customers").doc(p).get();
+            const plate = document.getElementById('lPlate').value;
+            const id = document.getElementById('lID').value;
+            if(!plate || !id) return alert("נא למלא את כל הפרטים");
+
+            const doc = await db.collection("customers").doc(plate).get();
             if(doc.exists && doc.data().id === id) {
-                curPlate = p; 
-                document.getElementById('authBox').classList.add('hidden');
-                document.getElementById('dash').classList.remove('hidden');
-                db.collection("customers").doc(p).onSnapshot(s => render(s.data()));
-            } else alert("פרטים שגויים");
+                userData = doc.data();
+                renderDashboard();
+                // Listen for live updates (Status changes)
+                db.collection("customers").doc(plate).onSnapshot(snap => {
+                    userData = snap.data();
+                    updateLiveUI();
+                });
+            } else {
+                alert("לא נמצא רכב התואם לפרטים אלו במערכת");
+            }
         }
 
-        function render(data) {
-            curData = data;
-            document.getElementById('statText').innerText = data.status || "בטיפול";
-            const pending = (data.quotes || []).find(q => !q.signed);
-            if(pending) {
-                document.getElementById('quoteBox').classList.remove('hidden');
-                const tbody = document.getElementById('qTable'); tbody.innerHTML = "";
-                pending.items.forEach(i => { tbody.innerHTML += `<tr class="border-b"><td class="p-3">${i.desc}</td><td class="p-3 text-center font-bold">${i.total}₪</td></tr>`; });
-                document.getElementById('qTotal').innerText = pending.grandTotal + " ₪";
-                if(!sPad) sPad = new SignaturePad(document.getElementById('sigPad'));
-            } else document.getElementById('quoteBox').classList.add('hidden');
+        function renderDashboard() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('userDashboard').classList.remove('hidden');
+            updateLiveUI();
         }
 
-        async function approve() {
-            if(sPad.isEmpty()) return alert("נא לחתום");
-            const sig = sPad.toDataURL();
-            const pending = curData.quotes.find(q => !q.signed);
-            const updated = curData.quotes.map(q => q.id === pending.id ? {...q, signed: true, signedAt: new Date().toISOString()} : q);
-            await db.collection("customers").doc(curPlate).update({ quotes: updated, signatureData: sig, status: "הצעה אושרה" });
-            
-            const adminPhone = "972506655060", apiKey = "YOUR_API_KEY_HERE";
-            const msg = encodeURIComponent(`✅ יניב, ${curData.fName} אישר הצעה לרכב ${curPlate} בסך ${pending.grandTotal}₪.`);
-            fetch(`https://api.callmebot.com/whatsapp.php?phone=${adminPhone}&text=${msg}&apikey=${apiKey}`, {mode:'no-cors'});
-            
-            alert("הצעה אושרה!");
+        function updateLiveUI() {
+            document.getElementById('liveStatusText').innerText = userData.status || "רשום במערכת";
+            document.getElementById('dispNextT').innerText = userData.nextT || "--/--/--";
+            document.getElementById('dispNextS').innerText = userData.nextS || "--/--/--";
+
+            // Process Quotes
+            if(userData.quotes) {
+                const pending = userData.quotes.find(q => !q.signed);
+                if(pending) {
+                    const qArea = document.getElementById('quoteArea');
+                    qArea.classList.remove('hidden');
+                    const lines = document.getElementById('quoteLines');
+                    lines.innerHTML = "";
+                    pending.items.forEach(item => {
+                        lines.innerHTML += `<tr><td class="p-2 border-b">${item.desc} (x${item.qty})</td><td class="p-2 border-b text-center font-bold">${item.total}₪</td></tr>`;
+                    });
+                    document.getElementById('quoteTotal').innerText = pending.grandTotal + " ₪";
+                    
+                    if(!signaturePad) {
+                        signaturePad = new SignaturePad(document.getElementById('sigPad'));
+                    }
+                } else {
+                    document.getElementById('quoteArea').classList.add('hidden');
+                }
+            }
         }
+
+        // WHATSAPP SYSTEM
+        function sendWhatsApp(text) {
+            const phone = "97286277195"; // מספר המוסך
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function contactSupport() {
+            const msg = `שלום יניב, כאן ${userData.fName}. אני פונה לגבי הרכב שמספרו ${userData.plate}. הסטטוס מופיע לי כ"${userData.status}", רציתי לשאול...`;
+            sendWhatsApp(msg);
+        }
+
+        // QUOTE APPROVAL
+        async function approveQuote() {
+            if (signaturePad.isEmpty()) return alert("נא לחתום לאישור");
+
+            const sigData = signaturePad.toDataURL();
+            const updatedQuotes = userData.quotes.map(q => {
+                if(!q.signed) {
+                    return { ...q, signed: true, signedAt: new Date().toISOString() };
+                }
+                return q;
+            });
+
+            await db.collection("customers").doc(userData.plate).update({
+                quotes: updatedQuotes,
+                signatureData: sigData, // חתימה אחרונה
+                status: "הצעה אושרה - בביצוע"
+            });
+
+            alert("ההצעה אושרה! אנחנו מתחילים לעבוד.");
+            document.getElementById('quoteArea').classList.add('hidden');
+        }
+
+        function logout() { location.reload(); }
     </script>
 </body>
 </html>
