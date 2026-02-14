@@ -307,171 +307,267 @@
         </a>
     </div>
 
-<script>
-    // הגדרות Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
-        authDomain: "baram-vag-45e12.firebaseapp.com",
-        projectId: "baram-vag-45e12",
-        storageBucket: "baram-vag-45e12.firebasestorage.app",
-        messagingSenderId: "761383355945",
-        appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <script>
+        // אתחול Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
+            authDomain: "baram-vag-45e12.firebaseapp.com",
+            projectId: "baram-vag-45e12",
+            storageBucket: "baram-vag-45e12.firebasestorage.app",
+            messagingSenderId: "761383355945",
+            appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    let signaturePad;
+        let signaturePad;
 
-    // פונקציית עזר לשליפת מספר הרכב מהזיכרון
-    function getPlate() {
-        return localStorage.getItem('userPlate') || "";
-    }
+        // ניהול זמן ושעות פעילות
+        function updateGarageStatus() {
+            const now = new Date();
+            const day = now.getDay(); // 0-6 (Sunday is 0)
+            const hour = now.getHours() + now.getMinutes() / 60;
+            const statusText = document.getElementById('garageStatus');
+            const indicator = document.getElementById('statusIndicator');
 
-    // --- קביעת תור מתוקנת ---
-    async function bookAppt() {
-        const plate = getPlate();
-        const date = document.getElementById('appDate').value;
-        const time = document.getElementById('appTime').value;
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
 
-        if (!plate) { alert("שגיאת זיהוי: נא להתחבר מחדש"); return; }
-        if (!date) { alert("נא לבחור תאריך"); return; }
+            // ראשון עד חמישי, 07:30 עד 15:30
+            if (day >= 0 && day <= 4 && hour >= 7.5 && hour < 15.5) {
+                statusText.innerText = "פתוח עכשיו לשירותכם";
+                statusText.className = "text-sm font-black text-green-600";
+                indicator.className = "status-dot status-open animate-pulse";
+            } else {
+                statusText.innerText = "המוסך סגור כרגע";
+                statusText.className = "text-sm font-black text-red-500";
+                indicator.className = "status-dot status-closed";
+            }
+        }
+        setInterval(updateGarageStatus, 1000);
+        updateGarageStatus();
 
-        try {
-            console.log("מנסה לשלוח תור עבור:", plate);
-            await db.collection("appointments").add({
+        // טיפ יומי
+        const tips = [
+            "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ או לפני נסיעה ארוכה.",
+            "נורת 'Check Engine' דולקת? אל תמשיך בנסיעה, חייג אלינו לבדיקת מחשב.",
+            "החלפת נוזל קירור מקורי מסוג G12/G13 חיונית לשמירה על ראש המנוע שלך.",
+            "בדיקת לחץ אוויר בצמיגים חוסכת עד 5% מצריכת הדלק של הרכב.",
+            "טיפול תקופתי כל 15,000 ק״מ או שנה הוא המפתח לאמינות רכבי קבוצת פולקסווגן."
+        ];
+        document.getElementById('dailyTip').innerText = tips[Math.floor(Math.random() * tips.length)];
+
+        // פונקציות עזר למודלים
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // הרשמה
+        async function handleRegister() {
+            const plate = document.getElementById('rPlate').value.trim();
+            const idNum = document.getElementById('rID').value.trim();
+            
+            if(!plate || !idNum) return alert("שדות חובה (ת.ז ומספר רכב) חסרים");
+
+            const customerData = {
+                fName: document.getElementById('rFName').value,
+                lName: document.getElementById('rLName').value,
+                id: idNum,
+                phone: document.getElementById('rPhone').value,
+                addr: document.getElementById('rAddr').value,
+                model: document.getElementById('rModel').value,
+                year: document.getElementById('rYear').value,
+                km: document.getElementById('rKm').value,
                 plate: plate,
-                date: date,
-                time: time,
-                status: "ממתין",
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("התור נקבע בהצלחה!");
-        } catch (err) {
-            console.error("שגיאה בשליחת תור:", err);
-            alert("שגיאה בשליחת התור: " + err.message);
-        }
-    }
+                nextT: "לא נקבע",
+                nextS: "לא נקבע",
+                messages: [],
+                quotes: [],
+                regDate: new Date().toISOString()
+            };
 
-    // --- אישור הצעה וחתימה מתוקנת ---
-    async function approveQuote() {
-        if (!signaturePad || signaturePad.isEmpty()) {
-            alert("נא לחתום בתיבה לפני האישור");
-            return;
-        }
-
-        const plate = getPlate();
-        const sigData = signaturePad.toDataURL();
-
-        if (!plate) { alert("שגיאת זיהוי לקוח"); return; }
-
-        try {
-            const docRef = db.collection("customers").doc(plate);
-            const doc = await docRef.get();
-            
-            if (!doc.exists) {
-                // אם המסמך לא קיים, ניצור בסיס
-                await docRef.set({ quotes: [] }, { merge: true });
+            try {
+                await db.collection("customers").doc(plate).set(customerData);
+                alert("כרטיס לקוח נוצר בהצלחה! כעת תוכל להתחבר.");
+                closeModal('regModal');
+            } catch (err) {
+                alert("שגיאה ברישום: " + err.message);
             }
+        }
 
-            let quotes = (doc.exists && doc.data().quotes) ? doc.data().quotes : [];
-            
-            // עדכון הסטטוס של ההצעה הרלוונטית
-            const updatedQuotes = quotes.map(q => {
-                if (q.id === window.activeQuoteId) {
-                    return { ...q, signed: true, signature: sigData, approvalDate: new Date().toISOString() };
+        // התחברות
+        async function handleLogin() {
+            const idInput = document.getElementById('lID').value.trim();
+            const plateInput = document.getElementById('lPlate').value.trim();
+
+            if(!idInput || !plateInput) return alert("נא להזין ת.ז ומספר רכב");
+
+            try {
+                const doc = await db.collection("customers").doc(plateInput).get();
+                if(doc.exists && doc.data().id === idInput) {
+                    localStorage.setItem('userPlate', plateInput);
+                    initPersonalArea(doc.data());
+                    closeModal('loginModal');
+                } else {
+                    alert("פרטי הזיהוי אינם תואמים את הרישומים שלנו.");
                 }
-                return q;
-            });
+            } catch (err) {
+                alert("שגיאה בחיבור: " + err.message);
+            }
+        }
 
-            await docRef.update({ quotes: updatedQuotes });
+        // ניהול אזור אישי
+        function initPersonalArea(user) {
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('personalArea').classList.remove('hidden');
             
-            alert("הצעה אושרה ונחתמה!");
-            document.getElementById('quoteArea').classList.add('hidden');
-        } catch (err) {
-            console.error("שגיאה באישור הצעה:", err);
-            alert("שגיאה באישור ההצעה: " + err.message);
-        }
-    }
+            document.getElementById('welcomeName').innerText = `שלום, ${user.fName} ${user.lName}`;
+            document.getElementById('carInfo').innerText = `${user.model || 'רכב VAG'} | ${user.plate}`;
+            document.getElementById('pNextT').innerText = user.nextT || "--/--/----";
+            document.getElementById('pNextS').innerText = user.nextS || "--/--/----";
 
-    // --- אתחול אזור אישי ---
-    function initPersonalArea(user) {
-        document.getElementById('mainPage').classList.add('hidden');
-        document.getElementById('personalArea').classList.remove('hidden');
-        document.getElementById('welcomeName').innerText = `שלום, ${user.fName}`;
-        document.getElementById('carInfo').innerText = `${user.model || 'VAG'} | ${user.plate}`;
-        
-        // אתחול החתימה
-        setTimeout(() => {
+            // אתחול משטח חתימה
             const canvas = document.getElementById('sigPad');
-            if (canvas) {
-                signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)' });
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            }
-        }, 500);
+            signaturePad = new SignaturePad(canvas);
+            
+            // התאמת רזולוציית קנבס
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
 
-        loadActiveAppts(user.plate);
-        loadMessages(user.plate);
-        if (user.quotes) checkPendingQuotes(user.quotes);
-    }
-
-    // שאר הפונקציות (לוגין, הרשמה וכו') נשארות כפי שהיו
-    async function handleLogin() {
-        const idInput = document.getElementById('lID').value.trim();
-        const plateInput = document.getElementById('lPlate').value.trim();
-        try {
-            const doc = await db.collection("customers").doc(plateInput).get();
-            if(doc.exists && doc.data().id === idInput) {
-                localStorage.setItem('userPlate', plateInput);
-                initPersonalArea(doc.data());
-                closeModal('loginModal');
-            } else { alert("פרטים שגויים"); }
-        } catch (err) { alert("שגיאה בחיבור: " + err.message); }
-    }
-
-    function loadActiveAppts(plate) {
-        db.collection("appointments").where("plate", "==", plate).onSnapshot(snap => {
-            const container = document.getElementById('activeAppts');
-            container.innerHTML = "";
-            snap.forEach(doc => {
-                const d = doc.data();
-                container.innerHTML += `<div class="bg-blue-50 p-3 rounded-xl flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold">${d.date} | ${d.time}</span>
-                    <button onclick="deleteAppt('${doc.id}')" class="text-red-500">בטל</button>
-                </div>`;
-            });
-        });
-    }
-    
-    function deleteAppt(id) {
-        if(confirm("לבטל תור?")) db.collection("appointments").doc(id).delete();
-    }
-
-    function loadMessages(plate) {
-        db.collection("customers").doc(plate).onSnapshot(doc => {
-            if(doc.exists && doc.data().messages) {
-                const list = document.getElementById('messagesList');
-                list.innerHTML = doc.data().messages.map(m => `<div class="bg-gray-50 p-2 rounded-lg text-xs mb-2 border-r-2 border-blue-900">${m.text}</div>`).join('');
-            }
-        });
-    }
-
-    function checkPendingQuotes(quotes) {
-        const pending = quotes.find(q => !q.signed);
-        if(pending) {
-            document.getElementById('quoteArea').classList.remove('hidden');
-            document.getElementById('quoteContent').innerText = `${pending.title} - ${pending.total} ש"ח`;
-            window.activeQuoteId = pending.id;
+            // טעינת נתונים חיים
+            loadActiveAppts(user.plate);
+            loadMessages(user.plate);
+            checkPendingQuotes(user.quotes || []);
         }
-    }
-    
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function logout() { localStorage.clear(); location.reload(); }
-</script>
 
+        // קביעת תור
+        async function bookAppt() {
+            const plate = localStorage.getItem('userPlate');
+            const date = document.getElementById('appDate').value;
+            const time = document.getElementById('appTime').value;
 
+            if(!date) return alert("נא לבחור תאריך הגעה");
+
+            try {
+                await db.collection("appointments").add({
+                    plate, date, time, 
+                    createdAt: new Date().toISOString(),
+                    status: "נקבע"
+                });
+                alert("התור נקבע בהצלחה! נתראה במוסך.");
+            } catch (err) {
+                alert("שגיאה בקביעת התור.");
+            }
+        }
+
+        // טעינת תורים פעילים
+        function loadActiveAppts(plate) {
+            db.collection("appointments").where("plate", "==", plate)
+              .onSnapshot(snap => {
+                const container = document.getElementById('activeAppts');
+                container.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-black text-gray-400 uppercase italic mb-2">תורים קרובים:</p>';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-clock text-blue-500"></i>
+                                <span class="text-xs font-black text-blue-900 ltr">${data.date} | ${data.time}</span>
+                            </div>
+                            <button onclick="deleteAppt('${doc.id}')" class="text-red-400 text-[10px] font-black uppercase">ביטול</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        async function deleteAppt(id) {
+            if(confirm("האם לבטל את התור המתוכנן?")) {
+                await db.collection("appointments").doc(id).delete();
+            }
+        }
+
+        // טעינת הודעות
+        function loadMessages(plate) {
+            db.collection("customers").doc(plate).onSnapshot(doc => {
+                const data = doc.data();
+                const list = document.getElementById('messagesList');
+                if(data.messages && data.messages.length > 0) {
+                    list.innerHTML = "";
+                    data.messages.reverse().forEach(msg => {
+                        list.innerHTML += `
+                            <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-blue-900 shadow-sm">
+                                <p class="text-[11px] font-bold text-gray-700 leading-relaxed">${msg.text}</p>
+                                <p class="text-[8px] text-gray-400 mt-2 font-black ltr">${msg.date || ''}</p>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+
+        // הצעות מחיר ואישור
+        function checkPendingQuotes(quotes) {
+            const pending = quotes.find(q => !q.signed);
+            const area = document.getElementById('quoteArea');
+            if(pending) {
+                area.classList.remove('hidden');
+                document.getElementById('quoteContent').innerHTML = `
+                    <div class="flex justify-between border-b pb-2 mb-2 font-black">
+                        <span>${pending.title}</span>
+                        <span>₪${pending.total}</span>
+                    </div>
+                    <p class="opacity-70">${pending.description || 'תיאור עבודה מפורט במוסך'}</p>
+                `;
+                window.activeQuoteId = pending.id;
+            } else {
+                area.classList.add('hidden');
+            }
+        }
+
+        async function approveQuote() {
+            if(signaturePad.isEmpty()) return alert("נא לחתום בתיבה לאישור ההצעה");
+
+            const plate = localStorage.getItem('userPlate');
+            const sigData = signaturePad.toDataURL();
+
+            try {
+                const docRef = db.collection("customers").doc(plate);
+                const doc = await docRef.get();
+                let quotes = doc.data().quotes;
+                
+                const qIndex = quotes.findIndex(q => q.id === window.activeQuoteId);
+                if(qIndex !== -1) {
+                    quotes[qIndex].signed = true;
+                    quotes[qIndex].signature = sigData;
+                    quotes[qIndex].approvalDate = new Date().toLocaleString('he-IL');
+                    
+                    await docRef.update({ quotes });
+                    alert("הצעת המחיר אושרה! הצוות עודכן ומתחיל בעבודה.");
+                    document.getElementById('quoteArea').classList.add('hidden');
+                }
+            } catch (err) {
+                alert("שגיאה בתהליך האישור.");
+            }
+        }
+
+        function logout() {
+            if(confirm("להתנתק מהאזור האישי?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
