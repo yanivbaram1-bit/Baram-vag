@@ -152,8 +152,7 @@
     </main>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = {
+ const firebaseConfig = {
             apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
             authDomain: "baram-vag-45e12.firebaseapp.com",
             projectId: "baram-vag-45e12",
@@ -166,55 +165,74 @@
 
         function tab(id, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+            if(btn) {
+                document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
             document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
         }
 
-        // ניהול נתונים וסטטיסטיקה
-        db.collection("customers").onSnapshot(snap => {
-            let totalValue = 0;
-            let pendingQuotes = 0;
-            let inGarage = 0;
-            let totalClients = snap.size;
+        // פונקציית עריכת לקוח
+        async function editClient(plate) {
+            const doc = await db.collection("customers").doc(plate).get();
+            if(!doc.exists) return;
+            const d = doc.data();
+            
+            const newName = prompt("עדכן שם פרטי:", d.fName);
+            const newPhone = prompt("עדכן טלפון:", d.phone);
+            
+            if(newName || newPhone) {
+                await db.collection("customers").doc(plate).update({
+                    fName: newName || d.fName,
+                    phone: newPhone || d.phone
+                });
+                alert("עודכן בהצלחה");
+            }
+        }
 
+        // עדכון סטטוס רכב
+        async function updateStat(plate, stat) {
+            if(!stat) return;
+            try {
+                await db.collection("customers").doc(plate).update({ status: stat });
+                alert("סטטוס עודכן ל: " + stat);
+            } catch (e) {
+                alert("שגיאה בעדכון: " + e.message);
+            }
+        }
+
+        // טעינת נתונים בזמן אמת
+        db.collection("customers").onSnapshot(snap => {
+            let totalValue = 0, pendingQuotes = 0, inGarage = 0;
             const list = document.getElementById('clientList'); list.innerHTML = "";
             const cards = document.getElementById('garageCards'); cards.innerHTML = "";
-            const sel = document.getElementById('selClient'); sel.innerHTML = '<option value="">בחר לקוח להצעה...</option>';
+            const sel = document.getElementById('selClient'); sel.innerHTML = '<option value="">בחר לקוח...</option>';
             const logs = document.getElementById('activityLog'); logs.innerHTML = "";
 
             snap.forEach(doc => {
                 const d = doc.data();
                 const plate = doc.id;
 
-                // עדכון רשימת לקוחות
+                // טבלת לקוחות
                 list.innerHTML += `
-                    <tr class="hover:bg-blue-50/50 transition-colors">
-                        <td class="p-5 font-bold text-slate-700">${d.fName} ${d.lName}</td>
-                        <td class="p-5 font-mono font-bold">${plate}</td>
-                        <td class="p-5 text-slate-500">${d.model || '-'} | ${d.year || '-'}</td>
-                        <td class="p-5 text-slate-500 ltr">${d.phone}</td>
-                        <td class="p-5"><button class="bg-slate-100 p-2 rounded-lg text-xs font-bold">ערוך</button></td>
+                    <tr class="hover:bg-blue-50/50">
+                        <td class="p-5 font-bold">${d.fName} ${d.lName}</td>
+                        <td class="p-5 font-mono">${plate}</td>
+                        <td class="p-5">${d.model || '-'}</td>
+                        <td class="p-5 ltr">${d.phone}</td>
+                        <td class="p-5"><button onclick="editClient('${plate}')" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">ערוך</button></td>
                     </tr>`;
 
-                sel.innerHTML += `<option value="${plate}">${d.fName} ${d.lName} [${plate}]</option>`;
+                sel.innerHTML += `<option value="${plate}">${d.fName} [${plate}]</option>`;
 
-                // חישוב הצעות מחיר
+                // הצעות מחיר וסטטיסטיקה
                 if (d.quotes) {
                     d.quotes.forEach(q => {
                         if (!q.signed) {
                             pendingQuotes++;
                             totalValue += (parseFloat(q.total) || 0);
-                        } else {
-                            // לוג פעילות חתימה
-                            logs.innerHTML += `
-                                <div class="flex items-center gap-4 p-4 bg-green-50 rounded-2xl border border-green-100">
-                                    <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center text-sm"><i class="fas fa-pen"></i></div>
-                                    <div>
-                                        <p class="text-sm font-black text-slate-800">${d.fName} חתם על הצעה בסך ₪${q.total}</p>
-                                        <p class="text-[10px] text-slate-500 font-bold">${q.approvalDate || ''}</p>
-                                    </div>
-                                </div>`;
+                        } else if (q.signature) {
+                            logs.innerHTML += `<div class="p-3 bg-green-50 rounded-xl text-sm mb-2 border-r-4 border-green-500"><b>${d.fName}</b> חתם על הצעה (₪${q.total})</div>`;
                         }
                     });
                 }
@@ -222,45 +240,47 @@
                 // רכבים במוסך
                 if (d.status && d.status !== "רשום במערכת") {
                     inGarage++;
-                    const hasSigned = d.quotes?.some(q => q.signed);
-                    cards.innerHTML += `
-                        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative">
-                            ${hasSigned ? '<div class="absolute -top-3 -left-3 bg-green-500 text-white p-2 rounded-full shadow-lg animate-bounce text-xs"><i class="fas fa-check"></i></div>' : ''}
-                            <h4 class="font-black text-xl mb-1">${d.fName} <span class="text-slate-300 font-normal">|</span> ${plate}</h4>
-                            <p class="text-slate-400 text-xs font-bold mb-4 uppercase">${d.model} | ${d.year}</p>
-                            
-                            <div class="mb-4 bg-slate-50 p-4 rounded-2xl">
-                                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">סטטוס נוכחי</p>
-                                <p class="font-black text-blue-600">${d.status}</p>
-                            </div>
+                    // בדיקה אם קיימת חתימה בהצעה האחרונה
+                    const lastQuote = d.quotes ? d.quotes[d.quotes.length - 1] : null;
+                    const signatureHTML = (lastQuote && lastQuote.signed && lastQuote.signature) 
+                        ? `<div class="mt-4 p-2 bg-slate-100 rounded-xl border border-dashed border-slate-300 text-center">
+                             <p class="text-[9px] font-black text-slate-500 uppercase mb-1">חתימת לקוח מאושרת:</p>
+                             <img src="${lastQuote.signature}" class="h-16 mx-auto">
+                           </div>` 
+                        : `<p class="text-[10px] text-red-400 mt-2 font-bold italic text-center">טרם התקבלה חתימה דיגיטלית</p>`;
 
-                            <select onchange="updateStat('${plate}', this.value)" class="w-full p-3 border rounded-xl text-xs font-bold bg-white outline-none ring-blue-100 focus:ring-2">
+                    cards.innerHTML += `
+                        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h4 class="font-black text-lg">${d.fName} | ${plate}</h4>
+                            <p class="text-blue-600 font-bold text-xs mb-4 italic">${d.status}</p>
+                            
+                            <select onchange="updateStat('${plate}', this.value)" class="w-full p-3 border rounded-xl text-xs font-bold bg-slate-50">
                                 <option value="">שנה סטטוס...</option>
                                 <option value="בעבודה">בטיפול פעיל</option>
                                 <option value="ממתין לחלקים">ממתין לחלקים</option>
                                 <option value="מוכן לאיסוף">מוכן לאיסוף</option>
-                                <option value="רשום במערכת">סיים ושחרר (ארכיון)</option>
+                                <option value="רשום במערכת">סיים ושחרר</option>
                             </select>
+                            
+                            ${signatureHTML}
                         </div>`;
                 }
             });
 
-            // עדכון כרטיסי דאשבורד
             document.getElementById('statGarageCount').innerText = inGarage;
             document.getElementById('statPendingQuotes').innerText = pendingQuotes;
             document.getElementById('statTotalValue').innerText = "₪" + totalValue.toLocaleString();
-            document.getElementById('statClientCount').innerText = totalClients;
-            
-            if (logs.innerHTML === "") logs.innerHTML = '<p class="text-sm text-slate-400 italic text-center py-4">אין פעילות מיוחדת היום...</p>';
+            document.getElementById('statClientCount').innerText = snap.size;
         });
 
+        // פונקציות הצעת מחיר
         function addRow() {
             const div = document.createElement('div');
-            div.className = "flex gap-4 quote-row items-center animate-in slide-in-from-right duration-300";
+            div.className = "flex gap-4 quote-row items-center mb-3";
             div.innerHTML = `
-                <div class="flex-[4]"><input type="text" placeholder="תיאור העבודה/חלק" class="w-full p-4 border rounded-2xl desc font-semibold"></div>
-                <div class="flex-1"><input type="number" oninput="calcTotal()" placeholder="מחיר" class="w-full p-4 border rounded-2xl price font-black text-blue-600"></div>
-                <button onclick="this.parentElement.remove(); calcTotal()" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>`;
+                <div class="flex-[4]"><input type="text" placeholder="תיאור" class="w-full p-4 border rounded-2xl desc"></div>
+                <div class="flex-1"><input type="number" oninput="calcTotal()" placeholder="מחיר" class="w-full p-4 border rounded-2xl price"></div>
+                <button onclick="this.parentElement.remove(); calcTotal()" class="text-red-400"><i class="fas fa-trash"></i></button>`;
             document.getElementById('rows').appendChild(div);
         }
 
@@ -270,15 +290,9 @@
             document.getElementById('quotePreviewTotal').innerText = "₪" + sum.toLocaleString();
         }
 
-        async function updateStat(plate, stat) {
-            if(!stat) return;
-            await db.collection("customers").doc(plate).update({ status: stat });
-        }
-
         async function sendQuote() {
             const plate = document.getElementById('selClient').value;
             if(!plate) return alert("בחר לקוח!");
-            
             const rows = document.querySelectorAll('.quote-row');
             let desc = "", total = 0;
             rows.forEach(r => {
@@ -286,21 +300,12 @@
                 const p = r.querySelector('.price').value;
                 if(d && p) { desc += d + " | "; total += parseFloat(p); }
             });
-
-            const newQuote = {
-                id: Date.now().toString(),
-                title: "הצעת מחיר מוסך ברע\"מ",
-                description: desc,
-                total: total,
-                signed: false,
-                createdAt: new Date().toLocaleString('he-IL')
-            };
-
+            const newQuote = { id: Date.now().toString(), title: "אישור עבודה - מוסך ברע\"מ", description: desc, total: total, signed: false, signature: "", createdAt: new Date().toLocaleString('he-IL') };
             await db.collection("customers").doc(plate).update({
                 quotes: firebase.firestore.FieldValue.arrayUnion(newQuote),
                 status: "ממתין לאישור הצעה"
             });
-            alert("ההצעה נשלחה בהצלחה!");
+            alert("נשלח בהצלחה!");
         }
     </script>
 </body>
