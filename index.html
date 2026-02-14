@@ -307,267 +307,219 @@
         </a>
     </div>
 
-    <script>
-        // אתחול Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
-            authDomain: "baram-vag-45e12.firebaseapp.com",
-            projectId: "baram-vag-45e12",
-            storageBucket: "baram-vag-45e12.firebasestorage.app",
-            messagingSenderId: "761383355945",
-            appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
+<script>
+    // אתחול Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDD7YAdTePRWYjwBbmy3gLRYd_OLDwpTL8",
+        authDomain: "baram-vag-45e12.firebaseapp.com",
+        projectId: "baram-vag-45e12",
+        storageBucket: "baram-vag-45e12.firebasestorage.app",
+        messagingSenderId: "761383355945",
+        appId: "1:761383355945:web:552554b5a6b9fe5e78be38"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let signaturePad;
+
+    // ניהול זמן ושעות פעילות
+    function updateGarageStatus() {
+        const now = new Date();
+        const day = now.getDay(); 
+        const hour = now.getHours() + now.getMinutes() / 60;
+        const statusText = document.getElementById('garageStatus');
+        const indicator = document.getElementById('statusIndicator');
+
+        document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+
+        if (day >= 0 && day <= 4 && hour >= 7.5 && hour < 15.5) {
+            statusText.innerText = "פתוח עכשיו (עד 15:30)";
+            statusText.className = "text-sm font-black text-green-600";
+            indicator.className = "status-dot status-open animate-pulse";
+        } else {
+            statusText.innerText = "המוסך סגור כרגע";
+            statusText.className = "text-sm font-black text-red-500";
+            indicator.className = "status-dot status-closed";
+        }
+    }
+    setInterval(updateGarageStatus, 1000);
+    updateGarageStatus();
+
+    const tips = [
+        "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ.",
+        "נורת 'Check Engine' דולקת? חייג אלינו לבדיקת מחשב.",
+        "החלפת נוזל קירור מקורי חיונית לשמירה על המנוע שלך.",
+        "בדיקת לחץ אוויר בצמיגים חוסכת דלק.",
+        "טיפול תקופתי כל שנה הוא המפתח לאמינות הרכב."
+    ];
+    document.getElementById('dailyTip').innerText = tips[Math.floor(Math.random() * tips.length)];
+
+    function openModal(id) { 
+        document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) { 
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    async function handleRegister() {
+        const plate = document.getElementById('rPlate').value.trim();
+        const idNum = document.getElementById('rID').value.trim();
+        if(!plate || !idNum) return alert("חובה למלא ת.ז ומספר רכב");
+
+        const customerData = {
+            fName: document.getElementById('rFName').value,
+            lName: document.getElementById('rLName').value,
+            id: idNum,
+            phone: document.getElementById('rPhone').value,
+            addr: document.getElementById('rAddr').value,
+            model: document.getElementById('rModel').value,
+            year: document.getElementById('rYear').value,
+            km: document.getElementById('rKm').value,
+            plate: plate,
+            nextT: "לא נקבע",
+            nextS: "לא נקבע",
+            messages: [],
+            quotes: []
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
 
-        let signaturePad;
+        try {
+            await db.collection("customers").doc(plate).set(customerData);
+            alert("נרשמת בהצלחה!");
+            closeModal('regModal');
+        } catch (err) { alert("שגיאה: " + err.message); }
+    }
 
-        // ניהול זמן ושעות פעילות
-        function updateGarageStatus() {
-            const now = new Date();
-            const day = now.getDay(); // 0-6 (Sunday is 0)
-            const hour = now.getHours() + now.getMinutes() / 60;
-            const statusText = document.getElementById('garageStatus');
-            const indicator = document.getElementById('statusIndicator');
+    async function handleLogin() {
+        const idInput = document.getElementById('lID').value.trim();
+        const plateInput = document.getElementById('lPlate').value.trim();
+        try {
+            const doc = await db.collection("customers").doc(plateInput).get();
+            if(doc.exists && doc.data().id === idInput) {
+                localStorage.setItem('userPlate', plateInput);
+                initPersonalArea(doc.data());
+                closeModal('loginModal');
+            } else { alert("פרטים שגויים"); }
+        } catch (err) { alert("שגיאה בחיבור"); }
+    }
 
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('he-IL', {
-                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-            });
-            document.getElementById('liveTime').innerText = now.toLocaleTimeString('he-IL', {
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
+    function initPersonalArea(user) {
+        document.getElementById('mainPage').classList.add('hidden');
+        document.getElementById('personalArea').classList.remove('hidden');
+        document.getElementById('welcomeName').innerText = `שלום, ${user.fName}`;
+        document.getElementById('carInfo').innerText = `${user.model || ''} | ${user.plate}`;
+        document.getElementById('pNextT').innerText = user.nextT || "--/--/----";
+        document.getElementById('pNextS').innerText = user.nextS || "--/--/----";
 
-            // ראשון עד חמישי, 07:30 עד 15:30
-            if (day >= 0 && day <= 4 && hour >= 7.5 && hour < 15.5) {
-                statusText.innerText = "פתוח עכשיו לשירותכם";
-                statusText.className = "text-sm font-black text-green-600";
-                indicator.className = "status-dot status-open animate-pulse";
-            } else {
-                statusText.innerText = "המוסך סגור כרגע";
-                statusText.className = "text-sm font-black text-red-500";
-                indicator.className = "status-dot status-closed";
-            }
-        }
-        setInterval(updateGarageStatus, 1000);
-        updateGarageStatus();
-
-        // טיפ יומי
-        const tips = [
-            "מומלץ לבדוק שמן מנוע ברכבי VAG פעם ב-1000 ק״מ או לפני נסיעה ארוכה.",
-            "נורת 'Check Engine' דולקת? אל תמשיך בנסיעה, חייג אלינו לבדיקת מחשב.",
-            "החלפת נוזל קירור מקורי מסוג G12/G13 חיונית לשמירה על ראש המנוע שלך.",
-            "בדיקת לחץ אוויר בצמיגים חוסכת עד 5% מצריכת הדלק של הרכב.",
-            "טיפול תקופתי כל 15,000 ק״מ או שנה הוא המפתח לאמינות רכבי קבוצת פולקסווגן."
-        ];
-        document.getElementById('dailyTip').innerText = tips[Math.floor(Math.random() * tips.length)];
-
-        // פונקציות עזר למודלים
-        function openModal(id) { 
-            document.getElementById(id).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        // הרשמה
-        async function handleRegister() {
-            const plate = document.getElementById('rPlate').value.trim();
-            const idNum = document.getElementById('rID').value.trim();
-            
-            if(!plate || !idNum) return alert("שדות חובה (ת.ז ומספר רכב) חסרים");
-
-            const customerData = {
-                fName: document.getElementById('rFName').value,
-                lName: document.getElementById('rLName').value,
-                id: idNum,
-                phone: document.getElementById('rPhone').value,
-                addr: document.getElementById('rAddr').value,
-                model: document.getElementById('rModel').value,
-                year: document.getElementById('rYear').value,
-                km: document.getElementById('rKm').value,
-                plate: plate,
-                nextT: "לא נקבע",
-                nextS: "לא נקבע",
-                messages: [],
-                quotes: [],
-                regDate: new Date().toISOString()
-            };
-
-            try {
-                await db.collection("customers").doc(plate).set(customerData);
-                alert("כרטיס לקוח נוצר בהצלחה! כעת תוכל להתחבר.");
-                closeModal('regModal');
-            } catch (err) {
-                alert("שגיאה ברישום: " + err.message);
-            }
-        }
-
-        // התחברות
-        async function handleLogin() {
-            const idInput = document.getElementById('lID').value.trim();
-            const plateInput = document.getElementById('lPlate').value.trim();
-
-            if(!idInput || !plateInput) return alert("נא להזין ת.ז ומספר רכב");
-
-            try {
-                const doc = await db.collection("customers").doc(plateInput).get();
-                if(doc.exists && doc.data().id === idInput) {
-                    localStorage.setItem('userPlate', plateInput);
-                    initPersonalArea(doc.data());
-                    closeModal('loginModal');
-                } else {
-                    alert("פרטי הזיהוי אינם תואמים את הרישומים שלנו.");
-                }
-            } catch (err) {
-                alert("שגיאה בחיבור: " + err.message);
-            }
-        }
-
-        // ניהול אזור אישי
-        function initPersonalArea(user) {
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('personalArea').classList.remove('hidden');
-            
-            document.getElementById('welcomeName').innerText = `שלום, ${user.fName} ${user.lName}`;
-            document.getElementById('carInfo').innerText = `${user.model || 'רכב VAG'} | ${user.plate}`;
-            document.getElementById('pNextT').innerText = user.nextT || "--/--/----";
-            document.getElementById('pNextS').innerText = user.nextS || "--/--/----";
-
-            // אתחול משטח חתימה
+        // אתחול קנבס חתימה עם השהייה קלה כדי לוודא שהאלמנט נראה
+        setTimeout(() => {
             const canvas = document.getElementById('sigPad');
-            signaturePad = new SignaturePad(canvas);
-            
-            // התאמת רזולוציית קנבס
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-
-            // טעינת נתונים חיים
-            loadActiveAppts(user.plate);
-            loadMessages(user.plate);
-            checkPendingQuotes(user.quotes || []);
-        }
-
-        // קביעת תור
-        async function bookAppt() {
-            const plate = localStorage.getItem('userPlate');
-            const date = document.getElementById('appDate').value;
-            const time = document.getElementById('appTime').value;
-
-            if(!date) return alert("נא לבחור תאריך הגעה");
-
-            try {
-                await db.collection("appointments").add({
-                    plate, date, time, 
-                    createdAt: new Date().toISOString(),
-                    status: "נקבע"
-                });
-                alert("התור נקבע בהצלחה! נתראה במוסך.");
-            } catch (err) {
-                alert("שגיאה בקביעת התור.");
-            }
-        }
-
-        // טעינת תורים פעילים
-        function loadActiveAppts(plate) {
-            db.collection("appointments").where("plate", "==", plate)
-              .onSnapshot(snap => {
-                const container = document.getElementById('activeAppts');
-                container.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-black text-gray-400 uppercase italic mb-2">תורים קרובים:</p>';
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-clock text-blue-500"></i>
-                                <span class="text-xs font-black text-blue-900 ltr">${data.date} | ${data.time}</span>
-                            </div>
-                            <button onclick="deleteAppt('${doc.id}')" class="text-red-400 text-[10px] font-black uppercase">ביטול</button>
-                        </div>
-                    `;
-                });
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)'
             });
-        }
+            resizeCanvas(canvas);
+        }, 300);
 
-        async function deleteAppt(id) {
-            if(confirm("האם לבטל את התור המתוכנן?")) {
-                await db.collection("appointments").doc(id).delete();
-            }
-        }
+        loadActiveAppts(user.plate);
+        loadMessages(user.plate);
+        checkPendingQuotes(user.quotes || []);
+    }
 
-        // טעינת הודעות
-        function loadMessages(plate) {
-            db.collection("customers").doc(plate).onSnapshot(doc => {
-                const data = doc.data();
+    function resizeCanvas(canvas) {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+        signaturePad.clear();
+    }
+
+    async function bookAppt() {
+        const plate = localStorage.getItem('userPlate');
+        const date = document.getElementById('appDate').value;
+        const time = document.getElementById('appTime').value;
+
+        if(!plate) return alert("שגיאת מערכת: התחבר מחדש");
+        if(!date) return alert("בחר תאריך");
+
+        try {
+            await db.collection("appointments").add({
+                plate: plate,
+                date: date,
+                time: time,
+                status: "ממתין"
+            });
+            alert("התור נקבע בהצלחה!");
+        } catch (err) { alert("שגיאה בשליחת התור"); }
+    }
+
+    function loadActiveAppts(plate) {
+        db.collection("appointments").where("plate", "==", plate).onSnapshot(snap => {
+            const container = document.getElementById('activeAppts');
+            container.innerHTML = snap.empty ? "" : '<p class="text-[10px] font-bold mb-2 uppercase">תורים קיימים:</p>';
+            snap.forEach(doc => {
+                const d = doc.data();
+                container.innerHTML += `<div class="bg-blue-50 p-3 rounded-xl flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold">${d.date} בשעה ${d.time}</span>
+                    <button onclick="deleteAppt('${doc.id}')" class="text-red-500 text-[10px]">ביטול</button>
+                </div>`;
+            });
+        });
+    }
+
+    async function deleteAppt(id) {
+        if(confirm("לבטל?")) await db.collection("appointments").doc(id).delete();
+    }
+
+    function loadMessages(plate) {
+        db.collection("customers").doc(plate).onSnapshot(doc => {
+            if(doc.exists && doc.data().messages) {
                 const list = document.getElementById('messagesList');
-                if(data.messages && data.messages.length > 0) {
-                    list.innerHTML = "";
-                    data.messages.reverse().forEach(msg => {
-                        list.innerHTML += `
-                            <div class="bg-gray-50 p-4 rounded-2xl border-r-4 border-blue-900 shadow-sm">
-                                <p class="text-[11px] font-bold text-gray-700 leading-relaxed">${msg.text}</p>
-                                <p class="text-[8px] text-gray-400 mt-2 font-black ltr">${msg.date || ''}</p>
-                            </div>
-                        `;
-                    });
+                const msgs = doc.data().messages;
+                if(msgs.length > 0) {
+                    list.innerHTML = msgs.map(m => `<div class="bg-gray-50 p-3 rounded-xl border-r-4 border-blue-900 text-xs">${m.text}</div>`).join('');
                 }
-            });
-        }
-
-        // הצעות מחיר ואישור
-        function checkPendingQuotes(quotes) {
-            const pending = quotes.find(q => !q.signed);
-            const area = document.getElementById('quoteArea');
-            if(pending) {
-                area.classList.remove('hidden');
-                document.getElementById('quoteContent').innerHTML = `
-                    <div class="flex justify-between border-b pb-2 mb-2 font-black">
-                        <span>${pending.title}</span>
-                        <span>₪${pending.total}</span>
-                    </div>
-                    <p class="opacity-70">${pending.description || 'תיאור עבודה מפורט במוסך'}</p>
-                `;
-                window.activeQuoteId = pending.id;
-            } else {
-                area.classList.add('hidden');
             }
+        });
+    }
+
+    function checkPendingQuotes(quotes) {
+        const pending = quotes.find(q => !q.signed);
+        if(pending) {
+            document.getElementById('quoteArea').classList.remove('hidden');
+            document.getElementById('quoteContent').innerText = `${pending.title}: ${pending.total} ש"ח`;
+            window.activeQuoteId = pending.id;
+        } else {
+            document.getElementById('quoteArea').classList.add('hidden');
         }
+    }
 
-        async function approveQuote() {
-            if(signaturePad.isEmpty()) return alert("נא לחתום בתיבה לאישור ההצעה");
+    async function approveQuote() {
+        if(!signaturePad || signaturePad.isEmpty()) return alert("נא לחתום לאישור");
+        const plate = localStorage.getItem('userPlate');
+        const sigData = signaturePad.toDataURL();
 
-            const plate = localStorage.getItem('userPlate');
-            const sigData = signaturePad.toDataURL();
-
-            try {
-                const docRef = db.collection("customers").doc(plate);
-                const doc = await docRef.get();
-                let quotes = doc.data().quotes;
-                
-                const qIndex = quotes.findIndex(q => q.id === window.activeQuoteId);
-                if(qIndex !== -1) {
-                    quotes[qIndex].signed = true;
-                    quotes[qIndex].signature = sigData;
-                    quotes[qIndex].approvalDate = new Date().toLocaleString('he-IL');
-                    
-                    await docRef.update({ quotes });
-                    alert("הצעת המחיר אושרה! הצוות עודכן ומתחיל בעבודה.");
-                    document.getElementById('quoteArea').classList.add('hidden');
-                }
-            } catch (err) {
-                alert("שגיאה בתהליך האישור.");
+        try {
+            const docRef = db.collection("customers").doc(plate);
+            const doc = await docRef.get();
+            let quotes = doc.data().quotes;
+            const idx = quotes.findIndex(q => q.id === window.activeQuoteId);
+            
+            if(idx !== -1) {
+                quotes[idx].signed = true;
+                quotes[idx].signature = sigData;
+                await docRef.update({ quotes });
+                alert("ההצעה אושרה וחתול נשלח למוסך!");
+                document.getElementById('quoteArea').classList.add('hidden');
             }
-        }
+        } catch (err) { alert("שגיאה באישור ההצעה"); }
+    }
 
-        function logout() {
-            if(confirm("להתנתק מהאזור האישי?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-    </script>
+    function logout() { localStorage.clear(); location.reload(); }
+</script>
+
 </body>
 </html>
